@@ -37,9 +37,9 @@
                 </div>
             </a>
 
-             <!-- Products (Example) -->
-             <a href="#" 
-               class="flex items-center px-4 py-3 rounded-lg group transition-colors text-gray-400 hover:bg-gray-800 hover:text-white">
+             <!-- Products -->
+             <a href="{{ route('admin.products.index') }}" 
+               class="flex items-center px-4 py-3 rounded-lg group transition-colors {{ request()->routeIs('admin.products.*') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Products</span>
             </a>
