@@ -15,8 +15,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            UserSeeder::class,
-        ]);
+        // Setup Placeholder
+        $placeholderPath = storage_path('app/public/placeholders');
+        if (!file_exists($placeholderPath)) {
+             mkdir($placeholderPath, 0755, true);
+        }
+        copy(public_path('images/logo.jpg'), $placeholderPath . '/logo.jpg');
+
+        // Create Admin User if not exists
+        if (!User::where('email', 'admin@admin.com')->exists()) {
+             User::factory()->create([
+                'name' => 'Admin',
+                'email' => 'admin@admin.com',
+            ]);
+        }
+        
+        \App\Models\Category::factory(10)->create();
+        \App\Models\Brand::factory(10)->create();
+        \App\Models\Product::factory(50)->create();
     }
 }
