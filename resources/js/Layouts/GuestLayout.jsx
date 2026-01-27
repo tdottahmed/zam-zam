@@ -11,8 +11,11 @@ export default function GuestLayout({ children }) {
 
             <div className="relative z-10 w-full sm:max-w-md mt-6 px-6 py-8 bg-white/10 shadow-2xl overflow-hidden sm:rounded-xl backdrop-blur-md border border-white/20">
                 <div className="flex justify-center mb-8">
-                    <Link href="/">
-                        <ApplicationLogo className="w-20 h-20 fill-current text-white drop-shadow-lg" />
+                    <Link href="/" className="flex flex-col items-center">
+                        <ApplicationLogo className="w-24 h-24 drop-shadow-lg" />
+                        <span className="mt-4 text-xl font-bold text-white text-center tracking-wider drop-shadow-md">
+                            Zam Zam Import export Inc
+                        </span>
                     </Link>
                 </div>
                 {children}

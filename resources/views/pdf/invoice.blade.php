@@ -192,7 +192,7 @@
     <div style="background-color: #ccffcc; width: 100%;">
       <div class="header-top">
         <div class="logo-container">
-          <img src="{{ public_path('images/logo.jpg') }}" alt="Super Asia Logo" class="logo">
+          <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="logo">
         </div>
         <div class="flavor-text">Flavors of the World.</div>
       </div>
@@ -234,7 +234,7 @@
   <!-- Define Footer -->
   <htmlpagefooter name="page-footer">
     <div class="page-footer-content">
-      <div>Super Asia Foods | 8905 Hwy 50 , Unit 7, Vaughan , Ontario (CA) L4H 5A1 , Canada | +1 416-746-5550</div>
+      <div>Zam Zam Import export Inc | 8905 Hwy 50 , Unit 7, Vaughan , Ontario (CA) L4H 5A1 , Canada | +1 416-746-5550</div>
       <div>Email: hello@superasia.ca | Web: http://www.superasia.ca | HST:847720521RT0001</div>
       <div style="margin-top: 5px;">Page: {PAGENO} / {nbpg}</div>
     </div>

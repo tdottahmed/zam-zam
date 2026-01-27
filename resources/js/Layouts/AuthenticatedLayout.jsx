@@ -30,8 +30,11 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-[#C41E3A] drop-shadow-sm" />
+                                <Link href="/" className="flex items-center gap-3">
+                                    <ApplicationLogo className="block h-10 w-auto drop-shadow-sm" />
+                                    <span className="text-lg font-bold text-gray-800 dark:text-white leading-tight hidden lg:block">
+                                        Zam Zam Import<br />export Inc
+                                    </span>
                                 </Link>
                             </div>
 

@@ -20,7 +20,7 @@ export default function Dashboard() {
                     {/* Welcome Banner */}
                     <div className="overflow-hidden bg-gradient-to-r from-[#C41E3A] to-[#E02443] rounded-2xl shadow-lg relative text-white">
                         <div className="p-8 md:p-12 relative z-10">
-                            <h3 className="text-3xl font-bold mb-2">Welcome back, {user.name}!</h3>
+                            <h3 className="text-3xl font-bold mb-2">Welcome to Zam Zam Import export Inc, {user.name}!</h3>
                             <p className="text-red-100 text-lg opacity-90">
                                 {user.user_type === 'admin' 
                                     ? "Manage your store, track orders, and oversee operations." 

@@ -3,15 +3,15 @@ import { Link, Head } from '@inertiajs/react';
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     return (
         <>
-            <Head title="Super Asia Foods - Landing Page" />
+            <Head title="Zam Zam Import export Inc - Landing Page" />
             <div className="font-sans text-[#333333] antialiased bg-white selection:bg-[#C41E3A] selection:text-white">
                 
                 {/* Header */}
                 <nav className="flex items-center justify-between px-12 py-4 bg-white shadow-sm sticky top-0 z-50">
                     <div className="flex items-center">
-                        {/* Logo Placeholder */}
+                        {/* Logo */}
                         <div className="text-2xl font-bold text-[#C41E3A]">
-                            Super Asia Foods
+                             <img src="/images/Zam_logo-120x99.png" alt="Zam Zam Import export Inc" className="h-16 w-auto" />
                         </div>
                     </div>
                     <div className="hidden md:flex space-x-8 font-medium text-gray-700">
@@ -106,7 +106,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 {/* Value Proposition */}
                 <section className="py-20 px-12 bg-white">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold mb-4">Why Partner with Super Asia Foods?</h2>
+                        <h2 className="text-3xl font-bold mb-4">Why Partner with Zam Zam Import export Inc?</h2>
                         <p className="text-gray-600 max-w-2xl mx-auto">
                             We make it easy for you to stock your shelves with the best products from South Asia.
                         </p>
@@ -147,7 +147,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div>
                         <h2 className="text-3xl font-bold mb-6">Bringing South Asia to Canada</h2>
                         <p className="text-gray-600 mb-6 leading-relaxed">
-                            Super Asia Foods is committed to delivering high-quality products from South Asia to the Canadian market. We bridge the gap between authentic ethnic flavors and local retailers, ensuring that communities across Canada have access to the brands they love.
+                            Zam Zam Import export Inc is committed to delivering high-quality products from South Asia to the Canadian market. We bridge the gap between authentic ethnic flavors and local retailers, ensuring that communities across Canada have access to the brands they love.
                         </p>
                         <button className="text-[#C41E3A] font-bold hover:underline">Learn More About Us &rarr;</button>
                     </div>
@@ -181,7 +181,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                          <div>
                             <h3 className="text-white font-bold mb-4 uppercase tracking-wider">About</h3>
                             <p className="mb-6 text-sm leading-relaxed">
-                                Discover the true taste of South Asia with Super Asia Foods. Your trusted partner for authentic ethnic distribution.
+                                Discover the true taste of South Asia with Zam Zam Import export Inc. Your trusted partner for authentic ethnic distribution.
                             </p>
                             <div className="flex space-x-4">
                                 <span>FB</span> <span>IG</span> <span>LI</span>
@@ -207,7 +207,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                          </div>
                     </div>
                     <div className="border-t border-gray-800 pt-8 text-center text-xs">
-                        Copyright © Super Asia Foods. Powered by Laravel & Inertia.
+                        Copyright © Zam Zam Import export Inc. Powered by Laravel & Inertia.
                     </div>
                 </footer>
             </div>

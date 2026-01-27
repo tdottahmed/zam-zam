@@ -5,11 +5,13 @@
     >
         <!-- Logo Area -->
         <div class="h-20 flex items-center justify-center border-b border-gray-800 relative bg-[#C41E3A]">
-             <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2 overflow-hidden">
+             <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-2 overflow-hidden px-4">
                 <!-- Icon -->
-                <svg class="w-8 h-8 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                <img src="{{ asset('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="h-12 w-auto object-contain bg-white rounded-sm p-0.5">
                 
-                <span class="text-xl font-bold tracking-wider whitespace-nowrap" x-show="sidebarOpen" x-transition.opacity.duration.300ms>Super Asia</span>
+                <span class="text-sm font-bold tracking-wider leading-tight text-white" x-show="sidebarOpen" x-transition.opacity.duration.300ms>
+                    Zam Zam Import<br>export Inc
+                </span>
              </a>
         </div>
 

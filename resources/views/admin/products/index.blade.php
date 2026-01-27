@@ -5,31 +5,70 @@
 @endsection
 
 @section('content')
-
     <x-admin.ui.section-header>
         All Products
         <x-slot:description>
             Manage your product inventory here.
         </x-slot:description>
-        <x-slot:actions>
-             <x-admin.actions.button href="{{ route('admin.products.create') }}" variant="primary">
-                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                 Add Product
-             </x-admin.actions.button>
-        </x-slot:actions>
     </x-admin.ui.section-header>
 
     <x-admin.ui.card>
         <x-admin.ui.table>
             <x-slot:search>
-                <form method="GET" action="{{ route('admin.products.index') }}" class="w-full max-w-sm">
-                    <div class="relative">
-                        <x-admin.form.input name="search" value="{{ request('search') }}" placeholder="Search products..." class="pl-10" />
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </span>
+                <div class="w-full space-y-4">
+                    <!-- Top Row: Filters & Main Actions -->
+                    <div class="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+                        <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                            <div class="w-full sm:w-48">
+                                <x-admin.form.select name="filter_by" :options="[
+                                    'name' => 'Name',
+                                    'product_code' => 'Code',
+                                    'weight' => 'Weight',
+                                    'box_price' => 'Box Price',
+                                    'unit_price' => 'Unit Price'
+                                ]" placeholder="Filter By" :selected="request('filter_by')" />
+                            </div>
+                            <div class="w-full sm:w-64 relative">
+                                <x-admin.form.input name="search" value="{{ request('search') }}" placeholder="Enter value" />
+                                <button type="submit" class="absolute right-0 top-0 bottom-0 px-3 text-gray-500 hover:text-red-600">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="flex gap-2 w-full lg:w-auto justify-end">
+                            <x-admin.actions.button href="{{ route('admin.products.create') }}" variant="secondary">
+                                New Entry
+                            </x-admin.actions.button>
+                            <x-admin.actions.button variant="primary">
+                                Export
+                            </x-admin.actions.button>
+                        </div>
                     </div>
-                </form>
+
+                    <!-- Bottom Row: Invoice Actions -->
+                    <div class="pt-4 border-t border-gray-100 flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
+                        <!-- Customer Invoice -->
+                        <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto items-center">
+                            <div class="w-full sm:w-64">
+                                <x-admin.form.select-search name="customer_id" placeholder="Select Customer" :options="[]" />
+                            </div>
+                            <x-admin.actions.button variant="primary" size="md">
+                                Send To Invoice
+                            </x-admin.actions.button>
+                        </div>
+
+                         <!-- Add to Invoice -->
+                         <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto items-center justify-end">
+                            <div class="w-full sm:w-64">
+                                <x-admin.form.select-search name="invoice_id" placeholder="Select Invoice/Customer" :options="[]" />
+                            </div>
+                            <x-admin.actions.button variant="secondary" size="md">
+                                Add To Invoice
+                            </x-admin.actions.button>
+                        </div>
+                    </div>
+                </div>
             </x-slot:search>
 
             <x-slot:head>
@@ -83,5 +122,4 @@
             {{ $products->links() }}
         </div>
     </x-admin.ui.card>
-
 @endsection

@@ -14,11 +14,19 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $filterBy = $request->input('filter_by');
 
         $products = Product::query()
-            ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('product_code', 'like', "%{$search}%");
+            ->when($search, function ($query, $search) use ($filterBy) {
+                if ($filterBy && in_array($filterBy, ['name', 'product_code', 'weight', 'box_price', 'unit_price'])) {
+                    $query->where($filterBy, 'like', "%{$search}%");
+                } else {
+                    $query->where(function($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                          ->orWhere('product_code', 'like', "%{$search}%")
+                          ->orWhere('weight', 'like', "%{$search}%");
+                    });
+                }
             })
             ->latest()
             ->paginate(10)
