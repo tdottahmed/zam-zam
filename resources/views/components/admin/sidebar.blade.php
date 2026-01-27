@@ -46,6 +46,20 @@
                 <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Products</span>
             </a>
 
+            <!-- Categories -->
+             <a href="{{ route('admin.categories.index') }}" 
+               class="flex items-center px-4 py-3 rounded-lg group transition-colors {{ request()->routeIs('admin.categories.*') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Categories</span>
+            </a>
+
+            <!-- Brands -->
+             <a href="{{ route('admin.brands.index') }}" 
+               class="flex items-center px-4 py-3 rounded-lg group transition-colors {{ request()->routeIs('admin.brands.*') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Brands</span>
+            </a>
+
              <!-- Users (Example) -->
              <a href="#" 
                class="flex items-center px-4 py-3 rounded-lg group transition-colors text-gray-400 hover:bg-gray-800 hover:text-white">
