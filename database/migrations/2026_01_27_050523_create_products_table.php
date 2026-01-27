@@ -13,12 +13,15 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('product_code')->nullable();
             $table->string('name');
-            $table->decimal('box_price', 10, 2);
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('buying_price', 10, 2)->nullable();
             $table->string('weight')->nullable(); // e.g. 248GM
-            $table->string('packaging')->nullable(); // e.g. BOX 24
+            $table->string('pcs_in_ctn')->nullable(); // PC's In (CTN/BAG)
+            $table->decimal('box_price', 10, 2)->nullable();
+            $table->decimal('unit_price', 10, 2)->nullable();
+            $table->decimal('tax', 10, 2)->nullable();
+            $table->decimal('buying_price', 10, 2)->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

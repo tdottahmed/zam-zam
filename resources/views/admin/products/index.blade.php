@@ -23,29 +23,36 @@
         <x-admin.ui.table>
             <x-slot:search>
                 <form method="GET" action="{{ route('admin.products.index') }}" class="w-full max-w-sm">
-                    <x-admin.form.input name="search" value="{{ request('search') }}" placeholder="Search products..." />
+                    <div class="relative">
+                        <x-admin.form.input name="search" value="{{ request('search') }}" placeholder="Search products..." class="pl-10" />
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                    </div>
                 </form>
             </x-slot:search>
 
             <x-slot:head>
+                <x-admin.ui.th>Code</x-admin.ui.th>
                 <x-admin.ui.th>Product Name</x-admin.ui.th>
+                <x-admin.ui.th>Weight</x-admin.ui.th>
+                <x-admin.ui.th>Packing</x-admin.ui.th>
                 <x-admin.ui.th>Box Price</x-admin.ui.th>
                 <x-admin.ui.th>Unit Price</x-admin.ui.th>
-                <x-admin.ui.th>Weight</x-admin.ui.th>
-                <x-admin.ui.th>Packaging</x-admin.ui.th>
                 <x-admin.ui.th class="text-right">Actions</x-admin.ui.th>
             </x-slot:head>
 
             <x-slot:body>
                 @forelse($products as $product)
                     <tr class="hover:bg-gray-50/50 transition-colors">
+                        <x-admin.ui.td class="font-mono text-xs text-gray-500">{{ $product->product_code }}</x-admin.ui.td>
                         <x-admin.ui.td>
                             <span class="font-medium text-gray-900">{{ $product->name }}</span>
                         </x-admin.ui.td>
+                        <x-admin.ui.td>{{ $product->weight }}</x-admin.ui.td>
+                        <x-admin.ui.td>{{ $product->pcs_in_ctn }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->box_price, 2) }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->unit_price, 2) }}</x-admin.ui.td>
-                        <x-admin.ui.td>{{ $product->weight }}</x-admin.ui.td>
-                        <x-admin.ui.td>{{ $product->packaging }}</x-admin.ui.td>
                         <x-admin.ui.td class="text-right">
                              <div class="flex items-center justify-end gap-2">
                                 <x-admin.actions.icon-button href="{{ route('admin.products.edit', $product) }}" variant="secondary" size="sm">
@@ -64,7 +71,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                             No products found.
                         </td>
                     </tr>

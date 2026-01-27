@@ -18,7 +18,7 @@ class ProductController extends Controller
         $products = Product::query()
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('weight', 'like', "%{$search}%");
+                      ->orWhere('product_code', 'like', "%{$search}%");
             })
             ->latest()
             ->paginate(10)
@@ -42,11 +42,14 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'box_price' => 'required|numeric|min:0',
-            'unit_price' => 'required|numeric|min:0',
-            'buying_price' => 'nullable|numeric|min:0',
+            'product_code' => 'nullable|string|max:255',
             'weight' => 'nullable|string|max:255',
-            'packaging' => 'nullable|string|max:255',
+            'pcs_in_ctn' => 'nullable|string|max:255',
+            'box_price' => 'nullable|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'buying_price' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
         ]);
 
         Product::create($validated);
@@ -70,11 +73,14 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'box_price' => 'required|numeric|min:0',
-            'unit_price' => 'required|numeric|min:0',
-            'buying_price' => 'nullable|numeric|min:0',
+            'product_code' => 'nullable|string|max:255',
             'weight' => 'nullable|string|max:255',
-            'packaging' => 'nullable|string|max:255',
+            'pcs_in_ctn' => 'nullable|string|max:255',
+            'box_price' => 'nullable|numeric|min:0',
+            'unit_price' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'buying_price' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
         ]);
 
         $product->update($validated);
