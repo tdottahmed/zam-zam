@@ -71,12 +71,10 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Packaging & Units -->
+                <!-- Section 2: Packaging & Stock Management -->
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Packaging & Structure</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
- 
-
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Packaging & Stock Management</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                          <!-- Unit Select -->
                         <div>
                             <x-admin.form.select-search 
@@ -96,13 +94,7 @@
                             <p class="text-xs text-gray-500 mt-1">master_packaging</p>
                             <x-admin.form.input-error :messages="$errors->get('pcs_in_ctn')" class="mt-2" />
                         </div>
-                    </div>
-                </div>
 
-                <!-- Section 3: Inventory -->
-                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Inventory Management</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Initial Stock -->
                         <div>
                             <x-admin.form.label for="quantity" value="Initial Stock Quantity" />
@@ -121,7 +113,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Wholesale Pricing Engine -->
+                <!-- Section 3: Wholesale Pricing Engine -->
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 shadow-sm">
                     <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-2">
                          <h3 class="text-lg font-medium text-blue-900">Wholesale Pricing Engine</h3>
@@ -193,7 +185,7 @@
                     </div>
                 </div>
 
-                <!-- Section 5: Additional -->
+                <!-- Section 4: Additional -->
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Additional Details</h3>
                     <div>

@@ -39,6 +39,7 @@ class ProductSeeder extends Seeder
             $product->unit_id = $unit ? $unit->id : null;
             $product->unit_value = rand(1, 10) * 100; // e.g. 100, 200... 1000
             unset($product->weight); // Remove weight property if factory generates it
+            unset($product->tax);
             $taxRate = $tax ? $tax->value : 0;
 
             // Generate prices

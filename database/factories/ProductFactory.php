@@ -24,7 +24,7 @@ class ProductFactory extends Factory
             'pcs_in_ctn' => $this->faker->randomElement(['12', '24', '48']),
             'box_price' => $this->faker->randomFloat(2, 50, 200),
             'unit_price' => $this->faker->randomFloat(2, 5, 20),
-            'tax' => $this->faker->randomFloat(2, 0, 5),
+
             'buying_price' => $this->faker->randomFloat(2, 3, 15),
             'notes' => $this->faker->sentence(),
         ];
