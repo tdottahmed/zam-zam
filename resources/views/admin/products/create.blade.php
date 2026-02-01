@@ -75,23 +75,17 @@
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Packaging & Structure</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                         <!-- Unit Value -->
-                         <div>
-                            <x-admin.form.label for="unit_value" value="Unit Size" />
-                            <div class="flex">
-                                <x-admin.form.input id="unit_value" name="unit_value" type="number" step="0.01" :value="old('unit_value')" placeholder="e.g. 500" class="rounded-r-none" />
-                                <div class="w-24">
-                                     <select id="unit_id" name="unit_id" class="block w-full border-l-0 rounded-l-none border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                        <option value="">Unit</option>
-                                        @foreach($units as $unit)
-                                            <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                                {{ $unit->code }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <x-admin.form.input-error :messages="$errors->get('unit_value')" class="mt-2" />
+ 
+
+                         <!-- Unit Select -->
+                        <div>
+                            <x-admin.form.select-search 
+                                name="unit_id" 
+                                label="Unit" 
+                                :options="$units->pluck('code', 'id')" 
+                                :selected="old('unit_id')"
+                                placeholder="Select Unit"
+                            />
                             <x-admin.form.input-error :messages="$errors->get('unit_id')" class="mt-2" />
                         </div>
 
@@ -105,7 +99,29 @@
                     </div>
                 </div>
 
-                <!-- Section 3: Wholesale Pricing Engine -->
+                <!-- Section 3: Inventory -->
+                <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Inventory Management</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Initial Stock -->
+                        <div>
+                            <x-admin.form.label for="quantity" value="Initial Stock Quantity" />
+                            <x-admin.form.input id="quantity" name="quantity" type="number" :value="old('quantity', 0)" />
+                            <p class="text-xs text-gray-500 mt-1">Current stock on hand.</p>
+                            <x-admin.form.input-error :messages="$errors->get('quantity')" class="mt-2" />
+                        </div>
+
+                        <!-- Alert Quantity -->
+                        <div>
+                            <x-admin.form.label for="alert_quantity" value="Low Stock Alert Level" />
+                            <x-admin.form.input id="alert_quantity" name="alert_quantity" type="number" :value="old('alert_quantity')" placeholder="e.g. 10" />
+                            <p class="text-xs text-gray-500 mt-1">Get notified when stock drops below this.</p>
+                            <x-admin.form.input-error :messages="$errors->get('alert_quantity')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Wholesale Pricing Engine -->
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 shadow-sm">
                     <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-2">
                          <h3 class="text-lg font-medium text-blue-900">Wholesale Pricing Engine</h3>
@@ -177,7 +193,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Additional -->
+                <!-- Section 5: Additional -->
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Additional Details</h3>
                     <div>

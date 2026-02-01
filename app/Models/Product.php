@@ -21,6 +21,8 @@ class Product extends Model
         'unit_price',
         'tax_id',
         'buying_price',
+        'quantity',
+        'alert_quantity',
         'notes',
     ];
 
