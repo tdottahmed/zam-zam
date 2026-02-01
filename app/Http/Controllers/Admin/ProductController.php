@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Brand;
 use App\Models\Product;
+use App\Models\Tax;
+use App\Models\SystemSetting;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -16,15 +21,14 @@ class ProductController extends Controller
         $search = $request->input('search');
         $filterBy = $request->input('filter_by');
 
-        $products = Product::query()
+        $products = Product::with(['tax', 'unit', 'category', 'brand'])
             ->when($search, function ($query, $search) use ($filterBy) {
-                if ($filterBy && in_array($filterBy, ['name', 'product_code', 'weight', 'box_price', 'unit_price'])) {
+                if ($filterBy && in_array($filterBy, ['name', 'product_code', 'unit_value', 'box_price', 'unit_price'])) {
                     $query->where($filterBy, 'like', "%{$search}%");
                 } else {
                     $query->where(function($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('product_code', 'like', "%{$search}%")
-                          ->orWhere('weight', 'like', "%{$search}%");
+                          ->orWhere('product_code', 'like', "%{$search}%");
                     });
                 }
             })
@@ -40,7 +44,15 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        $taxes = Tax::where('is_active', true)->get();
+        $units = Unit::where('is_active', true)->get();
+        $categories = Category::where('status', true)->get();
+        $brands = Brand::where('status', true)->get();
+        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
+            ->where('key', 'default_profit_margin')
+            ->value('value');
+
+        return view('admin.products.create', compact('taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
     }
 
     /**
@@ -51,11 +63,14 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'product_code' => 'nullable|string|max:255',
-            'weight' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'unit_value' => 'nullable|numeric|min:0',
+            'unit_id' => 'nullable|exists:units,id',
             'pcs_in_ctn' => 'nullable|string|max:255',
             'box_price' => 'nullable|numeric|min:0',
             'unit_price' => 'nullable|numeric|min:0',
-            'tax' => 'nullable|numeric|min:0',
+            'tax_id' => 'nullable|exists:taxes,id',
             'buying_price' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
@@ -71,7 +86,15 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $taxes = Tax::where('is_active', true)->get();
+        $units = Unit::where('is_active', true)->get();
+        $categories = Category::where('status', true)->get();
+        $brands = Brand::where('status', true)->get();
+        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
+            ->where('key', 'default_profit_margin')
+            ->value('value');
+
+        return view('admin.products.edit', compact('product', 'taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
     }
 
     /**
@@ -82,11 +105,14 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'product_code' => 'nullable|string|max:255',
-            'weight' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'unit_value' => 'nullable|numeric|min:0',
+            'unit_id' => 'nullable|exists:units,id',
             'pcs_in_ctn' => 'nullable|string|max:255',
             'box_price' => 'nullable|numeric|min:0',
             'unit_price' => 'nullable|numeric|min:0',
-            'tax' => 'nullable|numeric|min:0',
+            'tax_id' => 'nullable|exists:taxes,id',
             'buying_price' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);

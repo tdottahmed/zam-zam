@@ -29,6 +29,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     Route::resource('brands', \App\Http\Controllers\Admin\BrandController::class);
+    Route::resource('taxes', \App\Http\Controllers\Admin\TaxController::class);
+    Route::resource('profit-margins', \App\Http\Controllers\Admin\ProfitMarginController::class); // Cleanup old if exists
+    Route::get('profit-margin', [\App\Http\Controllers\Admin\ProfitMarginController::class, 'index'])->name('profit-margin.index');
+    Route::put('profit-margin', [\App\Http\Controllers\Admin\ProfitMarginController::class, 'update'])->name('profit-margin.update');
+    Route::resource('units', \App\Http\Controllers\Admin\UnitController::class);
 });
 
 require __DIR__.'/auth.php';

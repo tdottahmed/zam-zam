@@ -1,5 +1,5 @@
 <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-    @if($search)
+    @if(isset($search) && $search->isNotEmpty())
         <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
              {{ $search }}
         </div>

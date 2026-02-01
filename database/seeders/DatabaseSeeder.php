@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
+            TaxSeeder::class,
+            SystemSettingSeeder::class,
         ]);
     }
 }
