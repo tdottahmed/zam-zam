@@ -74,7 +74,6 @@
             <x-slot:head>
                 <x-admin.ui.th>Code</x-admin.ui.th>
                 <x-admin.ui.th>Product Name</x-admin.ui.th>
-                <x-admin.ui.th>Weight</x-admin.ui.th>
                 <x-admin.ui.th>Packing</x-admin.ui.th>
                 <x-admin.ui.th>Box Price</x-admin.ui.th>
                 <x-admin.ui.th>Unit Price</x-admin.ui.th>
@@ -88,7 +87,6 @@
                         <x-admin.ui.td>
                             <span class="font-medium text-gray-900">{{ $product->name }}</span>
                         </x-admin.ui.td>
-                        <x-admin.ui.td>{{ $product->weight }}</x-admin.ui.td>
                         <x-admin.ui.td>{{ $product->pcs_in_ctn }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->box_price, 2) }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->unit_price, 2) }}</x-admin.ui.td>

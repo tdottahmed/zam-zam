@@ -20,7 +20,6 @@ class ProductFactory extends Factory
         return [
             'name' => ucfirst($name),
             'product_code' => strtoupper($this->faker->bothify('PRO-????-####')),
-            'weight' => $this->faker->randomElement(['240GM', '500GM', '1KG', '5KG']),
             'pcs_in_ctn' => $this->faker->randomElement(['12', '24', '48']),
             'box_price' => $this->faker->randomFloat(2, 50, 200),
             'unit_price' => $this->faker->randomFloat(2, 5, 20),

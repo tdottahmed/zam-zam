@@ -38,26 +38,19 @@ class ProductSeeder extends Seeder
             $unit = $units->count() > 0 ? $units->random() : null;
             $product->unit_id = $unit ? $unit->id : null;
             $product->unit_value = rand(1, 10) * 100; // e.g. 100, 200... 1000
-            unset($product->weight); // Remove weight property if factory generates it
-            unset($product->tax);
-            $taxRate = $tax ? $tax->value : 0;
 
-            // Generate prices
             // Buying Price (Cost)
             $buyingPrice = rand(10, 500); 
             $product->buying_price = $buyingPrice;
-            $product->box_price = $buyingPrice; // Assuming box price is same as buying price for now, or could be distinct
+            $product->box_price = $buyingPrice; 
+
+            // quantity and alert quantity
+            $product->quantity = rand(20, 100);
+            $product->alert_quantity = rand(1, 10);
 
             // Calculate Selling Price with Profit Margin
-            // Selling Price = Buying Price + Profit
-            // Profit = Buying Price * (Margin / 100)
             $marginAmount = $buyingPrice * ($profitMargin / 100);
             $baseSellingPrice = $buyingPrice + $marginAmount;
-
-            // Unit Price (Final Selling Price)
-            // If we want to include tax in the display price, formula depends on business logic. 
-            // Usually Unit Price is the shelf price. If tax is exclusive, it's Base Selling Price.
-            // If inclusive? Let's assume Unit Price is the base selling price.
             $product->unit_price = number_format($baseSellingPrice, 2, '.', '');
             
             $product->save();

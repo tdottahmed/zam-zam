@@ -25,10 +25,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             AdminSeeder::class,
+            TaxSeeder::class,
             CategorySeeder::class,
             BrandSeeder::class,
+            UnitSeeder::class,
             ProductSeeder::class,
-            TaxSeeder::class,
             SystemSettingSeeder::class,
         ]);
     }
