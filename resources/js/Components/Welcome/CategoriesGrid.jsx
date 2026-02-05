@@ -1,3 +1,5 @@
+import StorageImage from '../StorageImage';
+
 export default function CategoriesGrid({ categories = [] }) {
     // Default categories if none provided
     const defaultCategories = [
@@ -25,7 +27,7 @@ export default function CategoriesGrid({ categories = [] }) {
                         <div className="text-4xl mb-4 group-hover:scale-110 transition">
                             {/* If dynamic, we might have an image or icon field. For now checking if it's an object with icon or image */}
                             {cat.image ? (
-                                <img src={`/storage/${cat.image}`} alt={cat.name} className="h-12 w-auto mx-auto object-contain" />
+                                <StorageImage path={cat.image} name={cat.name || cat.label} className="h-12 w-auto mx-auto object-contain" />
                             ) : (
                                 cat.icon || "📦" // Fallback icon
                             )}

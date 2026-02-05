@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import StorageImage from '../StorageImage';
 
 export default function BrandsGrid({ brands = [] }) {
     return (
@@ -12,20 +13,19 @@ export default function BrandsGrid({ brands = [] }) {
             <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center justify-items-center opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
                 {brands.length > 0 ? (
                     brands.map((brand) => (
-                        <div key={brand.id} className="text-xl font-bold text-gray-400 hover:text-[#C41E3A] cursor-pointer text-center">
-                            {/* Assuming brand has name and logic for image if needed, for now just name as per old code but dynamic */}
-                            {brand.logo ? (
-                                <img src={`/storage/${brand.logo}`} alt={brand.name} className="h-16 w-auto object-contain" />
-                            ) : (
-                                <span>{brand.name}</span>
-                            )}
+                        <div key={brand.id} className="text-xl font-bold text-gray-400 hover:text-[#C41E3A] cursor-pointer text-center flex justify-center">
+                            <StorageImage 
+                                path={brand.logo} 
+                                name={brand.name} 
+                                className="h-16 w-auto object-contain" 
+                            />
                         </div>
                     ))
                 ) : (
                     // Fallback to static if no brands passed (or during dev while empty DB)
                      ["Handi", "Mitchells", "EBM", "Shan", "Nestle", "Dawn Bread"].map((brand) => (
-                        <div key={brand} className="text-xl font-bold text-gray-400 hover:text-[#C41E3A] cursor-pointer">
-                            {brand}
+                        <div key={brand} className="text-xl font-bold text-gray-400 hover:text-[#C41E3A] cursor-pointer flex justify-center">
+                            <StorageImage path={null} name={brand} className="h-16 w-auto object-contain" />
                         </div>
                     ))
                 )}
