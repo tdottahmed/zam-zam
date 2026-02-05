@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import useCartStore from '../../Stores/useCartStore';
+import CartSidebar from '../../Components/Cart/CartSidebar';
 
 export default function Header() {
     const { auth, cart } = usePage().props;
@@ -8,7 +9,7 @@ export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
     // Zustand Store
-    const { count, setCount } = useCartStore();
+    const { count, setCount, openCart } = useCartStore();
 
     // Sync Inertia props with Zustand
     useEffect(() => {
@@ -28,12 +29,15 @@ export default function Header() {
 
     return (
         <>
+            <CartSidebar />
             <header className="sticky top-0 z-50 w-full font-sans">
                 {/* Top Bar */}
                 <div className="bg-[#111111] text-white py-2 px-4 lg:px-8 text-[11px] uppercase tracking-widest font-medium border-b border-gray-800">
                     <div className="max-w-[1920px] mx-auto flex justify-between items-center">
+                        {/* ... Existing ... */}
                         <p className="hidden md:block opacity-80">Leading South Asian Product Distributor in Canada</p>
                         <div className="flex gap-6 items-center w-full md:w-auto justify-between md:justify-end">
+                             {/* ... Existing ... */}
                              <div className="flex items-center space-x-2 opacity-80 hover:text-[#C41E3A] hover:opacity-100 transition cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
@@ -100,6 +104,7 @@ export default function Header() {
                                     onClick={() => setIsSearchOpen(true)}
                                     className="p-2 text-gray-500 hover:text-[#C41E3A] transition rounded-full hover:bg-gray-50 bg-gray-50/50 lg:bg-transparent"
                                 >
+                                    {/* ... Existing ... */}
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                                     </svg>
@@ -108,7 +113,7 @@ export default function Header() {
                                 {/* Cart Icon (Shared Desktop/Mobile placement logic slightly different) */}
                                 <div className="relative">
                                      {/* Desktop Cart */}
-                                    <Link href="#" className="hidden lg:flex p-2 text-gray-700 hover:text-[#C41E3A] transition relative">
+                                    <button onClick={openCart} className="hidden lg:flex p-2 text-gray-700 hover:text-[#C41E3A] transition relative">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
                                         </svg>
@@ -117,10 +122,7 @@ export default function Header() {
                                                 {count}
                                             </span>
                                         )}
-                                    </Link>
-
-                                    {/* Mobile Cart */}
-                                     {/* Keeping existing logic or replacing? User said "add a cartCounter icon". I will add it here visible for mobile too if needed, or stick to the layout */}
+                                    </button>
                                 </div>
 
 
@@ -144,7 +146,7 @@ export default function Header() {
                                 
                                 {/* Mobile Cart & Menu Buttons */}
                                 <div className="lg:hidden flex items-center gap-2">
-                                    <Link href="#" className="p-2 text-gray-700 relative">
+                                    <button onClick={openCart} className="p-2 text-gray-700 relative">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
                                         </svg>
@@ -153,7 +155,7 @@ export default function Header() {
                                                 {count}
                                             </span>
                                         )}
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>

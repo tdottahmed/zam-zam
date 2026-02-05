@@ -3,8 +3,10 @@ import React from 'react';
 import CustomerLayout from '../../Layouts/CustomerLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import StorageImage from '../../Components/StorageImage';
+import useCartStore from '../../Stores/useCartStore';
 
 export default function Show({ product }) {
+    const { openCart } = useCartStore();
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         product_id: product.id,
         quantity: 1,
@@ -15,7 +17,7 @@ export default function Show({ product }) {
         post(route('cart.add'), {
             preserveScroll: true,
             onSuccess: () => {
-                // Optional: show toast or notification (handled by layout usually)
+                openCart();
             }
         });
     };

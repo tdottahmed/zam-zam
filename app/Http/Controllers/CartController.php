@@ -38,4 +38,36 @@ class CartController extends Controller
 
         return back()->with('success', 'Product added to cart.');
     }
+    public function index()
+    {
+        return \Inertia\Inertia::render('Cart/Index');
+    }
+
+    public function update(Request $request, CartItem $item)
+    {
+        // Ensure user owns the cart item
+        if ($item->cart->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $item->update(['quantity' => $request->quantity]);
+
+        return back();
+    }
+
+    public function destroy(CartItem $item)
+    {
+        // Ensure user owns the cart item
+        if ($item->cart->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $item->delete();
+
+        return back()->with('success', 'Item removed from cart.');
+    }
 }

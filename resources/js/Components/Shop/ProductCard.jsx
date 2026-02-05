@@ -1,7 +1,9 @@
 import { Link, useForm } from '@inertiajs/react';
 import StorageImage from '../StorageImage';
+import useCartStore from '../../Stores/useCartStore';
 
 export default function ProductCard({ product }) {
+    const { openCart } = useCartStore();
     const { data, setData, post, processing, recentlySuccessful } = useForm({
         product_id: product.id,
         quantity: 1,
@@ -12,7 +14,7 @@ export default function ProductCard({ product }) {
         post(route('cart.add'), {
             preserveScroll: true,
             onSuccess: () => {
-                // Optional
+                openCart();
             }
         });
     };

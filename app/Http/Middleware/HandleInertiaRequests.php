@@ -34,9 +34,42 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'cart' => [
-                'count' => $request->user() ? $request->user()->cart?->items->sum('quantity') ?? 0 : 0,
-            ],
+            'cart' => function () use ($request) {
+                if (!$request->user()) {
+                    return [
+                        'count' => 0,
+                        'items' => [],
+                    ];
+                }
+                
+                $cart = $request->user()->cart;
+                
+                if (!$cart) {
+                    return [
+                        'count' => 0,
+                        'items' => [],
+                    ];
+                }
+
+                return [
+                    'count' => $cart->items->sum('quantity'),
+                    'total' => $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price),
+                    'items' => $cart->items()
+                        ->with(['product:id,name,unit_price,product_code,unit_id', 'product.unit'])
+                        ->latest()
+                        ->get()
+                        ->map(fn ($item) => [
+                            'id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'name' => $item->product->name,
+                            'image' => $item->product->image,
+                            'unit_price' => $item->product->unit_price,
+                            'quantity' => $item->quantity,
+                            'total' => $item->quantity * $item->product->unit_price,
+                            'unit' => $item->product->unit ? $item->product->unit->name : null,
+                        ]),
+                ];
+            },
         ];
     }
 }
