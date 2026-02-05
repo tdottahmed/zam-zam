@@ -29,4 +29,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('units', \App\Http\Controllers\Admin\UnitController::class);
 });
 
+Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
+Route::get('/brands', [\App\Http\Controllers\ShopController::class, 'brands'])->name('shop.brands');
+
 require __DIR__.'/auth.php';

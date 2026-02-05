@@ -1,6 +1,8 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
-export default function Header({ auth }) {
+export default function Header() {
+    const { auth } = usePage().props;
+    
     return (
         <nav className="flex items-center justify-between px-12 py-4 bg-white shadow-sm sticky top-0 z-50">
             <div className="flex items-center">
@@ -11,8 +13,8 @@ export default function Header({ auth }) {
             </div>
             <div className="hidden md:flex space-x-8 font-medium text-gray-700">
                 <Link href="#" className="text-[#C41E3A]">Home</Link>
-                <Link href="#" className="hover:text-[#C41E3A] transition">Shop</Link>
-                <Link href="#" className="hover:text-[#C41E3A] transition">Shop by Brand</Link>
+                <Link href={route('shop.index')} className="hover:text-[#C41E3A] transition">Shop</Link>
+                <Link href={route('shop.brands')} className="hover:text-[#C41E3A] transition">Shop by Brand</Link>
                 <Link href="#" className="hover:text-[#C41E3A] transition">About Us</Link>
                 <Link href="#" className="hover:text-[#C41E3A] transition">Contact us</Link>
                 
