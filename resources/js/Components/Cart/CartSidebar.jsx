@@ -160,7 +160,8 @@ export default function CartSidebar() {
                                                 <p className="mt-0.5 text-sm text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
                                                 <div className="grid gap-3">
                                                     <Link
-                                                        href="#" // Checkout Route Later
+                                                        href={route('checkout.index')}
+                                                        onClick={closeCart}
                                                         className="flex items-center justify-center rounded-md border border-transparent bg-[#C41E3A] px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-[#a01830] transition duration-300"
                                                     >
                                                         Proceed to Checkout
