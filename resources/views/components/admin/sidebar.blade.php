@@ -29,13 +29,19 @@
                 @endif
             </a>
 
-            <!-- Orders (Example) -->
-            <a href="#" 
-               class="flex items-center px-4 py-3 rounded-lg group transition-colors text-gray-400 hover:bg-gray-800 hover:text-white">
-                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                <div class="ml-4 flex-1 flex justify-between items-center whitespace-nowrap" x-show="sidebarOpen">
+            <!-- Orders -->
+            <a href="{{ route('admin.orders.index') }}" 
+               class="flex items-center px-4 py-3 rounded-lg group transition-colors {{ request()->routeIs('admin.orders.*') ? 'bg-gray-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <div class="p-1 rounded-md {{ request()->routeIs('admin.orders.*') ? 'bg-[#C41E3A]' : 'group-hover:bg-[#C41E3A]' }} transition-colors">
+                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </div>
+                <div class="ml-3 flex-1 flex justify-between items-center whitespace-nowrap" x-show="sidebarOpen">
                     <span class="font-medium">Orders</span>
-                    <span class="px-2 py-0.5 rounded-full bg-[#C41E3A]/20 text-[#C41E3A] text-xs border border-[#C41E3A]/30">New</span>
+                    @if(\App\Models\Order::where('status', 'pending')->count() > 0)
+                        <span class="px-2 py-0.5 rounded-full bg-[#C41E3A]/20 text-[#C41E3A] text-xs border border-[#C41E3A]/30">
+                            {{ \App\Models\Order::where('status', 'pending')->count() }}
+                        </span>
+                    @endif
                 </div>
             </a>
 
