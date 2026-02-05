@@ -1,10 +1,21 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import useCartStore from '../../Stores/useCartStore';
 
 export default function Header() {
-    const { auth } = usePage().props;
+    const { auth, cart } = usePage().props;
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    
+    // Zustand Store
+    const { count, setCount } = useCartStore();
+
+    // Sync Inertia props with Zustand
+    useEffect(() => {
+        if (cart?.count !== undefined) {
+             setCount(cart.count);
+        }
+    }, [cart]);
     
     // Prevent scrolling when menu/search is open
     if (typeof window !== 'undefined') {
@@ -94,10 +105,29 @@ export default function Header() {
                                     </svg>
                                 </button>
 
+                                {/* Cart Icon (Shared Desktop/Mobile placement logic slightly different) */}
+                                <div className="relative">
+                                     {/* Desktop Cart */}
+                                    <Link href="#" className="hidden lg:flex p-2 text-gray-700 hover:text-[#C41E3A] transition relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
+                                        </svg>
+                                        {count > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
+                                                {count}
+                                            </span>
+                                        )}
+                                    </Link>
+
+                                    {/* Mobile Cart */}
+                                     {/* Keeping existing logic or replacing? User said "add a cartCounter icon". I will add it here visible for mobile too if needed, or stick to the layout */}
+                                </div>
+
+
                                 {/* Auth Buttons */}
                                 <div className="hidden lg:block">
                                     {auth.user ? (
-                                        <Link href={route('dashboard')} className="flex items-center gap-2 text-gray-700 hover:text-[#C41E3A] text-sm font-bold uppercase tracking-wide">
+                                        <Link href={route('dashboard')} className="flex items-center gap-2 text-gray-700 hover:text-[#C41E3A] text-sm font-bold uppercase tracking-wide ml-4">
                                              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[#C41E3A]">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
@@ -106,27 +136,24 @@ export default function Header() {
                                             <span>Account</span>
                                         </Link>
                                     ) : (
-                                        <Link href={route('login')} className="bg-[#C41E3A] text-white px-7 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-100 hover:shadow-red-200 hover:bg-[#a91930] transform hover:-translate-y-0.5 transition-all duration-300">
+                                        <Link href={route('login')} className="ml-4 bg-[#C41E3A] text-white px-7 py-2.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-100 hover:shadow-red-200 hover:bg-[#a91930] transform hover:-translate-y-0.5 transition-all duration-300">
                                             Login
                                         </Link>
                                     )}
                                 </div>
                                 
-                                {/* Mobile Cart/Bag could go here */}
-                                <div className="lg:hidden">
-                                     {auth.user ? (
-                                        <Link href={route('dashboard')} className="p-2 text-gray-700">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                                            </svg>
-                                        </Link>
-                                    ) : (
-                                        <Link href={route('login')} className="p-2 text-gray-700">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25V9m7.5 0v3.75m-7.5-3.75v3.75m9.75-3.75h.008v.008h-.008V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.008v.008h-.008v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.008v.008h-.008v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                            </svg>
-                                        </Link>
-                                    )}
+                                {/* Mobile Cart & Menu Buttons */}
+                                <div className="lg:hidden flex items-center gap-2">
+                                    <Link href="#" className="p-2 text-gray-700 relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
+                                        </svg>
+                                        {count > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
+                                                {count}
+                                            </span>
+                                        )}
+                                    </Link>
                                 </div>
                             </div>
                         </div>

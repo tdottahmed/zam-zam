@@ -74,4 +74,12 @@ class ShopController extends Controller
             'brands' => $brands,
         ]);
     }
+
+    public function show(Product $product)
+    {
+        $product->load(['category', 'brand', 'unit']);
+        return Inertia::render('Shop/Show', [
+            'product' => $product,
+        ]);
+    }
 }

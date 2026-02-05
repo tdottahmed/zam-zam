@@ -12,6 +12,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::post('/cart/add', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -30,6 +31,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/{product}', [\App\Http\Controllers\ShopController::class, 'show'])->name('shop.show');
 Route::get('/brands', [\App\Http\Controllers\ShopController::class, 'brands'])->name('shop.brands');
 
 require __DIR__.'/auth.php';
