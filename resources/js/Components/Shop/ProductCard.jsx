@@ -5,19 +5,16 @@ import useCartStore from '../../Stores/useCartStore';
 
 export default function ProductCard({ product }) {
     const { cart: propsCart } = usePage().props;
-    const { openCart, cart: storeCart, updateQuantity, setCart } = useCartStore();
+    const { openCart, cart: storeCart, updateQuantity } = useCartStore();
     const [loading, setLoading] = useState(false);
 
-    // Sync store with props (idempotent, harmless if already synced by sidebar)
-    useEffect(() => {
-        if (propsCart) setCart(propsCart);
-    }, [propsCart, setCart]);
-
     // Use store cart for UI
+    // Fallback to propsCart if store is empty, but propsCart should be synced by the Layout/Header
     const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [] });
 
     // Check if product is in cart
-    const cartItem = cart?.items?.find(item => item.product_id === product.id);
+    // Use semi-strict equality (==) to handle potential string/int mismatch for IDs
+    const cartItem = cart?.items?.find(item => item.product_id == product.id);
     const quantity = cartItem ? cartItem.quantity : 0;
 
     const addToCart = (e) => {
