@@ -82,7 +82,7 @@ export default function ProductCard({ product }) {
                 {quantity > 0 ? (
                     <div className="flex items-center justify-between w-full bg-[#C41E3A] text-white rounded-lg shadow-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <button 
-                            onClick={(e) => { e.stopPropagation(); updateQuantity(quantity - 1); }}
+                            onClick={(e) => { e.stopPropagation(); updateQuantity(parseInt(quantity) - 1); }}
                             className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
                             disabled={loading}
                         >
@@ -101,7 +101,7 @@ export default function ProductCard({ product }) {
                         </span>
 
                         <button 
-                             onClick={(e) => { e.stopPropagation(); updateQuantity(quantity + 1); }}
+                             onClick={(e) => { e.stopPropagation(); updateQuantity(parseInt(quantity) + 1); }}
                              className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
                              disabled={loading}
                         >

@@ -64,7 +64,7 @@ class HandleInertiaRequests extends Middleware
                             'name' => $item->product->name,
                             'image' => $item->product->image,
                             'unit_price' => $item->product->unit_price,
-                            'quantity' => $item->quantity,
+                            'quantity' => (int) $item->quantity,
                             'total' => $item->quantity * $item->product->unit_price,
                             'unit' => $item->product->unit ? $item->product->unit->name : null,
                         ]),
