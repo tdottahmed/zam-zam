@@ -24,6 +24,20 @@ class Product extends Model
         'quantity',
         'alert_quantity',
         'notes',
+        'image',
+    ];
+
+    protected $casts = [
+        'pcs_in_ctn' => 'integer',
+        'box_price' => 'float',
+        'unit_price' => 'float',
+        'buying_price' => 'float',
+        'quantity' => 'integer',
+        'alert_quantity' => 'integer',
+        'category_id' => 'integer',
+        'brand_id' => 'integer',
+        'unit_id' => 'integer',
+        'tax_id' => 'integer',
     ];
 
     public function tax()

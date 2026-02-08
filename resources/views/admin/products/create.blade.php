@@ -11,7 +11,7 @@
         </x-admin.actions.button>
     </div>
     <x-admin.ui.card>
-        <form method="POST" action="{{ route('admin.products.store') }}" id="product-form">
+        <form method="POST" action="{{ route('admin.products.store') }}" id="product-form" enctype="multipart/form-data">
             @csrf
 
             <div class="space-y-8">
@@ -49,11 +49,31 @@
                             />
                             <x-admin.form.input-error :messages="$errors->get('brand_id')" class="mt-2" />
                         </div>
-
-                        <!-- Product Code -->
+                         <!-- Product Code -->
                         <div>
                             <x-admin.form.label for="product_code" value="Product Code (SKU)" />
-                            <x-admin.form.input id="product_code" name="product_code" :value="old('product_code')" placeholder="e.g. PCB-001" />
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <div class="relative flex-grow focus-within:z-10">
+                                    <x-admin.form.input 
+                                        id="product_code" 
+                                        name="product_code" 
+                                        :value="old('product_code')" 
+                                        placeholder="e.g. PCB-001" 
+                                        class="rounded-r-none" 
+                                    />
+                                </div>
+                                <button 
+                                    type="button" 
+                                    id="generate_sku_btn" 
+                                    class="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 text-sm font-medium rounded-r-md text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+                                >
+                                    <svg class="h-4 w-4 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                    <span>Generate</span>
+                                </button>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">Leave blank to auto-generate or click Generate.</p>
                             <x-admin.form.input-error :messages="$errors->get('product_code')" class="mt-2" />
                         </div>
                         
@@ -68,6 +88,14 @@
                             />
                             <x-admin.form.input-error :messages="$errors->get('tax_id')" class="mt-2" />
                         </div>
+
+                        <!-- Product Image -->
+                        <div class="md:col-span-2">
+                             <x-admin.form.file-upload name="image" label="Product Image" />
+                             <x-admin.form.input-error :messages="$errors->get('image')" class="mt-2" />
+                        </div>
+
+                       
                     </div>
                 </div>
 
@@ -189,8 +217,7 @@
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Additional Details</h3>
                     <div>
-                         <x-admin.form.label for="notes" value="Notes / Description" />
-                         <x-admin.form.textarea id="notes" name="notes" rows="3" placeholder="Add product details...">{{ old('notes') }}</x-admin.form.textarea>
+                         <x-admin.form.rich-text name="notes" label="Notes / Description" :value="old('notes')" height="h-96" />
                          <x-admin.form.input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
                 </div>
@@ -212,8 +239,35 @@
                     costCarton: document.getElementById('cost_per_carton'),
                     sellCarton: document.getElementById('box_price'),
                     sellUnit: document.getElementById('unit_price'),
-                    profitDisplay: document.getElementById('profit_display')
+                    profitDisplay: document.getElementById('profit_display'),
+                    skuInput: document.getElementById('product_code'),
+                    generateSkuBtn: document.getElementById('generate_sku_btn')
                 };
+
+                // SKU Generation
+                if (els.generateSkuBtn) {
+                    els.generateSkuBtn.addEventListener('click', function() {
+                        const btn = this;
+                        const icon = btn.querySelector('svg');
+                        
+                        // Add spin class
+                        icon.classList.add('animate-spin');
+                        btn.disabled = true;
+
+                        fetch('{{ route("admin.products.next-sku") }}')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.sku) {
+                                    els.skuInput.value = data.sku;
+                                }
+                            })
+                            .catch(error => console.error('Error generating SKU:', error))
+                            .finally(() => {
+                                icon.classList.remove('animate-spin');
+                                btn.disabled = false;
+                            });
+                    });
+                }
 
                 const defaultMargin = {{ $defaultProfitMargin }};
 

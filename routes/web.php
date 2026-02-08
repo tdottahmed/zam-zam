@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('dashboard');
+    Route::get('products/next-sku', [\App\Http\Controllers\Admin\ProductController::class, 'nextSku'])->name('products.next-sku');
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
     Route::resource('brands', \App\Http\Controllers\Admin\BrandController::class);

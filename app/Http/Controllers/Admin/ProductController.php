@@ -40,6 +40,18 @@ class ProductController extends Controller
     }
 
     /**
+     * Get the next available SKU.
+     */
+    public function nextSku()
+    {
+        $lastProduct = Product::latest('id')->first();
+        $nextId = $lastProduct ? $lastProduct->id + 1 : 1;
+        $sku = 'PCB-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
+
+        return response()->json(['sku' => $sku]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -67,13 +79,28 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'unit_value' => 'nullable|numeric|min:0',
             'unit_id' => 'nullable|exists:units,id',
-            'pcs_in_ctn' => 'nullable|string|max:255',
+            'pcs_in_ctn' => 'required|integer|min:1',
             'box_price' => 'nullable|numeric|min:0',
             'unit_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
             'buying_price' => 'nullable|numeric|min:0',
+
             'notes' => 'nullable|string',
         ]);
+
+        // Default to 1 if not provided or invalid
+        if (empty($validated['pcs_in_ctn']) || $validated['pcs_in_ctn'] < 1) {
+            $validated['pcs_in_ctn'] = 1;
+        }
+
+        // Calculate unit_price from box_price if available
+        if (isset($validated['box_price']) && $validated['pcs_in_ctn'] > 0) {
+            $validated['unit_price'] = $validated['box_price'] / $validated['pcs_in_ctn'];
+        }
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         Product::create($validated);
 
@@ -109,13 +136,32 @@ class ProductController extends Controller
             'brand_id' => 'nullable|exists:brands,id',
             'unit_value' => 'nullable|numeric|min:0',
             'unit_id' => 'nullable|exists:units,id',
-            'pcs_in_ctn' => 'nullable|string|max:255',
+            'pcs_in_ctn' => 'required|integer|min:1',
             'box_price' => 'nullable|numeric|min:0',
             'unit_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
             'buying_price' => 'nullable|numeric|min:0',
+
             'notes' => 'nullable|string',
         ]);
+
+        // Default to 1 if not provided or invalid
+        if (empty($validated['pcs_in_ctn']) || $validated['pcs_in_ctn'] < 1) {
+            $validated['pcs_in_ctn'] = 1;
+        }
+
+        // Calculate unit_price from box_price if available
+        if (isset($validated['box_price']) && $validated['pcs_in_ctn'] > 0) {
+            $validated['unit_price'] = $validated['box_price'] / $validated['pcs_in_ctn'];
+        }
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product->update($validated);
 

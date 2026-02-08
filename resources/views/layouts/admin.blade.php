@@ -49,5 +49,8 @@
         </main>
 
     </div>
+
+    <!-- Toast Notifications -->
+    <x-admin.ui.toast />
 </body>
 </html>
