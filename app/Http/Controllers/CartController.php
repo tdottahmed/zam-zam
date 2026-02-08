@@ -46,7 +46,7 @@ class CartController extends Controller
     public function update(Request $request, CartItem $item)
     {
         // Ensure user owns the cart item
-        if ($item->cart->user_id !== Auth::id()) {
+        if ((int) $item->cart->user_id !== (int) Auth::id()) {
             abort(403);
         }
 
@@ -62,7 +62,7 @@ class CartController extends Controller
     public function destroy(CartItem $item)
     {
         // Ensure user owns the cart item
-        if ($item->cart->user_id !== Auth::id()) {
+        if ((int) $item->cart->user_id !== (int) Auth::id()) {
             abort(403);
         }
 
