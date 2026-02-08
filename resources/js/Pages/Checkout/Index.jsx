@@ -1,10 +1,21 @@
-import { Link, usePage, useForm, Head, router } from '@inertiajs/react';
+import { Link, usePage, useForm, Head } from '@inertiajs/react';
 import CustomerLayout from '../../Layouts/CustomerLayout';
 import StorageImage from '../../Components/StorageImage';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import useCartStore from '../../Stores/useCartStore';
 
 export default function Checkout() {
-    const { cart, auth } = usePage().props;
+    const { cart: propsCart, auth } = usePage().props;
+    const { cart: storeCart, setCart, updateQuantity, removeItem: storeRemoveItem } = useCartStore();
+    
+    // Sync store with props on mount
+    useEffect(() => {
+        if (propsCart) setCart(propsCart);
+    }, [propsCart, setCart]);
+
+    // Use store data for optimistic updates
+    const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [], total: 0 });
+
     const { data, setData, post, processing, errors } = useForm({
         email: auth.user.email || '',
         phone: auth.user.phone || '',
@@ -18,20 +29,17 @@ export default function Checkout() {
         payment_method: 'cod',
     });
 
-    const updateQuantity = (itemId, quantity) => {
-        if (quantity < 1) return;
-        router.patch(route('cart.update', itemId), { quantity }, {
-            preserveScroll: true,
-            preserveState: true,
-        });
+    const handleUpdateQuantity = (itemId, quantity) => {
+        if (quantity < 1) {
+            handleRemoveItem(itemId);
+            return;
+        }
+        updateQuantity(itemId, quantity);
     };
 
-    const removeItem = (itemId) => {
+    const handleRemoveItem = (itemId) => {
         if (confirm('Are you sure you want to remove this item?')) {
-            router.delete(route('cart.destroy', itemId), {
-                preserveScroll: true,
-                preserveState: true,
-            });
+            storeRemoveItem(itemId);
         }
     };
 
@@ -211,10 +219,11 @@ export default function Checkout() {
                         </div>
 
                         {/* Right Column: Order Summary */}
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8 sticky top-24">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:p-8 sticky top-24 self-start">
                                 <h2 className="text-lg font-bold text-gray-900 mb-6">Order Summary</h2>
 
-                                <div className="flow-root max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                                {/* Removed flow-root max-h-[50vh] overflow-y-auto to allow full list to show, relying on sticky parent for better UX */}
+                                <div className="">
                                     <ul role="list" className="-my-4 divide-y divide-gray-100">
                                         {cart.items.map((item) => (
                                             <li key={item.id} className="flex py-6 transition hover:bg-gray-50 -mx-4 px-4 rounded-lg relative group">
@@ -238,8 +247,7 @@ export default function Checkout() {
                                                         {/* Quantity Control */}
                                                         <div className="flex items-center border border-gray-200 rounded-lg bg-white h-8 w-fit shadow-sm overflow-hidden">
                                                             <button 
-                                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, item.quantity - 1); }}
-                                                                disabled={item.quantity <= 1}
+                                                                onClick={(e) => { e.preventDefault(); handleUpdateQuantity(item.id, item.quantity - 1); }}
                                                                 className="w-8 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-50 transition border-r border-gray-100"
                                                             >
                                                                 -
@@ -248,7 +256,7 @@ export default function Checkout() {
                                                                 {item.quantity}
                                                             </span>
                                                             <button 
-                                                                onClick={(e) => { e.preventDefault(); updateQuantity(item.id, item.quantity + 1); }}
+                                                                onClick={(e) => { e.preventDefault(); handleUpdateQuantity(item.id, item.quantity + 1); }}
                                                                 className="w-8 h-full flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 transition border-l border-gray-100"
                                                             >
                                                                 +
@@ -258,7 +266,7 @@ export default function Checkout() {
                                                         {/* Remove Button (Icon only) */}
                                                         <button 
                                                             type="button"
-                                                            onClick={() => removeItem(item.id)}
+                                                            onClick={() => handleRemoveItem(item.id)}
                                                             className="p-1.5 text-gray-400 hover:text-[#C41E3A] hover:bg-red-50 rounded-full transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                                                             title="Remove item"
                                                         >
