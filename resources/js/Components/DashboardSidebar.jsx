@@ -9,7 +9,7 @@ export default function DashboardSidebar({ className = '' }) {
         ...(user.user_type === 'admin' ? [
             { name: 'Admin Panel', href: route('admin.dashboard'), icon: 'AdminIcon' }
         ] : [
-            { name: 'My Orders', href: route('admin.orders.index'), icon: 'ShoppingBagIcon' }
+            { name: 'My Orders', href: route('orders.index'), icon: 'ShoppingBagIcon' }
         ]),
         { name: 'Address Book', href: '#', icon: 'MapPinIcon' }, 
         { name: 'Account Details', href: route('profile.edit'), icon: 'UserIcon' },
