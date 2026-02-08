@@ -39,6 +39,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::put('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'update'])->name('orders.update');
+
+    // Invoice routes
+    Route::get('orders/{order}/invoice/create', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'create'])->name('orders.invoice.create');
+    Route::post('orders/{order}/invoice/store', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'store'])->name('orders.invoice.store');
+    Route::get('invoices/{invoice}', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('invoices/{invoice}/print', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'print'])->name('invoices.print');
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

@@ -196,38 +196,6 @@
         </div>
         <div class="flavor-text">Flavors of the World.</div>
       </div>
-
-      <div class="header-separator"></div>
-
-      <div class="address-section">
-        <div class="partner-ref">
-          <div class="section-title">Partner Reference:</div>
-          <div>{{ $data['partner']['name'] }}</div>
-          <div>{{ $data['partner']['address_1'] }}</div>
-          @if (!empty($data['partner']['address_2']))
-            <div>{{ $data['partner']['address_2'] }}</div>
-          @endif
-          <div>{{ $data['partner']['country'] }}</div>
-          @if (!empty($data['partner']['phone']))
-            <div>&#9742; {{ $data['partner']['phone'] }}</div>
-          @endif
-        </div>
-        <div class="delivery-addr">
-          <div class="section-title">Delivery Address:</div>
-          <div>{{ $data['delivery']['name'] }}</div>
-          <div>{{ $data['delivery']['address_1'] }}</div>
-          @if (!empty($data['delivery']['address_2']))
-            <div>{{ $data['delivery']['address_2'] }}</div>
-          @endif
-          <div>{{ $data['delivery']['country'] }}</div>
-          @if (!empty($data['delivery']['phone']))
-            <div>&#9742; {{ $data['delivery']['phone'] }}</div>
-          @endif
-        </div>
-        <div class="clearfix"></div>
-      </div>
-
-      <div class="address-separator"></div>
     </div>
   </htmlpageheader>
 
@@ -242,7 +210,41 @@
 
   <!-- Content Body -->
   <sethtmlpageheader name="page-header" value="on" />
+  
   <div class="invoice-title">Invoice {{ $data['invoice_number'] }}</div>
+
+  <table style="width: 100%; margin-bottom: 20px;">
+    <tr>
+      <td style="width: 48%; vertical-align: top;">
+          <div class="section-title">Partner Reference:</div>
+          <div>{{ $data['partner']['name'] }}</div>
+          <div>{{ $data['partner']['address_1'] }}</div>
+          @if (!empty($data['partner']['address_2']))
+            <div>{{ $data['partner']['address_2'] }}</div>
+          @endif
+          <div>{{ $data['partner']['country'] }}</div>
+          @if (!empty($data['partner']['phone']))
+            <div>&#9742; {{ $data['partner']['phone'] }}</div>
+          @endif
+      </td>
+      <td style="width: 4%;">&nbsp;</td>
+      <td style="width: 48%; vertical-align: top; text-align: right;">
+          <div class="section-title">Delivery Address:</div>
+          <div>{{ $data['delivery']['name'] }}</div>
+          <div>{{ $data['delivery']['address_1'] }}</div>
+          @if (!empty($data['delivery']['address_2']))
+            <div>{{ $data['delivery']['address_2'] }}</div>
+          @endif
+          <div>{{ $data['delivery']['country'] }}</div>
+          @if (!empty($data['delivery']['phone']))
+            <div>&#9742; {{ $data['delivery']['phone'] }}</div>
+          @endif
+      </td>
+    </tr>
+  </table>
+  
+  <div class="address-separator" style="margin-bottom: 20px;"></div>
+
 
   <div class="info-bar">
     <table style="width: 100%; border: none; margin-bottom: 0;">
