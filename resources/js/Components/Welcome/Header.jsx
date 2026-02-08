@@ -9,14 +9,16 @@ export default function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
     // Zustand Store
-    const { count, setCount, openCart } = useCartStore();
+    const { cart: storeCart, setCart, openCart } = useCartStore();
 
     // Sync Inertia props with Zustand
     useEffect(() => {
-        if (cart?.count !== undefined) {
-             setCount(cart.count);
+        if (cart) {
+             setCart(cart);
         }
-    }, [cart]);
+    }, [cart, setCart]);
+
+    const displayCount = storeCart?.count || cart?.count || 0;
     
     // Prevent scrolling when menu/search is open
     if (typeof window !== 'undefined') {
@@ -117,9 +119,9 @@ export default function Header() {
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
                                         </svg>
-                                        {count > 0 && (
+                                        {displayCount > 0 && (
                                             <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
-                                                {count}
+                                                {displayCount}
                                             </span>
                                         )}
                                     </button>
@@ -150,9 +152,9 @@ export default function Header() {
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
                                         </svg>
-                                        {count > 0 && (
+                                        {displayCount > 0 && (
                                             <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
-                                                {count}
+                                                {displayCount}
                                             </span>
                                         )}
                                     </button>
