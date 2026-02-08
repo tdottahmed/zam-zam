@@ -1,12 +1,20 @@
-import { Link, usePage, router } from '@inertiajs/react'; // Removed useForm as we'll use router for cleaner actions
-import { useState } from 'react'; // Added useState for local loading states if needed
+import { Link, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import StorageImage from '../StorageImage';
 import useCartStore from '../../Stores/useCartStore';
 
 export default function ProductCard({ product }) {
-    const { cart } = usePage().props;
-    const { openCart } = useCartStore();
+    const { cart: propsCart } = usePage().props;
+    const { openCart, cart: storeCart, updateQuantity, setCart } = useCartStore();
     const [loading, setLoading] = useState(false);
+
+    // Sync store with props (idempotent, harmless if already synced by sidebar)
+    useEffect(() => {
+        if (propsCart) setCart(propsCart);
+    }, [propsCart, setCart]);
+
+    // Use store cart for UI
+    const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [] });
 
     // Check if product is in cart
     const cartItem = cart?.items?.find(item => item.product_id === product.id);
@@ -15,44 +23,55 @@ export default function ProductCard({ product }) {
     const addToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        // Optimistic add (simulate adding 1)
+        // For a new item, we might not have the Item ID yet if we use the store's updateQuantity which expects ItemID.
+        // However, the backend 'cart.update' route usually requires an existing CartItem ID.
+        // The 'cart.add' route adds a new product. 
+        // For true optimistic "Add", we need to handle 'cart.add' in the store too, or just accept that "Add to Cart" might still be a server call initially.
+        // For now, let's keep "Add" as a server call but update store on success to feel snappy, OR implement optimistic add in store.
+        // Given the requirement "changing the qty", improving the +/- is most critical.
+        // "Add to Cart" is a one-time action per product usually.
+        // But to be consistent, let's try to make it feel fast.
+        
         if (loading) return;
         setLoading(true);
 
-        router.post(route('cart.add'), {
-            product_id: product.id,
-            quantity: 1
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setLoading(false);
-                openCart();
-            },
-            onError: () => setLoading(false)
+        // We'll stick to router for the *initial* add because we need the backend to generate the CartItem ID.
+        // Unless we generate a temp ID, but that gets complex.
+        // Let's keep initial add as is, but maybe open cart immediately.
+        
+        // Actually, the user's complaint is about "changing qty".
+        // Let's prioritize that.
+        
+        import('@inertiajs/react').then(({ router }) => {
+            router.post(route('cart.add'), {
+                product_id: product.id,
+                quantity: 1
+            }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                   setLoading(false);
+                   openCart();
+                },
+                onError: () => setLoading(false)
+            });
         });
     };
 
-    const updateQuantity = (newQty) => {
-        if (loading || !cartItem) return;
+    const handleUpdateQuantity = (newQty) => {
+        if (!cartItem) return;
         
         // If 0, remove
         if (newQty < 1) {
-             setLoading(true);
-             router.delete(route('cart.destroy', cartItem.id), {
-                preserveScroll: true,
-                onSuccess: () => setLoading(false),
-                onError: () => setLoading(false)
-             });
+             // For remove, we can use the store's removeItem which is optimistic
+             // But wait, removeItem expects Item ID. cartItem.id is available.
+             useCartStore.getState().removeItem(cartItem.id); 
              return;
         }
 
-        setLoading(true);
-        router.patch(route('cart.update', cartItem.id), {
-            quantity: newQty
-        }, {
-            preserveScroll: true,
-            onSuccess: () => setLoading(false),
-            onError: () => setLoading(false)
-        });
+        // Optimistic update via store
+        updateQuantity(cartItem.id, newQty);
     };
 
     return (
@@ -82,7 +101,7 @@ export default function ProductCard({ product }) {
                 {quantity > 0 ? (
                     <div className="flex items-center justify-between w-full bg-[#C41E3A] text-white rounded-lg shadow-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
                         <button 
-                            onClick={(e) => { e.stopPropagation(); updateQuantity(parseInt(quantity) - 1); }}
+                            onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) - 1); }}
                             className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
                             disabled={loading}
                         >
@@ -92,16 +111,11 @@ export default function ProductCard({ product }) {
                         </button>
                         
                         <span className="font-bold text-base min-w-[1.5rem] text-center select-none">
-                            {loading ? (
-                                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            ) : quantity}
+                            {quantity}
                         </span>
 
                         <button 
-                             onClick={(e) => { e.stopPropagation(); updateQuantity(parseInt(quantity) + 1); }}
+                             onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) + 1); }}
                              className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
                              disabled={loading}
                         >

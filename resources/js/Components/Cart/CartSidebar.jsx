@@ -1,27 +1,27 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import useCartStore from '../../Stores/useCartStore';
 import StorageImage from '../StorageImage';
 
 export default function CartSidebar() {
-    const { cart } = usePage().props;
-    const { isCartOpen, closeCart } = useCartStore();
+    const { cart: propsCart } = usePage().props;
+    const { 
+        isCartOpen, 
+        closeCart, 
+        cart: storeCart, 
+        setCart, 
+        updateQuantity, 
+        removeItem 
+    } = useCartStore();
 
-    const updateQuantity = (itemId, quantity) => {
-        if (quantity < 1) return;
-        router.patch(route('cart.update', itemId), { quantity }, {
-            preserveScroll: true,
-            preserveState: true,
-        });
-    };
+    // Sync store with props on mount or when props change (e.g. after navigation)
+    useEffect(() => {
+        setCart(propsCart);
+    }, [propsCart, setCart]);
 
-    const removeItem = (itemId) => {
-        router.delete(route('cart.destroy', itemId), {
-            preserveScroll: true,
-            preserveState: true,
-        });
-    };
+    // Use store cart for UI (optimistic)
+    const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [], total: 0 });
 
     return (
         <Transition.Root show={isCartOpen} as={Fragment}>
