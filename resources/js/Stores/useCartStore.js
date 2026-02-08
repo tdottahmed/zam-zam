@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import { router } from '@inertiajs/react';
 
 // Simple debounce function
 const debounce = (func, wait) => {
@@ -78,11 +79,16 @@ const useCartStore = create((set, get) => ({
         });
 
         // Server Sync (Immediate for delete)
-        axios.delete(route('cart.destroy', itemId)).catch(err => {
-            console.error('Failed to remove item', err);
-            // Ideally revert state here on error, but keeping it simple for now
-            // Reloading page would fix state if needed
-            window.location.reload(); 
+        router.delete(route('cart.destroy', itemId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Props will update, triggering useEffect to sync store
+            },
+            onError: (errors) => {
+                console.error('Failed to remove item', errors);
+                // Revert optimistic update if necessary, or let the user try again.
+                // For now, we mainly want to avoid the forced reload loop.
+            }
         });
     }
 }));

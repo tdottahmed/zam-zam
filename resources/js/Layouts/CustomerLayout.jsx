@@ -1,5 +1,6 @@
 import Header from '@/Components/Welcome/Header';
 import Footer from '@/Components/Welcome/Footer';
+import Toast from '@/Components/Toast';
 
 export default function CustomerLayout({ children }) {
     return (
@@ -9,6 +10,7 @@ export default function CustomerLayout({ children }) {
                 {children}
             </main>
             <Footer />
+            <Toast />
         </div>
     );
 }
