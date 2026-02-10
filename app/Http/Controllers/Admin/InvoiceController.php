@@ -65,8 +65,8 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        // Redirect to print view or show detailed view
-        return redirect()->route('admin.invoices.print', $invoice);
+        $invoice->load(['items', 'order.user']);
+        return view('admin.invoices.show', compact('invoice'));
     }
 
     /**
