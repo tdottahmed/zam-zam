@@ -47,8 +47,10 @@ export default function Show({ order }) {
                     </div>
                     <div>
                         <a 
-                             href="#" // Add invoice download route later
-                             className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#C41E3A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] dark:bg-[#2A2A2A] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#333] transition-all duration-200"
+                             href={order.invoice ? route('orders.download-invoice', order.id) : '#'} 
+                             target={order.invoice ? "_blank" : "_self"}
+                             className={`inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#C41E3A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] dark:bg-[#2A2A2A] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#333] transition-all duration-200 ${!order.invoice ? 'opacity-50 cursor-not-allowed' : ''}`}
+                             title={order.invoice ? "Download Invoice" : "Invoice not available"}
                         >
                             <svg className="w-5 h-5 mr-2 -ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Download Invoice
