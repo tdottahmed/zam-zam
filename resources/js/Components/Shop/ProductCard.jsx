@@ -21,24 +21,10 @@ export default function ProductCard({ product }) {
         e.preventDefault();
         e.stopPropagation();
         
-        // Optimistic add (simulate adding 1)
-        // For a new item, we might not have the Item ID yet if we use the store's updateQuantity which expects ItemID.
-        // However, the backend 'cart.update' route usually requires an existing CartItem ID.
-        // The 'cart.add' route adds a new product. 
-        // For true optimistic "Add", we need to handle 'cart.add' in the store too, or just accept that "Add to Cart" might still be a server call initially.
-        // For now, let's keep "Add" as a server call but update store on success to feel snappy, OR implement optimistic add in store.
-        // Given the requirement "changing the qty", improving the +/- is most critical.
-        // "Add to Cart" is a one-time action per product usually.
-        // But to be consistent, let's try to make it feel fast.
         
         if (loading) return;
         setLoading(true);
 
-        // We'll stick to router for the *initial* add because we need the backend to generate the CartItem ID.
-        // Unless we generate a temp ID, but that gets complex.
-        // Let's keep initial add as is, but maybe open cart immediately.
-        
-        // Actually, the user's complaint is about "changing qty".
         // Let's prioritize that.
         
         import('@inertiajs/react').then(({ router }) => {
@@ -72,93 +58,104 @@ export default function ProductCard({ product }) {
     };
 
     return (
-        <div className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-transparent overflow-hidden group flex flex-col h-full relative ${quantity > 0 ? 'border-[#C41E3A] ring-1 ring-[#C41E3A] ring-opacity-50' : 'hover:border-[#C41E3A]'}`}>
+        <div className={`group relative flex flex-col h-full bg-white rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-500 ease-out border overflow-hidden ${quantity > 0 ? 'border-[#C41E3A] ring-1 ring-[#C41E3A] ring-opacity-50' : 'border-transparent hover:border-gray-100'}`}>
             
-            {/* In Cart Badge */}
-            {quantity > 0 && (
-                <div className="absolute top-2 right-2 z-20">
-                    <span className="bg-[#C41E3A] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider">
-                        In Cart
-                    </span>
-                </div>
-            )}
-
-            <Link href={route('shop.show', product.id)} className="relative aspect-square p-4 bg-gray-50 block cursor-pointer">
-                <div className="w-full h-full flex items-center justify-center overflow-hidden">
+            {/* Image Area with Gradient Overlay on Hover */}
+            <div className="relative aspect-[4/5] bg-gray-50 overflow-hidden">
+                <Link href={route('shop.show', product.id)} className="block w-full h-full p-6 cursor-pointer">
                     <StorageImage
                         path={product.image}
                         name={product.name}
-                        className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 ease-in-out group-hover:scale-110 will-change-transform"
                     />
-                </div>
-            </Link>
-
-            
-            <div className={`absolute inset-x-0 bottom-0 transition-transform duration-300 bg-white/95 backdrop-blur-sm p-4 border-t z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] ${quantity > 0 ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100'}`}>
-                {quantity > 0 ? (
-                    <div className="flex items-center justify-between w-full bg-[#C41E3A] text-white rounded-lg shadow-md overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) - 1); }}
-                            className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
-                            disabled={loading}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
-                            </svg>
-                        </button>
-                        
-                        <span className="font-bold text-base min-w-[1.5rem] text-center select-none">
-                            {quantity}
+                </Link>
+                
+                {/* Floating Badges */}
+                <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10 pointers-events-none">
+                    {/* Unit Badge (Red Pill) */}
+                    {product.unit && (
+                        <span className="bg-[#C41E3A] text-white shadow-lg shadow-[#C41E3A]/20 text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                            {product.unit.name}
                         </span>
-
-                        <button 
-                             onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) + 1); }}
-                             className="w-10 h-10 flex items-center justify-center hover:bg-black/10 transition active:bg-black/20"
-                             disabled={loading}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                        </button>
-                    </div>
-                ) : (
-                    <button 
-                        onClick={addToCart}
-                        disabled={loading}
-                        className="w-full bg-white text-gray-900 border border-gray-200 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-[#C41E3A] hover:text-white hover:border-[#C41E3A] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
-                    >
-                         {/* Icon */}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-400 group-hover/btn:text-white transition-colors">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
+                    )}
+                    
+                    {/* Wishlist Button (Aesthetic) */}
+                    <button className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-sm border border-white/50 flex items-center justify-center text-gray-400 hover:text-[#C41E3A] hover:bg-white transition-colors duration-200 group/heart">
+                        <svg className="w-4 h-4 transition-transform group-hover/heart:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        {loading ? 'Adding...' : 'Add to Cart'}
                     </button>
+                </div>
+
+                {/* In Cart Indicator (Subtle overlay) */}
+                {quantity > 0 && (
+                    <div className="absolute top-4 right-14 bg-black/5 backdrop-blur-md border border-white/20 text-gray-900 text-[10px] font-bold px-2.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                        In Cart
+                    </div>
                 )}
             </div>
 
-            <div className="p-4 flex flex-col flex-1 relative bg-white">
-                {product.brand && (
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
-                        {product.brand.name}
-                    </span>
-                )}
-                
-                <Link href={route('shop.show', product.id)} className="block">
-                    <h3 className="text-gray-900 font-semibold mb-2 line-clamp-2 min-h-[3rem] group-hover:text-[#C41E3A] transition-colors">
-                        {product.name}
-                    </h3>
-                </Link>
-                
-                <div className="mt-auto pt-4 flex items-center justify-between border-t border-gray-100">
-                    <div>
-                         {product.unit && (
-                            <p className="text-xs text-gray-500 mb-1">
-                                {product.unit_value} {product.unit.name}
-                            </p>
-                        )}
-                        <span className="text-lg font-bold text-[#C41E3A]">
+            {/* Content Area */}
+            <div className="flex flex-col flex-1 p-5 relative bg-white">
+                <div className="flex-1">
+                    {product.brand && (
+                        <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                            {product.brand.name}
+                        </h4>
+                    )}
+                    
+                    <Link href={route('shop.show', product.id)} className="block group-hover:text-[#C41E3A] transition-colors duration-200">
+                        <h3 className="text-gray-900 font-bold text-[15px] leading-snug line-clamp-2 min-h-[2.5rem]">
+                            {product.name}
+                        </h3>
+                    </Link>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-xl font-black text-gray-900 tracking-tight">
                             ${Number(product.unit_price).toFixed(2)}
                         </span>
+                    </div>
+
+                    {/* Add Button / Counter */}
+                    <div className="relative z-20">
+                         {quantity > 0 ? (
+                            <div className="flex items-center bg-[#C41E3A] text-white rounded-full shadow-lg shadow-[#C41E3A]/30 p-1 h-10 ring-2 ring-offset-1 ring-[#C41E3A] animate-in fade-in zoom-in duration-200">
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) - 1); }}
+                                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+                                    disabled={loading}
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
+                                    </svg>
+                                </button>
+                                <span className="font-bold text-sm min-w-[1.5rem] text-center px-1 select-none tabular-nums">
+                                    {quantity}
+                                </span>
+                                <button 
+                                     onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) + 1); }}
+                                     className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+                                     disabled={loading}
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={addToCart}
+                                disabled={loading}
+                                className="h-10 w-10 rounded-full bg-gray-100 hover:bg-[#C41E3A] hover:text-white hover:shadow-lg hover:shadow-[#C41E3A]/30 text-gray-900 transition-all duration-300 flex items-center justify-center group/btn"
+                                title="Add to Cart"
+                            >
+                                <svg className="w-5 h-5 transition-transform group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
