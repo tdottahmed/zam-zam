@@ -39,10 +39,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('profit-margin', [\App\Http\Controllers\Admin\ProfitMarginController::class, 'index'])->name('profit-margin.index');
     Route::put('profit-margin', [\App\Http\Controllers\Admin\ProfitMarginController::class, 'update'])->name('profit-margin.update');
     Route::resource('units', \App\Http\Controllers\Admin\UnitController::class);
+    // Search APIs
+    Route::get('api/search/users', [\App\Http\Controllers\Admin\OrderController::class, 'searchUsers'])->name('api.search.users');
+    Route::get('api/search/products', [\App\Http\Controllers\Admin\OrderController::class, 'searchProducts'])->name('api.search.products');
+
     // Orders
-    Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
-    Route::put('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'update'])->name('orders.update');
+    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 
     // Invoices Resource
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
