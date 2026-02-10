@@ -76,6 +76,12 @@ class HandleInertiaRequests extends Middleware
                         ]),
                 ];
             },
+            'wishlist' => function () use ($request) {
+                if (!$request->user()) {
+                    return [];
+                }
+                return $request->user()->wishlist()->pluck('product_id');
+            },
         ];
     }
 }

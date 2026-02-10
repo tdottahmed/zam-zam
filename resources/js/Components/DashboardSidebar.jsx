@@ -13,7 +13,7 @@ export default function DashboardSidebar({ className = '' }) {
         ]),
         { name: 'Address Book', href: route('addresses.index'), icon: 'MapPinIcon' }, 
         { name: 'Account Details', href: route('profile.edit'), icon: 'UserIcon' },
-        { name: 'Wishlist', href: '#', icon: 'HeartIcon' }, 
+        { name: 'Wishlist', href: route('wishlist.index'), icon: 'HeartIcon' }, 
     ];
 
     // Helper to check active state

@@ -31,6 +31,11 @@ Route::middleware('auth')->group(function () {
     // Address Routes
     Route::resource('addresses', \App\Http\Controllers\UserAddressController::class);
     Route::patch('/addresses/{address}/default', [\App\Http\Controllers\UserAddressController::class, 'setDefault'])->name('addresses.set-default');
+
+    // Wishlist Routes
+    Route::get('/wishlist', [\App\Http\Controllers\WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist', [\App\Http\Controllers\WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [\App\Http\Controllers\WishlistController::class, 'destroy'])->name('wishlist.destroy');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

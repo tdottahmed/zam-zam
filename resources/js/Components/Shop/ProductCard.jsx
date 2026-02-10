@@ -1,12 +1,14 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import StorageImage from '../StorageImage';
 import useCartStore from '../../Stores/useCartStore';
 
 export default function ProductCard({ product }) {
-    const { cart: propsCart } = usePage().props;
+    const { cart: propsCart, wishlist = [] } = usePage().props; // wishlist defaults to []
     const { openCart, cart: storeCart, updateQuantity } = useCartStore();
     const [loading, setLoading] = useState(false);
+
+    const isWishlisted = wishlist.includes(product.id);
 
     // Use store cart for UI
     // Fallback to propsCart if store is empty, but propsCart should be synced by the Layout/Header
@@ -57,6 +59,23 @@ export default function ProductCard({ product }) {
         updateQuantity(cartItem.id, newQty);
     };
 
+    const toggleWishlist = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (isWishlisted) {
+            router.delete(route('wishlist.destroy', product.id), {
+                preserveScroll: true,
+            });
+        } else {
+            router.post(route('wishlist.store'), {
+                product_id: product.id
+            }, {
+                preserveScroll: true,
+            });
+        }
+    };
+
     return (
         <div className={`group relative flex flex-col h-full bg-white rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-500 ease-out border overflow-hidden ${quantity > 0 ? 'border-[#C41E3A] ring-1 ring-[#C41E3A] ring-opacity-50' : 'border-transparent hover:border-gray-100'}`}>
             
@@ -80,8 +99,11 @@ export default function ProductCard({ product }) {
                     )}
                     
                     {/* Wishlist Button (Aesthetic) */}
-                    <button className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-md shadow-sm border border-white/50 flex items-center justify-center text-gray-400 hover:text-[#C41E3A] hover:bg-white transition-colors duration-200 group/heart">
-                        <svg className="w-4 h-4 transition-transform group-hover/heart:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button 
+                        onClick={toggleWishlist}
+                        className={`w-8 h-8 rounded-full backdrop-blur-md shadow-sm border flex items-center justify-center transition-colors duration-200 group/heart ${isWishlisted ? 'bg-[#C41E3A] border-[#C41E3A] text-white' : 'bg-white/80 border-white/50 text-gray-400 hover:text-[#C41E3A] hover:bg-white'}`}
+                    >
+                        <svg className="w-4 h-4 transition-transform group-hover/heart:scale-110" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                     </button>
