@@ -6,8 +6,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      font-size: 10px;
-      background-color: #ccffcc;
+      font-size: 12px;
+      
       /* Light green background matching screenshot */
       color: #000;
     }
@@ -15,26 +15,25 @@
     @page {
       header: page-header;
       footer: page-footer;
-      background-color: #ccffcc;
+      margin-top: 100px; /* Adjust for larger header */
     }
 
     @page :first {
       header: page-header;
       footer: page-footer;
-      background-color: #ccffcc;
+      
     }
 
     /* Header Styles */
     htmlpageheader {
-      background-color: #ccffcc;
+      
     }
 
     .header-top {
       width: 100%;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       display: table;
       table-layout: fixed;
-      background-color: #ccffcc;
     }
 
     .logo-container {
@@ -45,17 +44,19 @@
 
     .logo {
       display: inline-block;
-      height: 20px;
+      height: 80px; /* Increased from 20px */
       width: auto;
-      max-height: 60px;
+      max-height: none;
+      margin-top:10px;
     }
 
     .flavor-text {
       display: table-cell;
       text-align: right;
       vertical-align: top;
-      font-size: 10px;
-      padding-top: 5px;
+      font-size: 14px; /* Increased from 12px for better readability */
+      padding-top: 15px; /* Aligned with larger logo */
+      color: #555;
     }
 
     .header-separator {
@@ -70,7 +71,7 @@
       padding-bottom: 5px;
       margin-bottom: 10px;
       overflow: hidden;
-      background-color: #ccffcc;
+      
     }
 
     .address-separator {
@@ -97,7 +98,7 @@
     .section-title {
       font-weight: bold;
       margin-bottom: 2px;
-      font-size: 11px;
+      font-size: 12px;
     }
 
     /* Invoice Details */
@@ -129,7 +130,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9px;
+      font-size: 11px;
     }
 
     th {
@@ -189,7 +190,7 @@
 
   <!-- Define Header -->
   <htmlpageheader name="page-header">
-    <div style="background-color: #ccffcc; width: 100%;">
+    <div style="width: 100%;">
       <div class="header-top">
         <div class="logo-container">
           <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="logo">
