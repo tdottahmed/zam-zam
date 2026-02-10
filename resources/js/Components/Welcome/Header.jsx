@@ -4,7 +4,7 @@ import useCartStore from '../../Stores/useCartStore';
 import CartSidebar from '../../Components/Cart/CartSidebar';
 
 export default function Header() {
-    const { auth, cart } = usePage().props;
+    const { auth, cart, wishlist = [] } = usePage().props;
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
@@ -19,6 +19,7 @@ export default function Header() {
     }, [cart, setCart]);
 
     const displayCount = storeCart?.count || cart?.count || 0;
+    const wishlistCount = wishlist.length;
     
     // Prevent scrolling when menu/search is open
     if (typeof window !== 'undefined') {
@@ -127,6 +128,20 @@ export default function Header() {
                                     </button>
                                 </div>
 
+                                {/* Wishlist Icon */}
+                                <div className="relative">
+                                    <Link href={route('wishlist.index')} className="hidden lg:flex p-2 text-gray-700 hover:text-[#C41E3A] transition relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                        </svg>
+                                        {wishlistCount > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
+                                                {wishlistCount}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </div>
+
 
                                 {/* Auth Buttons */}
                                 <div className="hidden lg:block">
@@ -148,6 +163,16 @@ export default function Header() {
                                 
                                 {/* Mobile Cart & Menu Buttons */}
                                 <div className="lg:hidden flex items-center gap-2">
+                                     <Link href={route('wishlist.index')} className="p-2 text-gray-700 relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                                        </svg>
+                                        {wishlistCount > 0 && (
+                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-[#C41E3A] rounded-full">
+                                                {wishlistCount}
+                                            </span>
+                                        )}
+                                    </Link>
                                     <button onClick={openCart} className="p-2 text-gray-700 relative">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 5c.07.277-.144.516-.41.488a10.977 10.977 0 0 1-5.26 1.508 10.979 10.979 0 0 1-5.26-1.508c-.266.028-.48-.21-.41-.488l1.263-5a.49.49 0 0 1 .454-.368 18.243 18.243 0 0 0 3.955-.42 18.22 18.22 0 0 0 3.955.42c.174 0 .332.13.454.368Z" />
