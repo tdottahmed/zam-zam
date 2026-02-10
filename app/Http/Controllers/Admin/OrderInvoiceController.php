@@ -52,6 +52,7 @@ class OrderInvoiceController extends Controller
             'due_date' => 'required|date',
             'notes' => 'nullable|string',
             'discount_total' => 'nullable|numeric|min:0',
+            'shipping_amount' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.selected' => 'sometimes|in:on,1,true',
             'items.*.quantity' => 'required_with:items.*.selected|numeric|min:0.01',
@@ -81,6 +82,7 @@ class OrderInvoiceController extends Controller
             'due_date' => $validated['due_date'],
             'notes' => $validated['notes'],
             'discount_total' => $validated['discount_total'] ?? 0,
+            'shipping_amount' => $validated['shipping_amount'] ?? 0,
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
             'total' => 0,
@@ -119,13 +121,8 @@ class OrderInvoiceController extends Controller
             $taxTotal += $lineTax;
         }
 
-        // Grand total = Subtotal + Tax - Invoice Level Discount (already handled differently in some systems, 
-        // but here 'discount_total' is usually a general discount on the whole invoice)
-        // If discount_total is applied AFTER tax:
-        // $grandTotal = $subtotal + $taxTotal - ($validated['discount_total'] ?? 0);
-        
-        // If typical invoice logic: Sum of Line Totals + Sum of Taxes - Global Discount
-        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0));
+        // Grand total = Subtotal + Tax - Discount + Shipping
+        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0) + ($validated['shipping_amount'] ?? 0));
 
         $invoice->update([
             'subtotal' => $subtotal,
