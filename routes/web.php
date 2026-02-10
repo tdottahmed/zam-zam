@@ -46,6 +46,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Orders
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 
+    // Users
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
     // Invoices Resource
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
     
