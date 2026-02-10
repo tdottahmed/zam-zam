@@ -51,9 +51,12 @@ class OrderInvoiceController extends Controller
             'invoice_date' => 'required|date',
             'due_date' => 'required|date',
             'notes' => 'nullable|string',
+            'discount_total' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.selected' => 'sometimes|in:on,1,true',
             'items.*.quantity' => 'required_with:items.*.selected|numeric|min:0.01',
+            'items.*.price' => 'required_with:items.*.selected|numeric|min:0',
+            'items.*.discount' => 'nullable|numeric|min:0',
         ]);
 
         // Filter only selected items
@@ -77,6 +80,7 @@ class OrderInvoiceController extends Controller
             'invoice_date' => $validated['invoice_date'],
             'due_date' => $validated['due_date'],
             'notes' => $validated['notes'],
+            'discount_total' => $validated['discount_total'] ?? 0,
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
             'total' => 0,
@@ -89,12 +93,16 @@ class OrderInvoiceController extends Controller
             if (!$orderItem) continue;
 
             $quantity = $data['quantity'];
-            $unitPrice = $orderItem->unit_price;
-            $lineTotal = $quantity * $unitPrice;
+            $unitPrice = $data['price']; // Use edited price
+            $discountAmount = $data['discount'] ?? 0;
+            
+            // Calculate line total: (Qty * Price) - Discount
+            $lineTotal = ($quantity * $unitPrice) - $discountAmount;
             
             $product = $orderItem->product;
             $taxRate = $product && $product->tax ? $product->tax->value : 0;
-            $lineTax = $unitPrice * $quantity * ($taxRate / 100);
+            // Tax is usually calculated on the discounted amount
+            $lineTax = max(0, $lineTotal) * ($taxRate / 100);
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
@@ -102,6 +110,7 @@ class OrderInvoiceController extends Controller
                 'product_name' => $orderItem->product_name,
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
+                'discount_amount' => $discountAmount,
                 'total_price' => $lineTotal,
                 'tax_amount' => $lineTax,
             ]);
@@ -110,7 +119,13 @@ class OrderInvoiceController extends Controller
             $taxTotal += $lineTax;
         }
 
-        $grandTotal = $subtotal + $taxTotal;
+        // Grand total = Subtotal + Tax - Invoice Level Discount (already handled differently in some systems, 
+        // but here 'discount_total' is usually a general discount on the whole invoice)
+        // If discount_total is applied AFTER tax:
+        // $grandTotal = $subtotal + $taxTotal - ($validated['discount_total'] ?? 0);
+        
+        // If typical invoice logic: Sum of Line Totals + Sum of Taxes - Global Discount
+        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0));
 
         $invoice->update([
             'subtotal' => $subtotal,
