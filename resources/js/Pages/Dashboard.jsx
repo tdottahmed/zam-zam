@@ -93,17 +93,24 @@ export default function Dashboard() {
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Saved Items</p>
                     </div>
 
-                    {/* Widget 3: Points/Rewards (Placeholder) */}
-                    <div className="bg-white dark:bg-[#1E1E1E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow group">
-                         <div className="flex items-center justify-between mb-4">
-                            <div className="h-10 w-10 rounded-full bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-400 group-hover:scale-110 transition-transform">
+                    {/* Widget 3: Addresses */}
+                    <div className="bg-white dark:bg-[#1E1E1E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow group cursor-pointer relative overflow-hidden" onClick={() => window.location.href = route('addresses.index')}>
+                         <div className="flex items-center justify-between mb-4 relative z-10">
+                            <div className="h-10 w-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div className="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-[#C41E3A] group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
                             </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Bronze</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Member Status</p>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white relative z-10">Address</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 relative z-10">Manage Shipping & Billing</p>
+                         <div className="absolute -bottom-4 -right-4 h-24 w-24 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all duration-300"></div>
                     </div>
                 </div>
 

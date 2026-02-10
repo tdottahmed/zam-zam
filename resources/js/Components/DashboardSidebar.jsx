@@ -11,7 +11,7 @@ export default function DashboardSidebar({ className = '' }) {
         ] : [
             { name: 'My Orders', href: route('orders.index'), icon: 'ShoppingBagIcon' }
         ]),
-        { name: 'Address Book', href: '#', icon: 'MapPinIcon' }, 
+        { name: 'Address Book', href: route('addresses.index'), icon: 'MapPinIcon' }, 
         { name: 'Account Details', href: route('profile.edit'), icon: 'UserIcon' },
         { name: 'Wishlist', href: '#', icon: 'HeartIcon' }, 
     ];

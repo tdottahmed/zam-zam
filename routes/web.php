@@ -26,6 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Address Routes
+    Route::resource('addresses', \App\Http\Controllers\UserAddressController::class);
+    Route::patch('/addresses/{address}/default', [\App\Http\Controllers\UserAddressController::class, 'setDefault'])->name('addresses.set-default');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

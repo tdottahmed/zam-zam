@@ -3,91 +3,106 @@ import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ orders }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    My Orders
-                </h2>
-            }
-        >
-            <Head title="My Orders" />
+        <AuthenticatedLayout title="My Orders">
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Order History</h2>
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            Track and manage your recent purchases.
+                        </p>
+                    </div>
+                </div>
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div className="p-6 text-gray-900 dark:text-gray-100">
-                            
-                            {orders.data.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                                    </svg>
-                                    <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No orders</h3>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">You haven't placed any orders yet.</p>
-                                    <div className="mt-6">
-                                        <Link href={route('shop.index')} className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#C41E3A] hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A]">
-                                            Start Shopping
-                                        </Link>
-                                    </div>
+                {orders.data.length === 0 ? (
+                    <div className="text-center py-16 bg-white dark:bg-[#1E1E1E] rounded-3xl border border-dashed border-gray-300 dark:border-gray-700">
+                        <div className="mx-auto h-20 w-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400">
+                            <svg className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No orders found</h3>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                            You haven't placed any orders yet. Discover our latest products and start shopping!
+                        </p>
+                        <div className="mt-8">
+                            <Link 
+                                href={route('shop.index')} 
+                                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-[#C41E3A] hover:bg-[#a01830] shadow-sm hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                            >
+                                Start Shopping
+                            </Link>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold">Order</th>
+                                        <th className="px-6 py-4 font-semibold">Date</th>
+                                        <th className="px-6 py-4 font-semibold">Status</th>
+                                        <th className="px-6 py-4 font-semibold">Total</th>
+                                        <th className="px-6 py-4 font-semibold text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                    {orders.data.map((order) => (
+                                        <tr key={order.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                                #{order.id}
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
+                                                {new Date(order.created_at).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize border ${
+                                                    order.status === 'completed' || order.status === 'delivered' 
+                                                        ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30' 
+                                                    : order.status === 'processing' 
+                                                        ? 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30'
+                                                    : order.status === 'cancelled' 
+                                                        ? 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30'
+                                                    : 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-900/30'
+                                                }`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                                        order.status === 'completed' || order.status === 'delivered' ? 'bg-green-500' :
+                                                        order.status === 'processing' ? 'bg-blue-500' :
+                                                        order.status === 'cancelled' ? 'bg-red-500' :
+                                                        'bg-yellow-500'
+                                                    }`}></span>
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                                ${Number(order.total_amount).toFixed(2)}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <Link 
+                                                    href={route('orders.show', order.id)} 
+                                                    className="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#C41E3A] hover:border-[#C41E3A]/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] dark:bg-[#2A2A2A] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#333] transition-all duration-200"
+                                                >
+                                                    View Details
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {/* Pagination */}
+                        {orders.links.length > 3 && (
+                            <div className="border-t border-gray-100 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+                                <div className="flex-1 flex justify-between sm:hidden">
+                                     {/* Mobile Pagination links could go here if needed, generic for now */}
                                 </div>
-                            ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                        <thead className="bg-gray-50 dark:bg-gray-700">
-                                            <tr>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                                                    Order ID
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                                                    Date
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                                                    Status
-                                                </th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                                                    Total
-                                                </th>
-                                                <th scope="col" className="relative px-6 py-3">
-                                                    <span className="sr-only">View</span>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                                            {orders.data.map((order) => (
-                                                <tr key={order.id}>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                        #{order.id}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                        {new Date(order.created_at).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                            ${order.status === 'completed' || order.status === 'delivered' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
-                                                            order.status === 'processing' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
-                                                            order.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`}>
-                                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                        ${Number(order.total_amount).toFixed(2)}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <Link href={route('orders.show', order.id)} className="text-[#C41E3A] hover:text-[#a01830]">
-                                                            View
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-
-                             {/* Pagination */}
-                            {orders.links.length > 3 && (
-                                <div className="mt-6 flex justify-center">
+                                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">
                                     <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                         {orders.links.map((link, key) => (
                                             <Link
@@ -95,8 +110,8 @@ export default function Index({ orders }) {
                                                 href={link.url || '#'}
                                                 className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                                                     link.active
-                                                        ? 'z-10 bg-[#C41E3A] border-[#C41E3A] text-white'
-                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
+                                                        ? 'z-10 bg-[#C41E3A] border-[#C41E3A] text-white rounded-md'
+                                                        : 'bg-white border-transparent text-gray-500 hover:text-[#C41E3A] hover:bg-gray-50 dark:bg-transparent dark:text-gray-400 dark:hover:text-white'
                                                 } ${!link.url ? 'cursor-not-allowed opacity-50' : ''}`}
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                                 preserveScroll
@@ -104,11 +119,10 @@ export default function Index({ orders }) {
                                         ))}
                                     </nav>
                                 </div>
-                            )}
-
-                        </div>
+                            </div>
+                        )}
                     </div>
-                </div>
+                )}
             </div>
         </AuthenticatedLayout>
     );
