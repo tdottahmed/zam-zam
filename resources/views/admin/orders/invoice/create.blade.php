@@ -97,7 +97,7 @@
                                                             x-model.number="items['{{ $itemId }}'].quantity"
                                                             min="0.01" 
                                                             step="0.01"
-                                                            class="w-20 text-center rounded-md border-primary dark:border-primary dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
+                                                            class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
                                                             x-effect="if(editing) $el.focus()"
                                                             @keydown.enter="editing = false"
                                                         >
@@ -119,7 +119,7 @@
                                                             x-model.number="items['{{ $itemId }}'].price"
                                                             min="0" 
                                                             step="0.01"
-                                                            class="w-24 text-right rounded-md border-primary dark:border-primary dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
+                                                            class="w-24 text-right rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
                                                             x-effect="if(editing) $el.focus()"
                                                             @keydown.enter="editing = false"
                                                         >
@@ -355,4 +355,15 @@
             }
         }
     </script>
+    <style>
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
 @endsection
