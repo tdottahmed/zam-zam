@@ -24,7 +24,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Ensure the order belongs to the authenticated user
-        if ($order->user_id !== Auth::id()) {
+        if ($order->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -38,7 +38,7 @@ class OrderController extends Controller
     public function downloadInvoice(Order $order)
     {
         // Ensure the order belongs to the authenticated user
-        if ($order->user_id !== Auth::id()) {
+        if ($order->user_id != Auth::id()) {
             abort(403);
         }
 

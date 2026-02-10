@@ -8,7 +8,8 @@ export default function ProductCard({ product }) {
     const { openCart, cart: storeCart, updateQuantity } = useCartStore();
     const [loading, setLoading] = useState(false);
 
-    const isWishlisted = wishlist.includes(product.id);
+    // Use loose equality to handle string/number mismatches (common in prod/staging environments)
+    const isWishlisted = wishlist.some(id => id == product.id);
 
     // Use store cart for UI
     // Fallback to propsCart if store is empty, but propsCart should be synced by the Layout/Header
