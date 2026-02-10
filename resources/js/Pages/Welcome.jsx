@@ -16,7 +16,7 @@ export default function Welcome({ auth, brands, categories }) {
             <CategoriesGrid categories={categories} />
             <ValueProposition />
             <CallToAction />
-            <AboutSection />
+            {/* <AboutSection /> */}
         </CustomerLayout>
     );
 }
