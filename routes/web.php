@@ -44,10 +44,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
     Route::put('orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'update'])->name('orders.update');
 
-    // Invoice routes
+    // Invoices Resource
+    Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
+    
+    // Invoice specific routes (Legacy/Specific actions)
     Route::get('orders/{order}/invoice/create', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'create'])->name('orders.invoice.create');
     Route::post('orders/{order}/invoice/store', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'store'])->name('orders.invoice.store');
-    Route::get('invoices/{invoice}', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'show'])->name('invoices.show');
     Route::get('invoices/{invoice}/print', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'print'])->name('invoices.print');
 });
 
