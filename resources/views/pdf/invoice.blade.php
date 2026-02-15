@@ -24,9 +24,15 @@
       
     }
 
-    /* Header Styles */
-    htmlpageheader {
-      
+
+    htmlpagefooter {
+      text-align: center;
+      font-size: 10px;
+      color: #777;
+    }
+
+    .page-number:before {
+      content: "Page " counter(page);      
     }
 
     .header-top {

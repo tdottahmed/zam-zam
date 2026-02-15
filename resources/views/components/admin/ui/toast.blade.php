@@ -38,6 +38,7 @@
     x-transition:leave-end="opacity-0"
     style="display: none;"
     class="fixed top-5 right-5 z-50 flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-lg border border-gray-100"
+    @notify.window="notify($event.detail.type, $event.detail.message)"
 >
     <div class="flex-shrink-0 flex items-center justify-center w-12"
          :class="{

@@ -56,6 +56,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('api/search/users', [\App\Http\Controllers\Admin\OrderController::class, 'searchUsers'])->name('api.search.users');
     Route::get('api/search/products', [\App\Http\Controllers\Admin\OrderController::class, 'searchProducts'])->name('api.search.products');
 
+    // Notifications
+    Route::get('/notifications/poll', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.poll');
+    Route::post('/notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+
     // Orders
     Route::patch('orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);

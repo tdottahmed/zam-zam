@@ -104,6 +104,12 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+            // Dispatch Order Created Event
+            \App\Events\OrderCreated::dispatch($order);
+
+            // Notify Admins
+            \App\Models\User::where('user_type', 'admin')->get()->each->notify(new \App\Notifications\OrderPlacedNotification($order));
+
             return redirect()->route('shop.index')->with('success', 'Order placed successfully! Order ID: ' . $order->id);
 
         } catch (\Exception $e) {
