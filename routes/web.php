@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     // Credit Note Routes
     Route::get('/orders/{order}/credit-note/create', [\App\Http\Controllers\CreditNoteController::class, 'create'])->name('credit-notes.create');
     Route::post('/orders/{order}/credit-note', [\App\Http\Controllers\CreditNoteController::class, 'store'])->name('credit-notes.store');
+    Route::get('/credit-notes/{creditNote}', [\App\Http\Controllers\CreditNoteController::class, 'show'])->name('credit-notes.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

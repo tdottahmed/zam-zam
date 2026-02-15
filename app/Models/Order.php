@@ -39,4 +39,9 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    public function creditNotes()
+    {
+        return $this->hasMany(CreditNote::class);
+    }
 }

@@ -1,38 +1,77 @@
 import { useForm, usePage, Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function CreateCreditNote({ order }) {
-    const { items } = order;
+    const { items: orderItems } = order;
+    
+    // State for filtering
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('all');
 
     const { data, setData, post, processing, errors } = useForm({
-        reason: '',
+        reason: 'Damaged / Broken', // Default reason
         description: '',
-        items: items.map(item => ({
+        items: orderItems.map(item => ({
             id: item.id,
             selected: false,
-            quantity: 1, // Default to 1
+            quantity: item.quantity, // Default to full quantity, user reduces if needed
+            reason: '', // specific reason
         })),
     });
 
-    const handleItemSelection = (index, selected) => {
-        const newItems = [...data.items];
-        newItems[index].selected = selected;
+    // Update item data helper
+    const updateItem = (id, field, value) => {
+        const newItems = data.items.map(item => {
+            if (item.id === id) {
+                // If quantity changes greater than 0, auto select
+                let updates = { [field]: value };
+                if (field === 'quantity' && value > 0 && !item.selected) {
+                    updates.selected = true;
+                }
+                return { ...item, ...updates };
+            }
+            return item;
+        });
         setData('items', newItems);
     };
 
-    const handleQuantityChange = (index, quantity) => {
-        const maxQty = items[index].quantity;
-        const newQty = Math.min(Math.max(1, parseInt(quantity) || 1), maxQty);
-        
-        const newItems = [...data.items];
-        newItems[index].quantity = newQty;
-        // Auto-select if quantity is changed? Maybe. Let's keep it explicit.
-        if (newQty > 0 && !newItems[index].selected) {
-             newItems[index].selected = true;
-        }
+    const toggleSelection = (id) => {
+        const newItems = data.items.map(item => 
+            item.id === id ? { ...item, selected: !item.selected } : item
+        );
         setData('items', newItems);
     };
+
+    const toggleSelectAll = (filteredIds) => {
+        const allSelected = filteredIds.every(id => data.items.find(i => i.id === id).selected);
+        const newItems = data.items.map(item => {
+            if (filteredIds.includes(item.id)) {
+                return { ...item, selected: !allSelected };
+            }
+            return item;
+        });
+        setData('items', newItems);
+    };
+
+    // Derived state for display
+    const filteredItems = useMemo(() => {
+        return orderItems.filter(item => {
+            const matchesSearch = item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                  item.product.sku?.toLowerCase().includes(searchTerm.toLowerCase());
+            return matchesSearch;
+        });
+    }, [orderItems, searchTerm]);
+
+    const filteredItemIds = filteredItems.map(i => i.id);
+    const isAllSelected = filteredItemIds.length > 0 && filteredItemIds.every(id => data.items.find(i => i.id === id).selected);
+
+    // Calculate Totals
+    const selectedItemsData = data.items.filter(i => i.selected);
+    const totalRefundAmount = selectedItemsData.reduce((acc, selectedItem) => {
+        const originalItem = orderItems.find(i => i.id === selectedItem.id);
+        return acc + (originalItem.unit_price * selectedItem.quantity);
+    }, 0);
 
     const submit = (e) => {
         e.preventDefault();
@@ -40,154 +79,198 @@ export default function CreateCreditNote({ order }) {
     };
 
     return (
-        <AuthenticatedLayout title={`Support Request for Order #${order.id}`}>
-             <div className="max-w-4xl mx-auto space-y-6">
-                {/* Header */}
-                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <AuthenticatedLayout title={`Return Items - Order #${order.id}`}>
+            <div className="max-w-7xl mx-auto space-y-6">
+                
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-                            <Link href={route('orders.show', order.id)} className="hover:text-[#C41E3A] transition-colors">Order #{order.id}</Link>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                            <span>Return & Support</span>
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                             <Link href={route('orders.show', order.id)} className="hover:text-[#C41E3A]">Order #{order.id}</Link>
+                             <span>/</span>
+                             <span>Returns</span>
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            Create Return / Replacement Request
-                        </h2>
-                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                           Select the items you wish to return or replace and provide a reason.
-                        </p>
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Credit Note</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Select items to return from Order #{order.id}</p>
+                    </div>
+                    
+                    {/* Sticky Summary Card (Large Screens) */}
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 min-w-[300px]">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-500">Selected Items:</span>
+                            <span className="font-medium">{selectedItemsData.length}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-lg font-bold text-gray-900 dark:text-white">
+                            <span>Estimated Refund:</span>
+                            <span className="text-[#C41E3A]">${totalRefundAmount.toFixed(2)}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-                    <form onSubmit={submit} className="p-6 space-y-8">
-                        
-                        {/* Items Selection */}
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">1. Select Items</h3>
-                            {errors.items && <p className="text-sm text-red-600 mb-3">{errors.items}</p>}
-                            
-                            <div className="space-y-4">
-                                {items.map((item, index) => (
-                                    <div 
-                                        key={item.id} 
-                                        className={`flex flex-col sm:flex-row items-start sm:items-center p-4 rounded-xl border transition-all ${
-                                            data.items[index].selected 
-                                                ? 'border-[#C41E3A] bg-red-50/50 dark:bg-red-900/10' 
-                                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#252525]'
-                                        }`}
-                                    >
-                                        <div className="flex items-center h-5">
-                                            <input
-                                                id={`item-${item.id}`}
-                                                type="checkbox"
-                                                checked={data.items[index].selected}
-                                                onChange={(e) => handleItemSelection(index, e.target.checked)}
-                                                className="h-5 w-5 rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
-                                            />
-                                        </div>
-                                        
-                                        <div className="ml-4 flex-1 w-full">
-                                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                                                <div className="flex items-center gap-4">
-                                                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white">
-                                                        {item.product && item.product.image ? (
-                                                            <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
-                                                        ) : (
-                                                            <div className="h-full w-full bg-gray-100 dark:bg-gray-800" />
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor={`item-${item.id}`} className="font-medium text-gray-900 dark:text-white cursor-pointer select-none">
-                                                            {item.product_name}
-                                                        </label>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            Purchased: {item.quantity} × ${Number(item.unit_price).toFixed(2)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {data.items[index].selected && (
-                                                    <div className="flex items-center gap-3">
-                                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Return Qty:</label>
-                                                        <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-[#1E1E1E] h-10 w-fit">
-                                                            <button 
-                                                                type="button"
-                                                                onClick={() => handleQuantityChange(index, data.items[index].quantity - 1)}
-                                                                className="w-10 h-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition"
-                                                            >
-                                                                -
-                                                            </button>
-                                                            <span className="w-10 text-center text-sm font-bold text-gray-900 dark:text-white">
-                                                                {data.items[index].quantity}
-                                                            </span>
-                                                            <button 
-                                                                type="button"
-                                                                onClick={() => handleQuantityChange(index, data.items[index].quantity + 1)}
-                                                                className="w-10 h-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition"
-                                                            >
-                                                                +
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                <form onSubmit={submit} className="space-y-6">
+                    
+                    {/* Controls Bar */}
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-between items-center sticky top-0 z-10">
+                        <div className="relative w-full sm:w-96">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
                             </div>
+                            <input
+                                type="text"
+                                placeholder="Search products by name or SKU..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                className="pl-10 block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-[#C41E3A] focus:border-[#C41E3A]"
+                            />
                         </div>
-
-                         {/* Reason & Details */}
-                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">2. Reason & Details</h3>
-                            <div className="grid grid-cols-1 gap-6">
-                                <div>
-                                    <label htmlFor="reason" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for Return</label>
-                                    <select
-                                        id="reason"
-                                        value={data.reason}
-                                        onChange={e => setData('reason', e.target.value)}
-                                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm dark:bg-[#252525] dark:border-gray-700 dark:text-white py-3"
-                                    >
-                                        <option value="">Select a reason</option>
-                                        <option value="Damaged / Broken">Damaged / Broken</option>
-                                        <option value="Wrong Item Received">Wrong Item Received</option>
-                                        <option value="Item Defective">Item Defective</option>
-                                        <option value="No Longer Needed">No Longer Needed</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    {errors.reason && <p className="mt-2 text-sm text-red-600">{errors.reason}</p>}
-                                </div>
-
-                                <div>
-                                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Additional Details</label>
-                                    <textarea
-                                        id="description"
-                                        rows={4}
-                                        value={data.description}
-                                        onChange={e => setData('description', e.target.value)}
-                                        placeholder="Please provide more details about the issue..."
-                                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm dark:bg-[#252525] dark:border-gray-700 dark:text-white p-3"
-                                    />
-                                    {errors.description && <p className="mt-2 text-sm text-red-600">{errors.description}</p>}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                        <div className="flex items-center gap-3 w-full sm:w-auto">
                             <button
-                                type="submit"
-                                disabled={processing}
-                                className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-[#C41E3A] hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] shadow-lg shadow-red-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:-translate-y-0.5"
+                                type="button"
+                                onClick={() => toggleSelectAll(filteredItemIds)}
+                                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#C41E3A]"
                             >
-                                {processing ? 'Submitting Request...' : 'Submit Request'}
+                                {isAllSelected ? 'Deselect Pages' : 'Select All on Page'}
                             </button>
                         </div>
-                    </form>
-                </div>
-             </div>
+                    </div>
+
+                    {/* Data Table */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead className="bg-gray-50 dark:bg-gray-900/50">
+                                    <tr>
+                                        <th scope="col" className="px-6 py-3 text-left">
+                                            <input
+                                                type="checkbox"
+                                                checked={isAllSelected}
+                                                onChange={() => toggleSelectAll(filteredItemIds)}
+                                                className="rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A] h-5 w-5"
+                                            />
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchased</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Qty</th>
+                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Refunding</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    {filteredItems.map((item) => {
+                                        const formItem = data.items.find(i => i.id === item.id);
+                                        return (
+                                            <tr key={item.id} className={formItem.selected ? 'bg-red-50/30 dark:bg-red-900/10' : ''}>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formItem.selected}
+                                                        onChange={() => toggleSelection(item.id)}
+                                                        className="rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A] h-5 w-5"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center">
+                                                        <div className="h-10 w-10 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden mr-4">
+                                                            {item.product?.image && (
+                                                                <img src={item.product.image} className="h-full w-full object-cover" />
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1 max-w-xs" title={item.product_name}>
+                                                                {item.product_name}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">{item.variant_name || 'Default'}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    ${Number(item.unit_price).toFixed(2)}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {item.quantity}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="w-24">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max={item.quantity}
+                                                            value={formItem.quantity}
+                                                            onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)}
+                                                            className={`block w-full rounded-md shadow-sm sm:text-sm focus:ring-[#C41E3A] focus:border-[#C41E3A] ${
+                                                                formItem.quantity > item.quantity ? 'border-red-300 text-red-900' : 'border-gray-300 dark:border-gray-600 dark:bg-gray-700'
+                                                            }`}
+                                                        />
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                    ${(item.unit_price * formItem.quantity).toFixed(2)}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                    {filteredItems.length === 0 && (
+                                        <tr>
+                                            <td colSpan="6" className="px-6 py-10 text-center text-gray-500">
+                                                No items found matching "{searchTerm}"
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Footer / Reason */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Main Reason for Return</label>
+                             <select
+                                value={data.reason}
+                                onChange={e => setData('reason', e.target.value)}
+                                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-[#C41E3A] focus:border-[#C41E3A]"
+                             >
+                                <option value="Damaged / Broken">Damaged / Broken</option>
+                                <option value="Wrong Item Received">Wrong Item Received</option>
+                                <option value="Item Defective">Item Defective</option>
+                                <option value="no_longer_needed">No longer needed</option>
+                                <option value="other">Other</option>
+                             </select>
+                             {errors.reason && <p className="mt-1 text-sm text-red-600">{errors.reason}</p>}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Additional Notes</label>
+                            <textarea
+                                rows={3}
+                                value={data.description}
+                                onChange={e => setData('description', e.target.value)}
+                                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-[#C41E3A] focus:border-[#C41E3A]"
+                                placeholder="Any specific details..."
+                            />
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex justify-end gap-3 pb-10">
+                         <Link
+                            href={route('orders.show', order.id)}
+                            className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition"
+                        >
+                            Cancel
+                        </Link>
+                        <button
+                            type="submit"
+                            disabled={processing || selectedItemsData.length === 0}
+                            className="px-8 py-3 bg-[#C41E3A] text-white rounded-xl font-bold shadow-lg hover:bg-[#a01830] disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-95"
+                        >
+                            Submit Credit Note
+                        </button>
+                    </div>
+
+                </form>
+            </div>
         </AuthenticatedLayout>
     );
 }

@@ -8,8 +8,17 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 
+use App\Services\CreditNoteService;
+
 class CreditNoteController extends Controller
 {
+    protected $creditNoteService;
+
+    public function __construct(CreditNoteService $creditNoteService)
+    {
+        $this->creditNoteService = $creditNoteService;
+    }
+
     public function create(Order $order)
     {
         // Ensure order belongs to user
@@ -37,6 +46,7 @@ class CreditNoteController extends Controller
             'items.*.id' => 'required|exists:order_items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.selected' => 'required|boolean',
+            'items.*.reason' => 'nullable|string', // Per-item reason
         ]);
 
         // Filter only selected items
@@ -46,49 +56,31 @@ class CreditNoteController extends Controller
             return back()->withErrors(['items' => 'Please select at least one item to return.']);
         }
 
-        DB::beginTransaction();
-
         try {
-            $creditNote = $order->creditNotes()->create([
-                'user_id' => auth()->id(),
-                'reason' => $validated['reason'],
-                'description' => $validated['description'],
-                'status' => 'pending',
-                'total_refund_amount' => 0, // Calculated below
-            ]);
-
-            $totalRefund = 0;
-
-            foreach ($selectedItems as $itemData) {
-                $orderItem = $order->items()->find($itemData['id']);
-                
-                if (!$orderItem) continue;
-
-                if ($itemData['quantity'] > $orderItem->quantity) {
-                    throw new \Exception("Return quantity cannot exceed purchased quantity for {$orderItem->product_name}");
-                }
-
-                $itemTotal = $orderItem->unit_price * $itemData['quantity'];
-                $totalRefund += $itemTotal;
-
-                $creditNote->items()->create([
-                    'product_id' => $orderItem->product_id,
-                    'order_item_id' => $orderItem->id,
-                    'quantity' => $itemData['quantity'],
-                    'unit_price' => $orderItem->unit_price,
-                    'total_price' => $itemTotal,
-                ]);
-            }
-
-            $creditNote->update(['total_refund_amount' => $totalRefund]);
-
-            DB::commit();
+            $this->creditNoteService->createDraft(
+                $order,
+                $selectedItems->toArray(),
+                $validated['reason'],
+                $validated['description']
+            );
 
             return redirect()->route('orders.show', $order)->with('success', 'Credit note request submitted successfully.');
 
         } catch (\Exception $e) {
-            DB::rollBack();
             return back()->withErrors(['error' => 'Failed to submit request: ' . $e->getMessage()]);
         }
+    }
+
+    public function show(CreditNote $creditNote)
+    {
+        if ($creditNote->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $creditNote->load(['items.product', 'order:id,created_at']);
+
+        return Inertia::render('Orders/CreditNoteDetails', [
+            'creditNote' => $creditNote
+        ]);
     }
 }

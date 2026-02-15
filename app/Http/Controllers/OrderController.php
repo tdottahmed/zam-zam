@@ -28,7 +28,7 @@ class OrderController extends Controller
             abort(403);
         }
 
-        $order->load(['items.product', 'invoice']);
+        $order->load(['items.product', 'invoice', 'creditNotes.items.product']);
 
         return Inertia::render('Orders/Show', [
             'order' => $order

@@ -45,21 +45,22 @@ export default function Show({ order }) {
                             Placed on {new Date(order.created_at).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
                     </div>
-                    <div>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                         <a 
                              href={order.invoice ? route('orders.download-invoice', order.id) : '#'} 
                              target={order.invoice ? "_blank" : "_self"}
-                             className={`inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-[#C41E3A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] dark:bg-[#2A2A2A] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#333] transition-all duration-200 ${!order.invoice ? 'opacity-50 cursor-not-allowed' : ''}`}
+                             className={`inline-flex items-center justify-center px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:bg-[#2A2A2A] dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#333] transition-all duration-200 shadow-sm ${!order.invoice ? 'opacity-50 cursor-not-allowed' : ''}`}
                              title={order.invoice ? "Download Invoice" : "Invoice not available"}
                         >
-                            <svg className="w-5 h-5 mr-2 -ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            <svg className="w-5 h-5 mr-2.5 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             Download Invoice
                         </a>
                         <Link 
                             href={route('credit-notes.create', order.id)}
-                            className="inline-flex items-center justify-center px-4 py-2 bg-[#C41E3A] border border-transparent rounded-xl text-sm font-medium text-white hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] shadow-sm transition-all duration-200"
+                            className="inline-flex items-center justify-center px-5 py-2.5 bg-[#C41E3A] border border-transparent rounded-xl text-sm font-medium text-white hover:bg-[#a01830] active:bg-[#8a1428] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
                         >
-                            Request Support / Return
+                            <svg className="w-5 h-5 mr-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" /></svg>
+                            Create Credit Note
                         </Link>
                     </div>
                 </div>
@@ -113,6 +114,44 @@ export default function Show({ order }) {
                                 ))}
                             </ul>
                         </div>
+
+                        {/* Credit Notes Section */}
+                        {order.credit_notes && order.credit_notes.length > 0 && (
+                            <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Returns & Credit Notes</h3>
+                                </div>
+                                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                                    {order.credit_notes.map((cn) => (
+                                        <div key={cn.id} className="p-6 hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-colors flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                                            <div>
+                                                <div className="flex items-center gap-3">
+                                                    <h4 className="text-base font-bold text-gray-900 dark:text-white">
+                                                        {cn.credit_note_number}
+                                                    </h4>
+                                                    <StatusBadge status={cn.status} />
+                                                </div>
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                                   <span>Requested on {new Date(cn.created_at).toLocaleDateString()}</span>
+                                                   <span className="hidden sm:inline">&bull;</span>
+                                                   <span>Reason: {cn.reason}</span>
+                                                   <span className="hidden sm:inline">&bull;</span>
+                                                   <span className="font-medium text-[#C41E3A]">${Number(cn.grand_total).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <Link 
+                                                    href={route('credit-notes.show', cn.id)}
+                                                    className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#252525] hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#C41E3A] transition-colors"
+                                                >
+                                                    View Details
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Sidebar: Summary & Info */}
