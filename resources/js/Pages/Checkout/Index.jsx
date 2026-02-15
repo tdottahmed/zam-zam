@@ -32,6 +32,7 @@ export default function Checkout({ addresses = [] }) {
         },
         payment_method: 'cod',
         save_address: true,
+        address_id: 'new', // Track selected address ID
     });
 
     // Effect to update form data when selected address changes
@@ -41,6 +42,8 @@ export default function Checkout({ addresses = [] }) {
             if (address) {
                 setData(prev => ({
                     ...prev,
+                    address_id: address.id, // Set existing address ID
+                    save_address: false, // Don't save strictly by default when existing is selected (or maybe we keep it false, user can't toggle it for existing anyway)
                     email: address.email || prev.email,
                     phone: address.phone || prev.phone,
                     shipping_address: {
@@ -63,6 +66,8 @@ export default function Checkout({ addresses = [] }) {
                  // Actually, better to reset to auth defaults if they switch to new
                  setData(prev => ({
                      ...prev,
+                     address_id: 'new',
+                     save_address: true, // Default to true for new addresses
                      email: auth.user.email || '',
                      phone: auth.user.phone || '',
                      shipping_address: {
@@ -119,14 +124,6 @@ export default function Checkout({ addresses = [] }) {
                                         />
                                     </div>
                                 )}
-
-                                {/* Contact & Shipping Form (Visible if 'new' is selected or we want to allow editing selected address - currently read-onlyish approach for selected might be better but editing is flexible) */}
-                                {/* Logic: Always show form. If saved address selected, fields are populated. 
-                                    If user edits fields of a saved address, should it become a "new" address or just a one-off?
-                                    Let's keep it simple: If saved address selected, form is shown (maybe even allows editing). 
-                                    But usually you select address OR enter new. 
-                                    Let's make the form collapsible or just clear context.
-                                 */}
                                 
                                 <Transition
                                     show={true} // Always show for now, but arguably could hide if strict mode

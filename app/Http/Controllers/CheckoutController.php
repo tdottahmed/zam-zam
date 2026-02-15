@@ -39,6 +39,7 @@ class CheckoutController extends Controller
             'shipping_address.country' => 'required|string',
             'payment_method' => 'required|string|in:cod', // Only COD for now
             'save_address' => 'boolean',
+            'address_id' => 'nullable', // NEW: Allow validation of address_id
         ]);
 
         $user = $request->user();
@@ -52,7 +53,8 @@ class CheckoutController extends Controller
             DB::beginTransaction();
 
             // Save address if requested
-            if ($request->boolean('save_address')) {
+            // Save address if requested AND it's a new address
+            if ($request->boolean('save_address') && $request->input('address_id') === 'new') {
                 $user->addresses()->create([
                     'type' => 'shipping',
                     'name' => $validated['shipping_address']['name'],
