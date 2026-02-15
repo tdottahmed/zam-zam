@@ -12,13 +12,12 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
         
-        // Fetch unread notifications
-        // We can also support fetching all notifications with a query param like ?all=true
-        $notifications = $user->unreadNotifications;
+        // Fetch recent notifications (read and unread)
+        $notifications = $user->notifications()->latest()->take(10)->get();
 
         return response()->json([
             'notifications' => $notifications,
-            'unread_count' => $user->unreadNotifications->count()
+            'unread_count' => $user->unreadNotifications()->count()
         ]);
     }
     

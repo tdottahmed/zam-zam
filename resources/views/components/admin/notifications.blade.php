@@ -105,32 +105,41 @@
                 </template>
                 
                 <template x-for="notification in notifications" :key="notification.id">
-                    <a :href="notification.data.type === 'credit_note' ? `/admin/credit-notes/${notification.data.credit_note_id}` : `/admin/orders/${notification.data.order_id}`" 
-                       @click="markAsRead(notification.id)"
-                       class="block px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 last:border-0"
-                    >
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full"
-                                      :class="notification.data.type === 'credit_note' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-[#C41E3A]'">
-                                    <template x-if="notification.data.type === 'credit_note'">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
-                                        </svg>
-                                    </template>
-                                    <template x-if="!notification.data.type">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                        </svg>
-                                    </template>
-                                </span>
+                    <div class="relative group border-b border-gray-100 last:border-0" :class="{'bg-gray-50': !notification.read_at, 'bg-white': notification.read_at}">
+                        <a :href="notification.data.type === 'credit_note' ? `/admin/credit-notes/${notification.data.credit_note_id}` : `/admin/orders/${notification.data.order_id}`" 
+                           @click="markAsRead(notification.id)"
+                           class="block px-4 py-3 hover:bg-gray-100 transition"
+                        >
+                            <div class="flex items-start pr-6">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full"
+                                          :class="notification.data.type === 'credit_note' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-[#C41E3A]'">
+                                        <template x-if="notification.data.type === 'credit_note'">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                                            </svg>
+                                        </template>
+                                        <template x-if="!notification.data.type">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                            </svg>
+                                        </template>
+                                    </span>
+                                </div>
+                                <div class="ml-3 w-0 flex-1">
+                                    <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
+                                    <p class="mt-1 text-xs text-gray-500" x-text="new Date(notification.created_at).toLocaleString()"></p>
+                                </div>
                             </div>
-                            <div class="ml-3 w-0 flex-1">
-                                <p class="text-sm font-medium text-gray-900" x-text="notification.data.message"></p>
-                                <p class="mt-1 text-xs text-gray-500" x-text="new Date(notification.created_at).toLocaleString()"></p>
-                            </div>
+                        </a>
+                        <!-- Mark as Read / Unread Indicator -->
+                         <div class="absolute top-3 right-3" x-show="!notification.read_at">
+                            <button @click.stop="markAsRead(notification.id)" class="text-gray-400 hover:text-[#C41E3A] p-1 rounded-full hover:bg-red-50" title="Mark as read">
+                                <span class="sr-only">Mark as read</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            </button>
                         </div>
-                    </a>
+                    </div>
                 </template>
             </div>
             

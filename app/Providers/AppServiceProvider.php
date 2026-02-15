@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\View::composer('components.admin.notifications', function ($view) {
             $user = auth()->user();
             if ($user && ($user->user_type === 'admin' || $user->is_admin)) { // adjust check based on your User model
-                $view->with('notifications', $user->unreadNotifications);
-                $view->with('unreadCount', $user->unreadNotifications->count());
+                $view->with('notifications', $user->notifications()->latest()->take(10)->get());
+                $view->with('unreadCount', $user->unreadNotifications()->count());
             } else {
                 $view->with('notifications', collect([]));
                 $view->with('unreadCount', 0);
