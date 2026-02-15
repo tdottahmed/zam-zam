@@ -57,6 +57,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('api/search/products', [\App\Http\Controllers\Admin\OrderController::class, 'searchProducts'])->name('api.search.products');
 
     // Orders
+    Route::patch('orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 
     // Users

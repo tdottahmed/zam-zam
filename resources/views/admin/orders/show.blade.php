@@ -196,9 +196,9 @@
                     </h3>
                 </div>
                 <div class="p-6">
-                    <form action="{{ route('admin.orders.update', $order) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('admin.orders.update-status', $order) }}" method="POST" class="space-y-4">
                         @csrf
-                        @method('PUT')
+                        @method('PATCH')
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Order Status</label>

@@ -224,6 +224,21 @@ class OrderController extends Controller
     }
 
     /**
+     * Update the order status.
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,processing,completed,cancelled',
+            'payment_status' => 'required|in:pending,paid,failed',
+        ]);
+
+        $order->update($validated);
+
+        return back()->with('success', 'Order status updated successfully.');
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Order $order)

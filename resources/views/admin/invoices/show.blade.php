@@ -91,6 +91,7 @@
                                     <tr>
                                         <th class="px-4 py-3">Description</th>
                                         <th class="px-4 py-3 text-center">Qty</th>
+                                        <th class="px-4 py-3 text-right">Tax</th>
                                         <th class="px-4 py-3 text-right">Price</th>
                                         <th class="px-4 py-3 text-right">Total</th>
                                     </tr>
@@ -105,6 +106,13 @@
                                                 @endif
                                             </td>
                                             <td class="px-4 py-3 text-center">{{ $item->quantity }}</td>
+                                            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
+                                                @if($item->tax_amount > 0)
+                                                    ${{ number_format($item->tax_amount, 2) }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
                                             <td class="px-4 py-3 text-right">${{ number_format($item->unit_price, 2) }}</td>
                                             <td class="px-4 py-3 text-right font-medium">${{ number_format($item->total_price, 2) }}</td>
                                         </tr>

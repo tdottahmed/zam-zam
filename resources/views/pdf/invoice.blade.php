@@ -109,10 +109,6 @@
       color: #555;
     }
 
-    .info-bar {
-      width: 100%;
-      margin-bottom: 15px;
-    }
 
     .info-label {
       font-weight: bold;
@@ -133,17 +129,16 @@
       font-size: 11px;
     }
 
-    th {
+    th, td {
       text-align: left;
-      padding: 5px 2px;
-      font-weight: normal;
-      color: #333;
+      padding: 8px 5px; /* Increased padding */
       border-bottom: 1px solid #ccc;
     }
 
-    td {
-      padding: 5px 2px;
-      vertical-align: top;
+    th {
+      font-weight: bold; /* Changed from normal */
+      color: #333;
+      background-color: #f9f9f9; /* Added background */
     }
 
     .text-right {
@@ -214,60 +209,71 @@
   
   <div class="invoice-title">Invoice {{ $data['invoice_number'] }}</div>
 
-  <table style="width: 100%; margin-bottom: 20px;">
+  <table style="width: 100%; margin-bottom: 10px; border-spacing: 0;">
     <tr>
-      <td style="width: 48%; vertical-align: top;">
-          <div class="section-title">Partner Reference:</div>
-          <div>{{ $data['partner']['name'] }}</div>
-          <div>{{ $data['partner']['address_1'] }}</div>
-          @if (!empty($data['partner']['address_2']))
-            <div>{{ $data['partner']['address_2'] }}</div>
-          @endif
-          <div>{{ $data['partner']['country'] }}</div>
+      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+          <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">Partner Reference</div>
+          <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['partner']['name'] }}</div>
+          <div style="color: #555; line-height: 1.4;">
+              {{ $data['partner']['address_1'] }}<br>
+              @if (!empty($data['partner']['address_2']))
+                {{ $data['partner']['address_2'] }}<br>
+              @endif
+              {{ $data['partner']['country'] }}
+          </div>
           @if (!empty($data['partner']['phone']))
-            <div>&#9742; {{ $data['partner']['phone'] }}</div>
+            <div style="margin-top: 8px; color: #555;">
+                <span style="font-weight: bold;">Phone:</span> {{ $data['partner']['phone'] }}
+            </div>
           @endif
       </td>
       <td style="width: 4%;">&nbsp;</td>
-      <td style="width: 48%; vertical-align: top; text-align: right;">
-          <div class="section-title">Delivery Address:</div>
-          <div>{{ $data['delivery']['name'] }}</div>
-          <div>{{ $data['delivery']['address_1'] }}</div>
-          @if (!empty($data['delivery']['address_2']))
-            <div>{{ $data['delivery']['address_2'] }}</div>
-          @endif
-          <div>{{ $data['delivery']['country'] }}</div>
+      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+          <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">Delivery Address</div>
+          <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['delivery']['name'] }}</div>
+          <div style="color: #555; line-height: 1.4;">
+              {{ $data['delivery']['address_1'] }}<br>
+              @if (!empty($data['delivery']['address_2']))
+                {{ $data['delivery']['address_2'] }}<br>
+              @endif
+              {{ $data['delivery']['country'] }}
+          </div>
           @if (!empty($data['delivery']['phone']))
-            <div>&#9742; {{ $data['delivery']['phone'] }}</div>
+            <div style="margin-top: 8px; color: #555;">
+                <span style="font-weight: bold;">Phone:</span> {{ $data['delivery']['phone'] }}
+            </div>
           @endif
       </td>
     </tr>
   </table>
-  
-  <div class="address-separator" style="margin-bottom: 20px;"></div>
 
-
-  <div class="info-bar">
-    <table style="width: 100%; border: none; margin-bottom: 0;">
+  <div class="info-bar" style="margin-bottom: 10px;">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
       <tr>
-        <td style="width: 10%;">
-          <span class="info-label">Invoice Date:</span><br> {{ $data['invoice_date'] }}
+        <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Invoice Date</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['invoice_date'] }}</div>
         </td>
-        <td style="width: 10%;">
-          <span class="info-label">Due Date:</span><br> {{ $data['due_date'] }}
+        <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Due Date</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['due_date'] }}</div>
         </td>
-        <td style="width: 10%;">
-          <span class="info-label">Source:</span><br> {{ $data['source'] }}
+        <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Source</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['source'] }}</div>
         </td>
-        <td style="width: 15%;">
-          <span class="info-label">Purchase Order #:</span><br> {{ $data['purchase_order'] }}
+        <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">PO #</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['purchase_order'] ?: '-' }}</div>
         </td>
-        <td style="width: 15%;">
-          <span class="info-label">Salesperson:</span><br> {{ $data['salesperson'] }}
+        <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Salesperson</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['salesperson'] }}</div>
         </td>
-        <td style="vertical-align: top; text-align: right;">
-          <div class="payment-instructions" style="text-align: left;">
-            <strong>Payment Instructions:</strong><br>
+        <td style="width: 2%;"></td>
+        <td style="background-color: #fff4e5; padding: 10px; border-radius: 5px; border: 1px solid #ffe0b2;">
+          <div style="font-size: 9px; text-transform: uppercase; color: #d35400; font-weight: bold;">Payment Instructions</div>
+          <div style="font-size: 10px; color: #555; margin-top: 3px; line-height: 1.3;">
             {{ $data['payment_instructions'] }}
           </div>
         </td>
@@ -279,28 +285,50 @@
     <thead>
       <tr class="items-header">
         <th style="width: 30px;">S.No</th>
-        <th style="width: 40px; text-align: center;">Quantity</th>
-        <th style="width: 250px;">Sales Description</th>
+        <th style="width: 50px; text-align: center;">Image</th>
+        <th style="width: 40px; text-align: center;">Qty</th>
+        <th style="width: 200px;">Sales Description</th>
         <th>UPC</th>
         <th>U.O.M.</th>
         <th>Box Price</th>
         <th>Per Unit Price</th>
+        <th>Discount</th>
         <th class="text-right">Amount</th>
-        <th>Taxes</th>
+        <th>Tax</th>
       </tr>
     </thead>
     <tbody>
       @foreach ($data['items'] as $item)
         <tr>
           <td>{{ $item['s_no'] }}</td>
+          <td style="text-align: center;">
+              @if(file_exists($item['image_path']))
+                  <img src="{{ $item['image_path'] }}" style="width: 40px; height: 40px; object-fit: contain;">
+              @else
+                  -
+              @endif
+          </td>
           <td style="text-align: center;">{{ $item['quantity'] }}</td>
           <td>{{ $item['description'] }}</td>
           <td>{{ $item['upc'] }}</td>
           <td>{{ $item['uom'] }}</td>
           <td>${{ number_format($item['box_price'], 2) }}</td>
           <td>${{ number_format($item['unit_price'], 2) }}</td>
+          <td>
+            @if($item['discount'] > 0)
+                ${{ number_format($item['discount'], 2) }}
+            @else
+                -
+            @endif
+          </td>
           <td class="text-right">${{ number_format($item['amount'], 2) }}</td>
-          <td>{{ $item['taxes'] }}</td>
+          <td>
+            @if($item['tax'] > 0)
+                ${{ number_format($item['tax'], 2) }}
+            @else
+                -
+            @endif
+          </td>
         </tr>
       @endforeach
     </tbody>
