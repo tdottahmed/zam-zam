@@ -19,8 +19,10 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index');
         }
 
+        $addresses = $request->user()->addresses()->latest()->get();
+
         return Inertia::render('Checkout/Index', [
-             // Cart is already shared globally via HandleInertiaRequests, but we can pass specific checkout data if needed
+            'addresses' => $addresses,
         ]);
     }
 
@@ -36,6 +38,7 @@ class CheckoutController extends Controller
             'shipping_address.zip' => 'required|string',
             'shipping_address.country' => 'required|string',
             'payment_method' => 'required|string|in:cod', // Only COD for now
+            'save_address' => 'boolean',
         ]);
 
         $user = $request->user();
@@ -47,6 +50,21 @@ class CheckoutController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Save address if requested
+            if ($request->boolean('save_address')) {
+                $user->addresses()->create([
+                    'type' => 'shipping',
+                    'name' => $validated['shipping_address']['name'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'],
+                    'address_line_1' => $validated['shipping_address']['address'],
+                    'city' => $validated['shipping_address']['city'],
+                    'postal_code' => $validated['shipping_address']['zip'],
+                    'country' => $validated['shipping_address']['country'],
+                    'is_default' => $user->addresses()->doesntExist(), // First address is default
+                ]);
+            }
 
             // Calculate totals
             $subtotal = $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price);

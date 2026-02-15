@@ -3,8 +3,10 @@ import CustomerLayout from '../../Layouts/CustomerLayout';
 import StorageImage from '../../Components/StorageImage';
 import { useState, useEffect } from 'react';
 import useCartStore from '../../Stores/useCartStore';
+import AddressSelector from '../../Components/Checkout/AddressSelector';
+import { Transition } from '@headlessui/react';
 
-export default function Checkout() {
+export default function Checkout({ addresses = [] }) {
     const { cart: propsCart, auth } = usePage().props;
     const { cart: storeCart, setCart, updateQuantity, removeItem: storeRemoveItem } = useCartStore();
     
@@ -15,6 +17,8 @@ export default function Checkout() {
 
     // Use store data for optimistic updates
     const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [], total: 0 });
+
+    const [selectedAddressId, setSelectedAddressId] = useState(addresses.length > 0 ? addresses[0].id : 'new');
 
     const { data, setData, post, processing, errors } = useForm({
         email: auth.user.email || '',
@@ -27,7 +31,52 @@ export default function Checkout() {
             country: '',
         },
         payment_method: 'cod',
+        save_address: true,
     });
+
+    // Effect to update form data when selected address changes
+    useEffect(() => {
+        if (selectedAddressId !== 'new') {
+            const address = addresses.find(a => a.id === selectedAddressId);
+            if (address) {
+                setData(prev => ({
+                    ...prev,
+                    email: address.email || prev.email,
+                    phone: address.phone || prev.phone,
+                    shipping_address: {
+                        name: address.name,
+                        address: address.address_line_1,
+                        city: address.city,
+                        zip: address.postal_code,
+                        country: address.country,
+                        // We might need to handle address_line_2 and state if we add them to form later
+                    }
+                }));
+            }
+        } else {
+             // Optional: Reset to user defaults or keep as is? 
+             // Keeping as is allows user to "edit" a selected address into a new one without losing data
+             // But usually "New Address" implies starting fresh or from account defaults
+             if (addresses.length > 0) {
+                 // If switching from a saved address to new, maybe clear fields?
+                 // For now let's keep it simple and just let them edit.
+                 // Actually, better to reset to auth defaults if they switch to new
+                 setData(prev => ({
+                     ...prev,
+                     email: auth.user.email || '',
+                     phone: auth.user.phone || '',
+                     shipping_address: {
+                         name: auth.user.name || '',
+                         address: '',
+                         city: '',
+                         zip: '',
+                         country: '',
+                     }
+                 }));
+             }
+        }
+    }, [selectedAddressId]);
+
 
     const handleUpdateQuantity = (itemId, quantity) => {
         if (quantity < 1) {
@@ -57,126 +106,187 @@ export default function Checkout() {
                         {/* Left Column: Forms */}
                         <div className="flex-1">
                             <form onSubmit={submit}>
-                                {/* Contact Info */}
-                                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h2>
-                                    <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-                                        <div className="sm:col-span-2">
-                                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="email"
-                                                    id="email"
-                                                    value={data.email}
-                                                    onChange={e => setData('email', e.target.value)}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
-                                            </div>
+                                
+                                {/* Saved Addresses */}
+                                {addresses.length > 0 && (
+                                    <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
+                                        <h2 className="text-xl font-bold text-gray-900 mb-6">Delivery Address</h2>
+                                        <AddressSelector 
+                                            addresses={addresses} 
+                                            selectedAddressId={selectedAddressId}
+                                            onChange={setSelectedAddressId}
+                                            onAddNew={() => setSelectedAddressId('new')}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Contact & Shipping Form (Visible if 'new' is selected or we want to allow editing selected address - currently read-onlyish approach for selected might be better but editing is flexible) */}
+                                {/* Logic: Always show form. If saved address selected, fields are populated. 
+                                    If user edits fields of a saved address, should it become a "new" address or just a one-off?
+                                    Let's keep it simple: If saved address selected, form is shown (maybe even allows editing). 
+                                    But usually you select address OR enter new. 
+                                    Let's make the form collapsible or just clear context.
+                                 */}
+                                
+                                <Transition
+                                    show={true} // Always show for now, but arguably could hide if strict mode
+                                    enter="transition-opacity duration-75"
+                                    enterFrom="opacity-0"
+                                    enterTo="opacity-100"
+                                    leave="transition-opacity duration-150"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                    <div className={`bg-white p-8 rounded-xl shadow-sm border border-gray-100 mb-8 ${selectedAddressId !== 'new' ? 'opacity-75' : ''}`}>
+                                         <div className="flex justify-between items-center mb-6">
+                                            <h2 className="text-xl font-bold text-gray-900">
+                                                {selectedAddressId === 'new' ? 'Contact & Shipping' : 'Review Details'}
+                                            </h2>
+                                            {selectedAddressId !== 'new' && (
+                                                <span className="text-sm text-gray-500">Editing will not update the saved address.</span>
+                                            )}
                                         </div>
-                                         <div className="sm:col-span-2">
-                                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="phone"
-                                                    value={data.phone}
-                                                    onChange={e => setData('phone', e.target.value)}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                {errors.phone && <p className="mt-2 text-sm text-red-600">{errors.phone}</p>}
+                                        
+                                        <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+                                            {/* Email */}
+                                            <div className="sm:col-span-2">
+                                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+                                                <div className="mt-1">
+                                                    <input
+                                                        type="email"
+                                                        id="email"
+                                                        value={data.email}
+                                                        onChange={e => setData('email', e.target.value)}
+                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                    />
+                                                    {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
+                                                </div>
+                                            </div>
+                                             {/* Phone */}
+                                             <div className="sm:col-span-2">
+                                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+                                                <div className="mt-1">
+                                                    <input
+                                                        type="text"
+                                                        id="phone"
+                                                        value={data.phone}
+                                                        onChange={e => setData('phone', e.target.value)}
+                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                    />
+                                                    {errors.phone && <p className="mt-2 text-sm text-red-600">{errors.phone}</p>}
+                                                </div>
+                                            </div>
+
+                                            {/* Shipping Fields */}
+                                            <div className="sm:col-span-6 border-t border-gray-100 pt-6 mt-2">
+                                                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                                    <div className="sm:col-span-6">
+                                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="name"
+                                                                value={data.shipping_address.name}
+                                                                onChange={e => setData('shipping_address', { ...data.shipping_address, name: e.target.value })}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                             {errors['shipping_address.name'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.name']}</p>}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-6">
+                                                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="address"
+                                                                value={data.shipping_address.address}
+                                                                onChange={e => setData('shipping_address', { ...data.shipping_address, address: e.target.value })}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                             {errors['shipping_address.address'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.address']}</p>}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="city"
+                                                                value={data.shipping_address.city}
+                                                                onChange={e => setData('shipping_address', { ...data.shipping_address, city: e.target.value })}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                             {errors['shipping_address.city'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.city']}</p>}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <label htmlFor="region" className="block text-sm font-medium text-gray-700">State / Province</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="region"
+                                                                disabled
+                                                                placeholder="N/A"
+                                                                className="block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="sm:col-span-2">
+                                                        <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">ZIP / Postal code</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="postal-code"
+                                                                value={data.shipping_address.zip}
+                                                                onChange={e => setData('shipping_address', { ...data.shipping_address, zip: e.target.value })}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                             {errors['shipping_address.zip'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.zip']}</p>}
+                                                        </div>
+                                                    </div>
+                                                     <div className="sm:col-span-6">
+                                                        <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
+                                                        <div className="mt-1">
+                                                            <input
+                                                                type="text"
+                                                                id="country"
+                                                                value={data.shipping_address.country}
+                                                                onChange={e => setData('shipping_address', { ...data.shipping_address, country: e.target.value })}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
+                                                            />
+                                                             {errors['shipping_address.country'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.country']}</p>}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Save Address Checkbox - Only show if new address is selected */}
+                                                    {selectedAddressId === 'new' && (
+                                                        <div className="sm:col-span-6">
+                                                            <div className="flex items-start">
+                                                                <div className="flex h-5 items-center">
+                                                                    <input
+                                                                        id="save-address"
+                                                                        name="save-address"
+                                                                        type="checkbox"
+                                                                        checked={data.save_address}
+                                                                        onChange={e => setData('save_address', e.target.checked)}
+                                                                        className="h-4 w-4 rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
+                                                                    />
+                                                                </div>
+                                                                <div className="ml-3 text-sm">
+                                                                    <label htmlFor="save-address" className="font-medium text-gray-700">Save this address for next time</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Shipping Address */}
-                                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 mb-8">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-6">Shipping Address</h2>
-                                    <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                                        <div className="sm:col-span-6">
-                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="name"
-                                                    value={data.shipping_address.name}
-                                                    onChange={e => setData('shipping_address', { ...data.shipping_address, name: e.target.value })}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                 {errors['shipping_address.name'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.name']}</p>}
-                                            </div>
-                                        </div>
-
-                                        <div className="sm:col-span-6">
-                                            <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="address"
-                                                    value={data.shipping_address.address}
-                                                    onChange={e => setData('shipping_address', { ...data.shipping_address, address: e.target.value })}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                 {errors['shipping_address.address'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.address']}</p>}
-                                            </div>
-                                        </div>
-
-                                        <div className="sm:col-span-2">
-                                            <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="city"
-                                                    value={data.shipping_address.city}
-                                                    onChange={e => setData('shipping_address', { ...data.shipping_address, city: e.target.value })}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                 {errors['shipping_address.city'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.city']}</p>}
-                                            </div>
-                                        </div>
-
-                                        <div className="sm:col-span-2">
-                                            <label htmlFor="region" className="block text-sm font-medium text-gray-700">State / Province</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="region"
-                                                    disabled
-                                                    placeholder="N/A"
-                                                    className="block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="sm:col-span-2">
-                                            <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">ZIP / Postal code</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="postal-code"
-                                                    value={data.shipping_address.zip}
-                                                    onChange={e => setData('shipping_address', { ...data.shipping_address, zip: e.target.value })}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                 {errors['shipping_address.zip'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.zip']}</p>}
-                                            </div>
-                                        </div>
-                                         <div className="sm:col-span-6">
-                                            <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                                            <div className="mt-1">
-                                                <input
-                                                    type="text"
-                                                    id="country"
-                                                    value={data.shipping_address.country}
-                                                    onChange={e => setData('shipping_address', { ...data.shipping_address, country: e.target.value })}
-                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm"
-                                                />
-                                                 {errors['shipping_address.country'] && <p className="mt-2 text-sm text-red-600">{errors['shipping_address.country']}</p>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                </Transition>
 
                                 {/* Payment Method */}
                                 <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
