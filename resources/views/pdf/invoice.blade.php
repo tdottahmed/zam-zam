@@ -308,7 +308,7 @@
         <tr>
           <td>{{ $item['s_no'] }}</td>
           <td style="text-align: center;">
-              @if(file_exists($item['image_path']))
+              @if(isset($item['image_path']) && file_exists($item['image_path']))
                   <img src="{{ $item['image_path'] }}" style="width: 40px; height: 40px; object-fit: contain;">
               @else
                   -
