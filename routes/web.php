@@ -69,6 +69,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('orders/{order}/invoice/create', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'create'])->name('orders.invoice.create');
     Route::post('orders/{order}/invoice/store', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'store'])->name('orders.invoice.store');
     Route::get('invoices/{invoice}/print', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'print'])->name('invoices.print');
+
+    // Credit Notes
+    Route::resource('credit-notes', \App\Http\Controllers\Admin\CreditNoteController::class);
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
