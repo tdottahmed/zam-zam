@@ -35,7 +35,7 @@ class CreditNoteController extends Controller
 
     public function store(Request $request, Order $order)
     {
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
