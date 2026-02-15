@@ -5,7 +5,7 @@
   <title>Invoice</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Helvetica', 'Arial', sans-serif;
       font-size: 12px;
       
       /* Light green background matching screenshot */
@@ -349,7 +349,7 @@
     </div>
 
     <div class="amounts">
-      <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px;">
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>
             <td>Subtotal</td>
@@ -357,15 +357,15 @@
           </tr>
         </table>
       </div>
-      <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px;">
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>
-            <td>HST 13% on $ {{ number_format($data['hst_base'], 2) }}</td>
+            <td>Total Taxable Amount on $ {{ number_format($data['hst_base'], 2) }}</td>
             <td class="text-right">${{ number_format($data['hst'], 2) }}</td>
           </tr>
         </table>
       </div>
-      <div style="margin-bottom: 5px;">
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>
             <td style="font-weight: bold;">Total</td>
