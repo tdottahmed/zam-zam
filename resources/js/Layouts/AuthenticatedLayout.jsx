@@ -23,7 +23,7 @@ export default function AuthenticatedLayout({ header, children, title }) {
             
             <Header />
 
-            <div className="flex flex-1 py-4 pb-12 max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 gap-8">
+            <div className="flex flex-1 py-4 pb-12 max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8 gap-8">
                  {/* Sidebar for Desktop - Sticky positioning */}
                 <div className="hidden lg:block w-72 flex-shrink-0">
                      <div className="sticky top-28 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E1E]">

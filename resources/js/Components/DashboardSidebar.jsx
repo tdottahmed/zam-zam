@@ -4,26 +4,22 @@ export default function DashboardSidebar({ className = '' }) {
     const { url, auth } = usePage().props;
     const user = auth.user;
 
-    const links = [
-        { name: 'Dashboard', href: route('dashboard'), icon: 'HomeIcon' },
-        ...(user.user_type === 'admin' ? [
-            { name: 'Admin Panel', href: route('admin.dashboard'), icon: 'AdminIcon' }
-        ] : [
-            { name: 'My Orders', href: route('orders.index'), icon: 'ShoppingBagIcon' }
-        ]),
-        { name: 'Address Book', href: route('addresses.index'), icon: 'MapPinIcon' }, 
-        { name: 'Account Details', href: route('profile.edit'), icon: 'UserIcon' },
-        { name: 'Wishlist', href: route('wishlist.index'), icon: 'HeartIcon' }, 
-    ];
-
     // Helper to check active state
-    const isActive = (href) => {
-        try {
-            return url === new URL(href).pathname || url.startsWith(new URL(href).pathname);
-        } catch (e) {
-            return false;
-        }
+    const isActive = (routeName) => {
+        return route().current(routeName);
     };
+
+    const links = [
+        { name: 'Dashboard', href: route('dashboard'), route: 'dashboard', icon: 'HomeIcon' },
+        ...(user.user_type === 'admin' ? [
+            { name: 'Admin Panel', href: route('admin.dashboard'), route: 'admin.dashboard', icon: 'AdminIcon' }
+        ] : [
+            { name: 'My Orders', href: route('orders.index'), route: 'orders.*', icon: 'ShoppingBagIcon' }
+        ]),
+        { name: 'Address Book', href: route('addresses.index'), route: 'addresses.*', icon: 'MapPinIcon' }, 
+        { name: 'Account Details', href: route('profile.edit'), route: 'profile.*', icon: 'UserIcon' },
+        { name: 'Wishlist', href: route('wishlist.index'), route: 'wishlist.*', icon: 'HeartIcon' }, 
+    ];
 
     return (
         <aside className={`w-72 bg-white dark:bg-[#1E1E1E] border-r border-gray-100 dark:border-gray-800 flex-shrink-0 flex flex-col h-full ${className}`}>
@@ -46,7 +42,7 @@ export default function DashboardSidebar({ className = '' }) {
                 <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Menu</p>
                 <ul className="space-y-1">
                     {links.map((link) => {
-                        const active = isActive(link.href);
+                        const active = isActive(link.route);
                         return (
                             <li key={link.name}>
                                 <Link

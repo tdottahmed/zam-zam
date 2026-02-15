@@ -24,7 +24,7 @@ export default function CreditNoteDetails({ creditNote }) {
 
     return (
         <AuthenticatedLayout title={`Credit Note ${creditNote.credit_note_number}`}>
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-8xl mx-auto space-y-6">
                  {/* Header / Breadcrumb */}
                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>

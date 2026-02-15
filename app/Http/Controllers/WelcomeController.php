@@ -23,4 +23,39 @@ class WelcomeController extends Controller
             'categories' => $categories,
         ]);
     }
+
+    public function dashboard()
+    {
+        $user = auth()->user();
+        
+        // Stats
+        $totalOrders = \App\Models\Order::where('user_id', $user->id)->count();
+        $activeOrders = \App\Models\Order::where('user_id', $user->id)
+            ->whereNotIn('status', ['completed', 'cancelled', 'refunded'])
+            ->count();
+        $wishlistCount = \App\Models\Wishlist::where('user_id', $user->id)->count();
+        
+        // Recent Orders
+        $recentOrders = \App\Models\Order::where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'created_at' => $order->created_at->format('M d, Y'),
+                    'status' => $order->status,
+                    'total_amount' => $order->total_amount,
+                ];
+            });
+
+        return Inertia::render('Dashboard', [
+            'stats' => [
+                'total_orders' => $totalOrders,
+                'active_orders' => $activeOrders,
+                'wishlist_count' => $wishlistCount,
+            ],
+            'recent_orders' => $recentOrders
+        ]);
+    }
 }
