@@ -61,7 +61,7 @@ class HandleInertiaRequests extends Middleware
                     'count' => $cart->items->sum('quantity'),
                     'total' => $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price),
                     'items' => $cart->items()
-                        ->with(['product:id,name,unit_price,product_code,unit_id', 'product.unit'])
+                        ->with(['product:id,name,image,unit_price,product_code,unit_id', 'product.unit'])
                         ->latest()
                         ->get()
                         ->map(fn ($item) => [
