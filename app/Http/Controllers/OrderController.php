@@ -77,16 +77,32 @@ class OrderController extends Controller
                 'phone' => $order->user->phone ?? $order->shipping_address['phone'] ?? ''
             ],
             'items' => $invoice->items->map(function ($item, $index) {
+                // Determine image path
+                $imagePath = public_path('images/placeholder.jpg'); // Default
+                if ($item->product && $item->product->image) {
+                     $potentialPath = public_path('storage/' . $item->product->image);
+                     if (file_exists($potentialPath)) {
+                         $imagePath = $potentialPath;
+                     } else {
+                         $potentialPath2 = public_path($item->product->image);
+                         if (file_exists($potentialPath2)) {
+                             $imagePath = $potentialPath2;
+                         }
+                     }
+                }
+
                 return [
                     's_no' => $index + 1,
                     'quantity' => $item->quantity,
+                    'image_path' => $imagePath,
                     'description' => $item->product_name,
                     'upc' => $item->product->product_code ?? '', 
                     'uom' => $item->product->unit->name ?? 'Unit',
                     'box_price' => $item->product->box_price ?? 0,
                     'unit_price' => $item->unit_price,
                     'amount' => $item->total_price,
-                    'taxes' => $item->tax_amount > 0 ? 'Taxable' : '' 
+                    'discount' => $item->discount_amount,
+                    'tax' => $item->tax_amount,
                 ];
             }),
             'total_shipped_qty' => $invoice->items->sum('quantity'),

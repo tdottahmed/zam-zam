@@ -321,7 +321,7 @@
           <td>${{ number_format($item['box_price'], 2) }}</td>
           <td>${{ number_format($item['unit_price'], 2) }}</td>
           <td>
-            @if($item['discount'] > 0)
+            @if(isset($item['discount']) && $item['discount'] > 0)
                 ${{ number_format($item['discount'], 2) }}
             @else
                 -
@@ -329,7 +329,7 @@
           </td>
           <td class="text-right">${{ number_format($item['amount'], 2) }}</td>
           <td>
-            @if($item['tax'] > 0)
+            @if(isset($item['tax']) && $item['tax'] > 0)
                 ${{ number_format($item['tax'], 2) }}
             @else
                 -
