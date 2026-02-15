@@ -151,6 +151,42 @@
 
         <!-- Right Column: Customer & Actions (1 col) -->
         <div class="lg:col-span-1 space-y-6">
+            
+            @if($order->creditNotes->count() > 0)
+            <!-- Credit Notes Card -->
+            <x-admin.ui.card class="border-l-4 border-l-blue-500">
+                <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
+                        Credit Notes
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        @foreach($order->creditNotes as $cn)
+                            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 transition-colors">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ $cn->credit_note_number }}</p>
+                                    <p class="text-xs text-gray-500">{{ $cn->created_at->format('M d, Y') }}</p>
+                                    <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-xs font-medium 
+                                        {{ $cn->status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : '' }}
+                                        {{ $cn->status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : '' }}
+                                        {{ $cn->status === 'refunded' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : '' }}
+                                        {{ $cn->status === 'draft' || $cn->status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : '' }}">
+                                        {{ ucfirst($cn->status) }}
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-900 dark:text-white">${{ number_format($cn->grand_total, 2) }}</p>
+                                    <a href="{{ route('admin.credit-notes.show', $cn) }}" class="text-xs text-blue-600 hover:underline mt-1 inline-block">View Details</a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </x-admin.ui.card>
+            @endif
+
             <!-- Status Card -->
             <x-admin.ui.card>
                 <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
