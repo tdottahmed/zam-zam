@@ -1,7 +1,7 @@
 <div 
     x-data="{
-        notifications: [],
-        unreadCount: 0,
+        notifications: {{ Js::from($notifications) }},
+        unreadCount: {{ $unreadCount }},
         open: false,
         audio: new Audio('https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3'), 
         
@@ -11,22 +11,26 @@
                 const data = await response.json();
                 
                 const previousCount = this.unreadCount;
-                this.notifications = data.notifications;
-                this.unreadCount = data.unread_count;
                 
-                // Play sound if new notifications arrived (count increased)
-                if (this.unreadCount > previousCount) {
-                    this.audio.play().catch(e => console.log('Audio play failed:', e));
-                    
-                    // Show toast for the newest notification
-                    if (this.notifications.length > 0) {
-                        const newest = this.notifications[0];
-                        window.dispatchEvent(new CustomEvent('notify', { 
-                            detail: { 
-                                message: newest.data.message,
-                                type: 'info'
-                            }
-                        }));
+                // Only update if there are changes to avoid unnecessary re-renders or logic
+                if (data.unread_count !== this.unreadCount || data.notifications.length !== this.notifications.length) {
+                    this.notifications = data.notifications;
+                    this.unreadCount = data.unread_count;
+                
+                    // Play sound if new notifications arrived (count increased)
+                    if (this.unreadCount > previousCount) {
+                        this.audio.play().catch(e => console.log('Audio play failed:', e));
+                        
+                        // Show toast for the newest notification if it's actually new
+                        if (this.notifications.length > 0) {
+                            const newest = this.notifications[0];
+                            window.dispatchEvent(new CustomEvent('notify', { 
+                                detail: { 
+                                    message: newest.data.message,
+                                    type: 'info'
+                                }
+                            }));
+                        }
                     }
                 }
                 
@@ -57,9 +61,6 @@
         init() {
             // Poll every 5 seconds
             setInterval(() => this.poll(), 5000);
-            
-            // Initial check
-            this.poll();
         }
     }"
     class="relative"
