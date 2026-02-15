@@ -8,6 +8,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Admin\UpdateOrderRequest;
+use App\Http\Requests\Admin\StoreOrderRequest;
 
 class OrderController extends Controller
 {
@@ -60,26 +62,9 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:pending,processing,completed,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'shipping_address' => 'required|array',
-            'shipping_address.name' => 'required|string',
-            'shipping_address.email' => 'required|email',
-            'shipping_address.address' => 'required|string',
-            'shipping_address.city' => 'required|string',
-            'shipping_address.postal_code' => 'required|string',
-            'shipping_address.country' => 'required|string',
-            'billing_address' => 'nullable|array',
-            'notes' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
             // Calculate totals
@@ -150,71 +135,92 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(UpdateOrderRequest $request, Order $order)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'status' => 'required|in:pending,processing,completed,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'shipping_address' => 'required|array',
-            'shipping_address.name' => 'required|string',
-            'shipping_address.email' => 'required|email',
-            'shipping_address.address' => 'required|string',
-            'shipping_address.city' => 'required|string',
-            'shipping_address.postal_code' => 'required|string',
-            'shipping_address.country' => 'required|string',
-            'billing_address' => 'nullable|array',
-            'notes' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
-        DB::transaction(function () use ($validated, $order) {
-            // 1. Update Order Details
-            $order->update([
-                'user_id' => $validated['user_id'],
-                'status' => $validated['status'],
-                'payment_status' => $validated['payment_status'],
-                'shipping_address' => $validated['shipping_address'],
-                'billing_address' => $validated['billing_address'] ?? $validated['shipping_address'],
-                'notes' => $validated['notes'],
-            ]);
-
-            // 2. Sync Items (Simplified: Delete all and recreate)
-            // A better approach for production might be diffing, but this ensures consistency
-            $order->items()->delete();
-
-            $subtotal = 0;
-            foreach ($validated['items'] as $item) {
-                $product = Product::find($item['product_id']);
-                $totalPrice = $item['quantity'] * $item['unit_price'];
-                $subtotal += $totalPrice;
-
-                $order->items()->create([
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'total_price' => $totalPrice,
-                    'attributes' => []
+        try {
+            DB::transaction(function () use ($validated, $order) {
+                // ... (transaction logic remains same as per user's view, we are just wrapping it)
+                // 1. Update Order Details
+                $order->update([
+                    'user_id' => $validated['user_id'],
+                    'status' => $validated['status'],
+                    'payment_status' => $validated['payment_status'],
+                    'shipping_address' => $validated['shipping_address'],
+                    'billing_address' => $validated['billing_address'] ?? $validated['shipping_address'],
+                    'notes' => $validated['notes'],
                 ]);
+
+                // 2. Sync Items (Smart Sync to handle FK constraints)
+                $existingItems = $order->items->keyBy('product_id');
+                $submittedProductIds = [];
+                $subtotal = 0;
+
+                foreach ($validated['items'] as $item) {
+                    $productId = $item['product_id'];
+                    $submittedProductIds[] = $productId;
+                    
+                    $product = Product::find($productId);
+                    $totalPrice = $item['quantity'] * $item['unit_price'];
+                    $subtotal += $totalPrice;
+
+                    if ($existingItems->has($productId)) {
+                        // Update existing item
+                        $existingItems[$productId]->update([
+                            'product_name' => $product->name,
+                            'quantity' => $item['quantity'],
+                            'unit_price' => $item['unit_price'],
+                            'total_price' => $totalPrice,
+                        ]);
+                    } else {
+                        // Create new item
+                        $order->items()->create([
+                            'product_id' => $productId,
+                            'product_name' => $product->name,
+                            'quantity' => $item['quantity'],
+                            'unit_price' => $item['unit_price'],
+                            'total_price' => $totalPrice,
+                            'attributes' => [] 
+                        ]);
+                    }
+                }
+
+                // 3. Remove items not present in submission
+                // Note: This will correctly fail if trying to delete an item that has an associated credit note
+                $order->items()->whereNotIn('product_id', $submittedProductIds)->delete();
+
+                // 4. Update Totals
+                 $taxAmount = 0; 
+                 $shippingAmount = 0;
+                 $grandTotal = $subtotal + $taxAmount + $shippingAmount;
+                 
+                 $order->update([
+                     'total_amount' => $grandTotal,
+                     'shipping_amount' => $shippingAmount,
+                     'tax_amount' => $taxAmount,
+                 ]);
+            });
+
+            return redirect()->route('admin.orders.index')->with('success', 'Order updated successfully.');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Check for Integrity Constraint Violation (1451)
+            if ($e->getCode() == '23000' && str_contains($e->getMessage(), 'credit_note_items_order_item_id_foreign')) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['items' => 'Cannot remove an item that has an associated Credit Note. Please check the Credit Notes section or reject/delete the credit note first.']);
             }
-
-            // 3. Update Totals
-             $taxAmount = 0; 
-             $shippingAmount = 0;
-             $grandTotal = $subtotal + $taxAmount + $shippingAmount;
-             
-             $order->update([
-                 'total_amount' => $grandTotal,
-                 'shipping_amount' => $shippingAmount,
-                 'tax_amount' => $taxAmount,
-             ]);
-        });
-
-        return redirect()->route('admin.orders.index')->with('success', 'Order updated successfully.');
+            
+            // Generic fallback
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'An error occurred while updating the order: ' . $e->getMessage()]);
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'An unexpected error occurred: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -236,6 +242,7 @@ class OrderController extends Controller
         $query = $request->get('q');
         
         $users = User::query()
+            ->with('addresses')
             ->where('name', 'like', "%{$query}%")
             ->orWhere('email', 'like', "%{$query}%")
             ->limit(10)

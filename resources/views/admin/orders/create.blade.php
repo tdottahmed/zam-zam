@@ -177,8 +177,27 @@
 
                     <!-- Addresses -->
                      <x-admin.ui.card>
-                        <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+                        <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center">
                             <h3 class="font-semibold text-gray-900 dark:text-white">Shipping Address</h3>
+                            
+                            <!-- Address Selector -->
+                            <div x-show="userAddresses.length > 0" class="relative">
+                                <button type="button" @click="addressDropdownOpen = !addressDropdownOpen" class="text-sm text-primary hover:underline flex items-center gap-1">
+                                    <span>Select Saved Address</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                
+                                <div x-show="addressDropdownOpen" @click.outside="addressDropdownOpen = false" 
+                                     class="absolute right-0 z-20 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1"
+                                     style="display: none;">
+                                    <template x-for="address in userAddresses" :key="address.id">
+                                        <button type="button" @click="fillAddress(address)" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="address.type || 'Address'"></div>
+                                            <div class="text-xs text-gray-500 truncate" x-text="address.address_line_1 + ', ' + address.city"></div>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="md:col-span-2">
@@ -342,6 +361,10 @@
                 customerResults: [],
                 isLoadingCustomers: false,
                 
+                // Addresses
+                userAddresses: [],
+                addressDropdownOpen: false,
+                
                 items: [],
                 shipping: {
                     name: '',
@@ -424,17 +447,42 @@
 
                 selectCustomer(user) {
                     this.selectedUserId = user.id;
-                    this.customerSearch = user.name; // Display name
+                    this.customerSearch = user.name;
                     this.customerDropdownOpen = false;
+                    this.userAddresses = user.addresses || [];
 
-                    // Auto-fill shipping details
+                    // Auto-fill basic info from user profile
                     this.shipping.name = user.name;
                     this.shipping.email = user.email;
+                    
+                    // If they have a default address or just one, maybe auto-fill it?
+                    if (this.userAddresses.length > 0) {
+                        // Check for default
+                        const defaultAddress = this.userAddresses.find(a => a.is_default);
+                        if (defaultAddress) {
+                            this.fillAddress(defaultAddress);
+                        } else {
+                            // Or just fill first
+                            this.fillAddress(this.userAddresses[0]);
+                        }
+                    }
+                },
+
+                fillAddress(address) {
+                    this.shipping.name = address.name || this.shipping.name; // Keep user name if address name is empty? usually address name is better
+                    this.shipping.email = address.email || this.shipping.email;
+                    this.shipping.phone = address.phone || '';
+                    this.shipping.address = address.address_line_1 + (address.address_line_2 ? ', ' + address.address_line_2 : '');
+                    this.shipping.city = address.city || '';
+                    this.shipping.postal_code = address.postal_code || '';
+                    this.shipping.country = address.country || '';
+                    this.addressDropdownOpen = false;
                 },
 
                 closeDropdowns() {
                     this.productDropdownOpen = false;
                     this.customerDropdownOpen = false;
+                    this.addressDropdownOpen = false;
                 },
 
                 calculateSubtotal() {
