@@ -22,7 +22,7 @@ class CreditNoteController extends Controller
     public function create(Order $order)
     {
         // Ensure order belongs to user
-        if ($order->user_id !== auth()->id()) {
+        if ($order->user_id != auth()->id()) {
             abort(403);
         }
 
