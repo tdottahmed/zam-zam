@@ -57,12 +57,15 @@ class CreditNoteController extends Controller
         }
 
         try {
-            $this->creditNoteService->createDraft(
+            $creditNote = $this->creditNoteService->createDraft(
                 $order,
                 $selectedItems->toArray(),
                 $validated['reason'],
                 $validated['description']
             );
+
+            // Notify Admins
+            \App\Models\User::where('user_type', 'admin')->get()->each->notify(new \App\Notifications\CreditNoteCreatedNotification($creditNote));
 
             return redirect()->route('orders.show', $order)->with('success', 'Credit note request submitted successfully.');
 

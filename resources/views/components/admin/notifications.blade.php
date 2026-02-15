@@ -55,8 +55,8 @@
         },
 
         init() {
-            // Poll every 30 seconds
-            setInterval(() => this.poll(), 30000);
+            // Poll every 5 seconds
+            setInterval(() => this.poll(), 5000);
             
             // Initial check
             this.poll();
@@ -104,16 +104,24 @@
                 </template>
                 
                 <template x-for="notification in notifications" :key="notification.id">
-                    <a :href="`/admin/orders/${notification.data.order_id}`" 
+                    <a :href="notification.data.type === 'credit_note' ? `/admin/credit-notes/${notification.data.credit_note_id}` : `/admin/orders/${notification.data.order_id}`" 
                        @click="markAsRead(notification.id)"
                        class="block px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 last:border-0"
                     >
                         <div class="flex items-start">
                             <div class="flex-shrink-0">
-                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-red-100 text-[#C41E3A]">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                    </svg>
+                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full"
+                                      :class="notification.data.type === 'credit_note' ? 'bg-blue-100 text-blue-600' : 'bg-red-100 text-[#C41E3A]'">
+                                    <template x-if="notification.data.type === 'credit_note'">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                                        </svg>
+                                    </template>
+                                    <template x-if="!notification.data.type">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                    </template>
                                 </span>
                             </div>
                             <div class="ml-3 w-0 flex-1">
