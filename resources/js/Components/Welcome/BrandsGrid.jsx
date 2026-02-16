@@ -5,7 +5,7 @@ export default function BrandsGrid({ brands = [] }) {
     // Fallback brands if none provided
     const displayBrands = brands.length > 0 ? brands : [
         "Handi", "Mitchells", "EBM", "Shan", "Nestle", "Dawn Bread"
-    ].map(name => ({ id: name, name, logo: null }));
+    ].map(name => ({ id: name, name, slug: name.toLowerCase().replace(/\s+/g, '-'), logo: null }));
 
     return (
         <section className="py-24 bg-white relative overflow-hidden">
@@ -27,7 +27,8 @@ export default function BrandsGrid({ brands = [] }) {
                 {/* Modern Grid Layout */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border-t border-l border-gray-100 dark:border-gray-800">
                     {displayBrands.map((brand, index) => (
-                        <div 
+                        <Link 
+                            href={route('shop.index', { brand: [brand.slug] })} 
                             key={brand.id || index} 
                             className="group relative flex items-center justify-center p-8 md:p-12 border-r border-b border-gray-100 bg-white hover:z-10 hover:shadow-[0_0_40px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 ease-out"
                         >
@@ -41,7 +42,7 @@ export default function BrandsGrid({ brands = [] }) {
                             
                             {/* Hover Overlay Effect */}
                             <div className="absolute inset-0 bg-gradient-to-t from-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 

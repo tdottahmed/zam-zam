@@ -23,7 +23,7 @@ export default function ShopIndex({ products, categories, brands, filters }) {
             <div className="max-w-8xl mx-auto py-12 px-6 lg:px-12">
                 <div className="flex flex-col lg:flex-row gap-12">
                     {/* Sidebar Filters */}
-                    <aside className="w-full lg:w-64 flex-shrink-0">
+                    <aside className="w-full lg:w-80 flex-shrink-0">
                         <ProductFilters categories={categories} brands={brands} filters={filters} />
                     </aside>
 

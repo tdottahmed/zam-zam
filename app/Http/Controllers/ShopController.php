@@ -23,27 +23,31 @@ class ShopController extends Controller
         });
 
         // Filter by Category
-        $query->when($request->category, function ($q, $slug) {
-            $q->whereHas('category', function ($subQ) use ($slug) {
-                $subQ->where('slug', $slug);
+        $query->when($request->category, function ($q, $slugs) {
+            $slugs = is_array($slugs) ? $slugs : [$slugs];
+            $q->whereHas('category', function ($subQ) use ($slugs) {
+                $subQ->whereIn('slug', $slugs);
             });
         });
         
         // Filter by Category ID (if passed directly)
-        $query->when($request->category_id, function ($q, $id) {
-            $q->where('category_id', $id);
+        $query->when($request->category_id, function ($q, $ids) {
+            $ids = is_array($ids) ? $ids : [$ids];
+            $q->whereIn('category_id', $ids);
         });
 
         // Filter by Brand
-        $query->when($request->brand, function ($q, $slug) {
-            $q->whereHas('brand', function ($subQ) use ($slug) {
-                $subQ->where('slug', $slug);
+        $query->when($request->brand, function ($q, $slugs) {
+            $slugs = is_array($slugs) ? $slugs : [$slugs];
+            $q->whereHas('brand', function ($subQ) use ($slugs) {
+                $subQ->whereIn('slug', $slugs);
             });
         });
 
          // Filter by Brand ID (if passed directly)
-         $query->when($request->brand_id, function ($q, $id) {
-            $q->where('brand_id', $id);
+         $query->when($request->brand_id, function ($q, $ids) {
+            $ids = is_array($ids) ? $ids : [$ids];
+            $q->whereIn('brand_id', $ids);
         });
 
         // Filter by Price Range

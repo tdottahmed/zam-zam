@@ -4,12 +4,12 @@ import StorageImage from '../StorageImage';
 export default function CategoriesGrid({ categories = [] }) {
     // Default categories if none provided
     const defaultCategories = [
-        { icon: "🌶️", label: "Spices & Herbs", color: "bg-red-100 text-red-600" },
-        { icon: "🍚", label: "Rice", color: "bg-amber-100 text-amber-600" },
-        { icon: "🥩", label: "Frozen Meat", color: "bg-rose-100 text-rose-600" },
-        { icon: "🍬", label: "Snacks & Sweets", color: "bg-pink-100 text-pink-600" },
-        { icon: "🥤", label: "Juices", color: "bg-orange-100 text-orange-600" },
-        { icon: "🍅", label: "Sauces", color: "bg-green-100 text-green-600" }
+        { icon: "🌶️", label: "Spices & Herbs", slug: "spices-herbs", color: "bg-red-100 text-red-600" },
+        { icon: "🍚", label: "Rice", slug: "rice", color: "bg-amber-100 text-amber-600" },
+        { icon: "🥩", label: "Frozen Meat", slug: "frozen-meat", color: "bg-rose-100 text-rose-600" },
+        { icon: "🍬", label: "Snacks & Sweets", slug: "snacks-sweets", color: "bg-pink-100 text-pink-600" },
+        { icon: "🥤", label: "Juices", slug: "juices", color: "bg-orange-100 text-orange-600" },
+        { icon: "🍅", label: "Sauces", slug: "sauces", color: "bg-green-100 text-green-600" }
     ];
 
     const displayCategories = categories.length > 0 ? categories : defaultCategories;
@@ -34,7 +34,7 @@ export default function CategoriesGrid({ categories = [] }) {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-8">
                     {displayCategories.map((cat, index) => (
                         <Link 
-                            href={route('shop.index')} 
+                            href={route('shop.index', { category: [cat.slug || (cat.label ? cat.label.toLowerCase().replace(/\s+/g, '-') : '')] })} 
                             key={cat.id || index} 
                             className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 transform hover:-translate-y-2 border border-transparent hover:border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden"
                         >
