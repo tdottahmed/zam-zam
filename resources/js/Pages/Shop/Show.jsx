@@ -4,6 +4,7 @@ import CustomerLayout from '../../Layouts/CustomerLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import StorageImage from '../../Components/StorageImage';
 import useCartStore from '../../Stores/useCartStore';
+import Breadcrumb from '../../Components/Breadcrumb';
 
 export default function Show({ product }) {
     const { openCart } = useCartStore();
@@ -30,23 +31,14 @@ export default function Show({ product }) {
             <Head title={product.name} />
             
             {/* Breadcrumb */}
-            <div className="bg-gray-50 py-6 px-6 lg:px-12 border-b border-gray-100">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-sm text-gray-500">
-                        <Link href="/" className="hover:text-[#C41E3A]">Home</Link>
-                        <span className="mx-2">/</span>
-                        <Link href={route('shop.index')} className="hover:text-[#C41E3A]">Shop</Link>
-                        {product.category && (
-                            <>
-                                <span className="mx-2">/</span>
-                                <span className="text-gray-900">{product.category.name}</span>
-                            </>
-                        )}
-                        <span className="mx-2">/</span>
-                        <span className="text-gray-900 font-medium truncate max-w-[200px] inline-block align-bottom">{product.name}</span>
-                    </div>
-                </div>
-            </div>
+            <Breadcrumb 
+                title={product.name} 
+                links={[
+                    { label: 'Shop', href: route('shop.index') },
+                    ...(product.category ? [{ label: product.category.name, active: false }] : []),
+                    { label: product.name, active: true }
+                ]} 
+            />
 
             <div className="max-w-7xl mx-auto py-12 px-6 lg:px-12">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

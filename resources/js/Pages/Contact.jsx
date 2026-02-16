@@ -1,21 +1,20 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Head } from '@inertiajs/react';
+import Breadcrumb from '@/Components/Breadcrumb';
 
 export default function Contact() {
     return (
         <CustomerLayout>
             <Head title="Contact Us" />
 
-            {/* Header */}
-            <div className="bg-[#111111] py-20 text-center px-4">
-                <span className="text-[#C41E3A] font-bold tracking-[0.2em] uppercase text-sm mb-4 block">Get In Touch</span>
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-6">Contact Us</h1>
-                <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                    Have questions about our products or want to become a partner? We'd love to hear from you.
-                </p>
-            </div>
+            <Breadcrumb 
+                title="Contact Us" 
+                links={[
+                    { label: 'Contact', active: true }
+                ]} 
+            />
 
-            <div className="max-w-[1920px] mx-auto px-4 lg:px-8 -mt-10 relative z-10 pb-20">
+            <div className="max-w-[1920px] mx-auto px-4 lg:px-8 relative z-10 py-12">
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Contact Info Cards */}
                     <div className="lg:col-span-1 space-y-6">

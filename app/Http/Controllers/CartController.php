@@ -36,6 +36,11 @@ class CartController extends Controller
             ]);
         }
 
+        // Remove from wishlist if exists
+        \App\Models\Wishlist::where('user_id', $user->id)
+            ->where('product_id', $validated['product_id'])
+            ->delete();
+
         return back()->with('success', 'Product added to cart.');
     }
     public function index()

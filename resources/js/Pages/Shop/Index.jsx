@@ -2,23 +2,19 @@ import CustomerLayout from '../../Layouts/CustomerLayout';
 import { Head, Link } from '@inertiajs/react';
 import ProductCard from '../../Components/Shop/ProductCard';
 import ProductFilters from '../../Components/Shop/ProductFilters';
-
+import Breadcrumb from '../../Components/Breadcrumb';
 export default function ShopIndex({ products, categories, brands, filters }) {
     return (
         <CustomerLayout>
             <Head title="Shop" />
             
             {/* Header / Breadcrumb Area */}
-            <div className="bg-gray-50 py-8 px-6 lg:px-12 border-b border-gray-100">
-                <div className="max-w-8xl mx-auto">
-                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Shop All Products</h1>
-                     <div className="text-sm text-gray-500">
-                        <Link href="/" className="hover:text-[#C41E3A]">Home</Link>
-                        <span className="mx-2">/</span>
-                        <span className="text-gray-900">Shop</span>
-                     </div>
-                </div>
-            </div>
+            <Breadcrumb 
+                title="Shop All Products" 
+                links={[
+                    { label: 'Shop', active: true }
+                ]} 
+            />
 
             <div className="max-w-8xl mx-auto py-12 px-6 lg:px-12">
                 <div className="flex flex-col lg:flex-row gap-12">

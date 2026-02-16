@@ -2,6 +2,7 @@ import { Link, usePage, Head } from '@inertiajs/react';
 import CustomerLayout from '../../Layouts/CustomerLayout';
 import StorageImage from '../../Components/StorageImage';
 import useCartStore from '../../Stores/useCartStore';
+import Breadcrumb from '../../Components/Breadcrumb';
 import { useEffect } from 'react';
 
 export default function Index() {
@@ -24,9 +25,16 @@ export default function Index() {
     return (
         <CustomerLayout>
             <Head title="Shopping Cart" />
+            {/* Header / Breadcrumb Area */}
+            <Breadcrumb 
+                title="Shopping Cart" 
+                links={[
+                    { label: 'Cart', active: true }
+                ]} 
+            />
+
             <div className="bg-gray-50/50 min-h-screen py-12">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-extrabold text-gray-900 mb-10">Shopping Cart</h1>
 
                     {cart && cart.items && cart.items.length > 0 ? (
                         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">

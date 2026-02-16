@@ -1,27 +1,19 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Head, Link } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import Breadcrumb from '@/Components/Breadcrumb';
 
 export default function About() {
     return (
         <CustomerLayout>
             <Head title="About Us" />
 
-            {/* Hero Section */}
-            <div className="relative bg-[#111111] py-24 lg:py-32 overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent"></div>
-                <div className="relative max-w-[1920px] mx-auto px-4 lg:px-8 text-center">
-                    <span className="text-[#C41E3A] font-bold tracking-[0.2em] uppercase text-sm mb-4 block animate-fade-in">Our Journey</span>
-                    <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
-                        Bringing the Authentic Taste <br className="hidden md:block"/> of South Asia to You
-                    </h1>
-                    <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                        Zam Zam Import Export Inc. is Canada's premier distributor of authentic South Asian products, connecting communities with the flavors of home.
-                    </p>
-                </div>
-            </div>
-
+            <Breadcrumb 
+                title="About Us" 
+                links={[
+                    { label: 'About', active: true }
+                ]} 
+            />
             {/* Our Story Section */}
             <section className="py-20 bg-white">
                 <div className="max-w-[1920px] mx-auto px-4 lg:px-8">

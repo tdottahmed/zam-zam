@@ -1,26 +1,20 @@
 import CustomerLayout from '../../Layouts/CustomerLayout';
 import { Head, Link } from '@inertiajs/react';
 import StorageImage from '../../Components/StorageImage';
+import Breadcrumb from '../../Components/Breadcrumb';
 
 export default function Brands({ brands }) {
     return (
         <CustomerLayout>
             <Head title="Our Brands" />
 
-             {/* Header / Breadcrumb Area - Matching Shop Index */}
-             <div className="bg-gray-50 py-8 px-6 lg:px-12 border-b border-gray-100">
-                <div className="max-w-[1920px] mx-auto text-center md:text-left">
-                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Our Trusted Brands</h1>
-                     <div className="text-sm text-gray-500 flex items-center justify-center md:justify-start gap-2">
-                        <Link href="/" className="hover:text-[#C41E3A] transition-colors">Home</Link>
-                        <span>/</span>
-                        <span className="text-gray-900 font-medium">Brands</span>
-                     </div>
-                     <p className="text-gray-600 mt-4 max-w-2xl text-sm leading-relaxed hidden md:block">
-                        Explore our wide collection of premium South Asian brands. We partner with world-leading manufacturers to bring authentic, high-quality products directly to you.
-                     </p>
-                </div>
-            </div>
+             {/* Header / Breadcrumb Area */}
+             <Breadcrumb 
+                title="Our Trusted Brands" 
+                links={[
+                    { label: 'Brands', active: true }
+                ]} 
+            />
 
             <div className="max-w-[1920px] mx-auto py-12 px-6 lg:px-12">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 lg:gap-8">
