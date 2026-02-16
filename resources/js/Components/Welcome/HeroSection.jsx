@@ -7,7 +7,7 @@ export default function HeroSection() {
             <div className="absolute inset-0 z-0">
                 <div 
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-105" 
-                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1596040033229-a9821ebd058d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')" }}
+                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=2070&auto=format&fit=crop')" }}
                 ></div>
                 {/* Premium Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-black/60 to-black/30"></div>
