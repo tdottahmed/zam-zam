@@ -1,3 +1,4 @@
+import StorageImage from '@/Components/StorageImage';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
@@ -78,11 +79,11 @@ export default function Show({ order }) {
                                         <div className="flex items-start">
                                             <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white">
                                                 {item.product && item.product.image ? (
-                                                     <img
-                                                        src={item.product.image}
-                                                        alt={item.product.name}
-                                                        className="h-full w-full object-cover object-center"
-                                                    />
+                                                     <StorageImage
+                                                     src={item.product.image}
+                                                     alt={item.product.name}
+                                                     className="h-full w-full object-cover object-center"
+                                                     />
                                                 ) : (
                                                     <div className="h-full w-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-400">
                                                          <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

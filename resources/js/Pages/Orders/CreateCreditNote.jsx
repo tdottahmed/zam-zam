@@ -1,6 +1,7 @@
 import { useForm, usePage, Head, Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useState, useMemo } from 'react';
+import StorageImage from '@/Components/StorageImage';
 
 export default function CreateCreditNote({ order }) {
     const { items: orderItems } = order;
@@ -174,7 +175,7 @@ export default function CreateCreditNote({ order }) {
                                                     <div className="flex items-center">
                                                         <div className="h-10 w-10 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden mr-4">
                                                             {item.product?.image && (
-                                                                <img src={item.product.image} className="h-full w-full object-cover" />
+                                                                <StorageImage src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                                                             )}
                                                         </div>
                                                         <div>

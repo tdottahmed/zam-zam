@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import useCartStore from '../../Stores/useCartStore';
 import CartSidebar from '../../Components/Cart/CartSidebar';
+import SearchModal from './SearchModal';
 
 export default function Header() {
     const { auth, cart, wishlist = [] } = usePage().props;
@@ -256,57 +257,7 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Search Overlay (Full Screen) */}
-            <div className={`fixed inset-0 z-[70] transition-all duration-300 ${isSearchOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-                {/* Backdrop */}
-                <div className="absolute inset-0 bg-white/95 backdrop-blur-xl"></div>
-                
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
-                    <button 
-                        onClick={() => setIsSearchOpen(false)}
-                        className="absolute top-8 right-8 p-3 bg-gray-100 rounded-full text-gray-500 hover:text-red-600 hover:bg-red-50 transition"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-
-                    <div className="w-full space-y-8 animate-fade-in-up">
-                        <h2 className="text-3xl font-bold text-center text-gray-900">What are you looking for?</h2>
-                        
-                        <form action={route('shop.index')} method="GET" className="relative w-full shadow-2xl rounded-2xl">
-                             <input 
-                                type="text"
-                                name="search" 
-                                autoFocus={isSearchOpen}
-                                placeholder="Search for products, brands, or categories..." 
-                                className="w-full bg-white text-gray-900 text-xl md:text-2xl font-medium px-8 py-6 rounded-2xl border-2 border-transparent focus:border-[#C41E3A] focus:ring-0 placeholder:text-gray-300 transition-all"
-                            />
-                            <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-[#C41E3A] text-white rounded-xl hover:bg-[#a91930] transition shadow-lg shadow-red-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
-                            </button>
-                        </form>
-
-                        <div className="text-center space-y-4">
-                            <p className="text-gray-500 text-sm uppercase tracking-wide font-semibold">Popular Searches</p>
-                            <div className="flex flex-wrap justify-center gap-3">
-                                {['Basmati Rice', 'Shan Spices', 'Mango Juices', 'Frozen Paratha', 'Tea'].map((term) => (
-                                    <Link 
-                                        key={term}
-                                        href={route('shop.index', { search: term })}
-                                        className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-[#C41E3A] hover:text-white transition cursor-pointer"
-                                        onClick={() => setIsSearchOpen(false)}
-                                    >
-                                        {term}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
         </>
     );
 }

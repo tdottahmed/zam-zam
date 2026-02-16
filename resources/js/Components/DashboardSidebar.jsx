@@ -11,11 +11,7 @@ export default function DashboardSidebar({ className = '' }) {
 
     const links = [
         { name: 'Dashboard', href: route('dashboard'), route: 'dashboard', icon: 'HomeIcon' },
-        ...(user.user_type === 'admin' ? [
-            { name: 'Admin Panel', href: route('admin.dashboard'), route: 'admin.dashboard', icon: 'AdminIcon' }
-        ] : [
-            { name: 'My Orders', href: route('orders.index'), route: 'orders.*', icon: 'ShoppingBagIcon' }
-        ]),
+        { name: 'My Orders', href: route('orders.index'), route: 'orders.*', icon: 'ShoppingBagIcon' },
         { name: 'Address Book', href: route('addresses.index'), route: 'addresses.*', icon: 'MapPinIcon' }, 
         { name: 'Account Details', href: route('profile.edit'), route: 'profile.*', icon: 'UserIcon' },
         { name: 'Wishlist', href: route('wishlist.index'), route: 'wishlist.*', icon: 'HeartIcon' }, 

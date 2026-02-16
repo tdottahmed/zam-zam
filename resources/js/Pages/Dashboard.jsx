@@ -35,6 +35,15 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                                     View Orders
                                 </Link>
                             )}
+                            {user.user_type == 'admin' && (
+                                <a  
+                                    href={route('admin.dashboard')} 
+                                    target="_blank"
+                                    className="inline-flex items-center justify-center px-6 py-3 border border-white/30 text-base font-medium rounded-xl text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-200"
+                                >
+                                    Admin Dashboard
+                                </a>
+                            )}
                         </div>
                     </div>
                     
