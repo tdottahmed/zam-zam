@@ -63,6 +63,10 @@ class ShopController extends Controller
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
 
+        if ($request->wantsJson()) {
+            return $products;
+        }
+
         return Inertia::render('Shop/Index', [
             'products' => $products,
             'categories' => $categories,

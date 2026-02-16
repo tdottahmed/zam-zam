@@ -20,19 +20,19 @@ export default function Breadcrumb({ title, links = [] }) {
                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#C41E3A 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
             </div>
 
-            <div className="max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10 py-16 lg:py-20 text-center">
-                <div className="flex flex-col items-center justify-center gap-4">
+            <div className="max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10 py-10 lg:py-14 text-center">
+                <div className="flex flex-col items-center justify-center gap-3">
                     {/* Breadcrumb Links */}
-                    <nav className="flex items-center justify-center text-sm font-medium text-gray-500 mb-4 animate-fade-in-up bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-100/50 shadow-sm inline-flex">
+                    <nav className="flex items-center justify-center text-xs md:text-sm font-medium text-gray-500 mb-3 animate-fade-in-up bg-white/50 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-100/50 shadow-sm inline-flex">
                         <Link href="/" className="hover:text-[#C41E3A] transition-colors flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
                             </svg>
                             Home
                         </Link>
                         {links.map((link, index) => (
                             <div key={index} className="flex items-center">
-                                <svg className="h-4 w-4 text-gray-300 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="h-3.5 w-3.5 text-gray-300 mx-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                 </svg>
                                 {link.href ? (
@@ -48,13 +48,13 @@ export default function Breadcrumb({ title, links = [] }) {
                     
                     {/* Title with Decorative Elements */}
                     <div className="relative inline-block">
-                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-tight mb-2 animate-fade-in-up animation-delay-100">
+                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-tight mb-1 animate-fade-in-up animation-delay-100">
                              {title}
                         </h1>
                         {/* Underline Decoration */}
-                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1.5 bg-[#C41E3A] rounded-full opacity-90">
-                            <div className="absolute top-0 right-[-10px] w-2 h-full bg-[#C41E3A] rounded-full opacity-50"></div>
-                            <div className="absolute top-0 left-[-10px] w-2 h-full bg-[#C41E3A] rounded-full opacity-50"></div>
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1.5 bg-[#C41E3A] rounded-full opacity-90 scale-75 md:scale-100">
+                            <div className="absolute top-0 right-[-8px] w-1.5 h-full bg-[#C41E3A] rounded-full opacity-50"></div>
+                            <div className="absolute top-0 left-[-8px] w-1.5 h-full bg-[#C41E3A] rounded-full opacity-50"></div>
                         </div>
                     </div>
                 </div>
