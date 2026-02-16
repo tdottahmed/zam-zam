@@ -82,8 +82,8 @@ export default function Header() {
                                     { label: 'Home', route: 'home' },
                                     { label: 'Shop', route: 'shop.index' },
                                     { label: 'Brands', route: 'shop.brands' },
-                                    { label: 'About Us', route: null },
-                                    { label: 'Contact', route: null },
+                                    { label: 'About Us', route: 'about' },
+                                    { label: 'Contact', route: 'contact' },
                                 ].map((item) => (
                                     <Link 
                                         key={item.label}
@@ -217,8 +217,8 @@ export default function Header() {
                             { label: 'Home', route: 'home' },
                             { label: 'Shop All Products', route: 'shop.index' },
                             { label: 'Browse Brands', route: 'shop.brands' },
-                            { label: 'About Us', route: null },
-                            { label: 'Contact Support', route: null },
+                            { label: 'About Us', route: 'about' },
+                            { label: 'Contact Support', route: 'contact' },
                         ].map((item) => (
                             <Link 
                                 key={item.label}

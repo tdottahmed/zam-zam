@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('home');
+Route::get('/about', [\App\Http\Controllers\WelcomeController::class, 'about'])->name('about');
+Route::get('/contact', [\App\Http\Controllers\WelcomeController::class, 'contact'])->name('contact');
 
 Route::get('/dashboard', [\App\Http\Controllers\WelcomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 

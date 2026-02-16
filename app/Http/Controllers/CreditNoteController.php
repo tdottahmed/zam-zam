@@ -76,7 +76,7 @@ class CreditNoteController extends Controller
 
     public function show(CreditNote $creditNote)
     {
-        if ($creditNote->user_id !== auth()->id()) {
+        if ($creditNote->user_id != auth()->id()) {
             abort(403);
         }
 
