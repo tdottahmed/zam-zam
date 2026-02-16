@@ -46,28 +46,6 @@
                         </div>
                     </div>
 
-                    <!-- Bottom Row: Invoice Actions -->
-                    <div class="pt-4 border-t border-gray-100 flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center">
-                        <!-- Customer Invoice -->
-                        <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto items-center">
-                            <div class="w-full sm:w-64">
-                                <x-admin.form.select-search name="customer_id" placeholder="Select Customer" :options="[]" />
-                            </div>
-                            <x-admin.actions.button variant="primary" size="md">
-                                Send To Invoice
-                            </x-admin.actions.button>
-                        </div>
-
-                         <!-- Add to Invoice -->
-                         <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto items-center justify-end">
-                            <div class="w-full sm:w-64">
-                                <x-admin.form.select-search name="invoice_id" placeholder="Select Invoice/Customer" :options="[]" />
-                            </div>
-                            <x-admin.actions.button variant="secondary" size="md">
-                                Add To Invoice
-                            </x-admin.actions.button>
-                        </div>
-                    </div>
                 </div>
             </x-slot:search>
 

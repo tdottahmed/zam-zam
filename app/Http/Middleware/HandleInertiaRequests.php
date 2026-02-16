@@ -57,9 +57,14 @@ class HandleInertiaRequests extends Middleware
                     ];
                 }
 
+                $subtotal = $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price);
+
                 return [
                     'count' => $cart->items->sum('quantity'),
-                    'total' => $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price),
+                    'summary' => [
+                        'subtotal' => $subtotal,
+                        'total' => $subtotal, 
+                    ],
                     'items' => $cart->items()
                         ->with(['product:id,name,image,unit_price,product_code,unit_id', 'product.unit'])
                         ->latest()
@@ -72,7 +77,7 @@ class HandleInertiaRequests extends Middleware
                             'unit_price' => $item->product->unit_price,
                             'quantity' => (int) $item->quantity,
                             'total' => $item->quantity * $item->product->unit_price,
-                            'unit' => $item->product->unit ? $item->product->unit->name : null,
+                            'unit' => $item->product->unit ? $item->product->unit->code : ($item->product->unit_value ? $item->product->unit_value : 'unit'),
                         ]),
                 ];
             },

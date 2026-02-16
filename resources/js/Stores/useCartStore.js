@@ -21,8 +21,8 @@ const useCartStore = create((set, get) => ({
         set({
             cart: {
                 items: cartData.items || [],
-                total: cartData.total || 0,
-                count: cartData.count || 0
+                summary: cartData.summary || { subtotal: 0, tax: 0, total: 0, tax_rate: 0 },
+                count: cartData.items ? cartData.items.reduce((sum, i) => sum + i.quantity, 0) : 0
             }
         });
     },
@@ -45,14 +45,26 @@ const useCartStore = create((set, get) => ({
         newItems[itemIndex] = item;
 
         // Recalculate totals
-        const newTotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const newSubtotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const taxRate = cart.summary?.tax_rate || 0;
+        const newTax = newSubtotal * (taxRate / 100);
+        // Assuming shipping is handled by backend or is free/flat. Logic: Free > 100 else 15
+        const newShipping = newSubtotal > 100 ? 0 : 15.00;
+        const newTotal = newSubtotal + newTax + newShipping;
+        
         const newCount = newItems.reduce((sum, i) => sum + i.quantity, 0);
 
         set({
             cart: {
                 ...cart,
                 items: newItems,
-                total: newTotal,
+                summary: {
+                    ...cart.summary,
+                    subtotal: newSubtotal,
+                    tax: newTax,
+                    shipping: newShipping,
+                    total: newTotal
+                },
                 count: newCount
             }
         });
@@ -66,14 +78,25 @@ const useCartStore = create((set, get) => ({
         const { cart } = get();
         const newItems = cart.items.filter(i => i.id !== itemId);
         
-        const newTotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const newSubtotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const taxRate = cart.summary?.tax_rate || 0;
+        const newTax = newSubtotal * (taxRate / 100);
+        const newShipping = newSubtotal > 100 ? 0 : 15.00;
+        const newTotal = newSubtotal + newTax + newShipping;
+        
         const newCount = newItems.reduce((sum, i) => sum + i.quantity, 0);
 
         set({
             cart: {
                 ...cart,
                 items: newItems,
-                total: newTotal,
+                summary: {
+                    ...cart.summary,
+                    subtotal: newSubtotal,
+                    tax: newTax,
+                    shipping: newShipping,
+                    total: newTotal
+                },
                 count: newCount
             }
         });
@@ -81,13 +104,8 @@ const useCartStore = create((set, get) => ({
         // Server Sync (Immediate for delete)
         router.delete(route('cart.destroy', itemId), {
             preserveScroll: true,
-            onSuccess: () => {
-                // Props will update, triggering useEffect to sync store
-            },
             onError: (errors) => {
                 console.error('Failed to remove item', errors);
-                // Revert optimistic update if necessary, or let the user try again.
-                // For now, we mainly want to avoid the forced reload loop.
             }
         });
     }

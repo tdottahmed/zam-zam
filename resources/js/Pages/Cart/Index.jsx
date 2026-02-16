@@ -1,31 +1,25 @@
-import { Link, usePage, router, Head } from '@inertiajs/react';
+import { Link, usePage, Head } from '@inertiajs/react';
 import CustomerLayout from '../../Layouts/CustomerLayout';
 import StorageImage from '../../Components/StorageImage';
-import { useState } from 'react';
+import useCartStore from '../../Stores/useCartStore';
+import { useEffect } from 'react';
 
 export default function Index() {
-    const { cart } = usePage().props;
-    const [loadingId, setLoadingId] = useState(null);
+    const { cart: propsCart } = usePage().props;
+    const { 
+        cart: storeCart, 
+        setCart, 
+        updateQuantity, 
+        removeItem 
+    } = useCartStore();
 
-    const updateQuantity = (itemId, quantity) => {
-        if (quantity < 1) return;
-        setLoadingId(itemId);
-        router.patch(route('cart.update', itemId), { quantity }, {
-            preserveScroll: true,
-            preserveState: true,
-            onFinish: () => setLoadingId(null)
-        });
-    };
+    // Sync store with props on mount or when props change
+    useEffect(() => {
+        setCart(propsCart);
+    }, [propsCart, setCart]);
 
-    const removeItem = (itemId) => {
-        if (!confirm('Are you sure you want to remove this item?')) return;
-        setLoadingId(itemId);
-        router.delete(route('cart.destroy', itemId), {
-            preserveScroll: true,
-            preserveState: true,
-            onFinish: () => setLoadingId(null)
-        });
-    };
+    // Use store cart for UI (optimistic)
+    const cart = storeCart && storeCart.items ? storeCart : (propsCart || { items: [], total: 0 });
 
     return (
         <CustomerLayout>
@@ -78,18 +72,17 @@ export default function Index() {
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
                                                                 <button 
-                                                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                                    disabled={item.quantity <= 1 || loadingId === item.id}
+                                                                    onClick={() => updateQuantity(item.id, parseInt(item.quantity) - 1)}
+                                                                    disabled={item.quantity <= 1}
                                                                     className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-50 transition border-r border-gray-100"
                                                                 >
                                                                     -
                                                                 </button>
                                                                 <span className="w-12 text-center text-gray-900 font-semibold px-2">
-                                                                    {loadingId === item.id ? '...' : item.quantity}
+                                                                    {item.quantity}
                                                                 </span>
                                                                 <button 
-                                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                                    disabled={loadingId === item.id}
+                                                                    onClick={() => updateQuantity(item.id, parseInt(item.quantity) + 1)}
                                                                     className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 border-l border-gray-100 transition"
                                                                 >
                                                                     +
@@ -125,30 +118,27 @@ export default function Index() {
                                         <dl className="-my-4 divide-y divide-gray-100 text-sm">
                                             <div className="flex items-center justify-between py-4">
                                                 <dt className="text-gray-500">Subtotal</dt>
-                                                <dd className="font-bold text-gray-900">${cart.total ? cart.total.toFixed(2) : '0.00'}</dd>
+                                                <dd className="font-bold text-gray-900">${cart.summary?.subtotal ? cart.summary.subtotal.toFixed(2) : '0.00'}</dd>
                                             </div>
-                                            <div className="flex items-center justify-between py-4">
-                                                <dt className="text-gray-500">Shipping estimate</dt>
-                                                <dd className="font-medium text-gray-900 italic">Calculated at checkout</dd>
-                                            </div>
+                                            
                                             <div className="flex items-center justify-between py-4">
                                                 <dt className="text-gray-500">Tax estimate</dt>
-                                                <dd className="font-medium text-gray-900 italic">Calculated at checkout</dd>
+                                                <dd className="font-medium text-gray-900">${cart.summary?.tax ? cart.summary.tax.toFixed(2) : '0.00'}</dd>
                                             </div>
                                             <div className="flex items-center justify-between py-4 border-t border-gray-100 !mt-4">
                                                 <dt className="text-base font-bold text-gray-900">Order total</dt>
-                                                <dd className="text-2xl font-extrabold text-[#C41E3A]">${cart.total ? cart.total.toFixed(2) : '0.00'}</dd>
+                                                <dd className="text-2xl font-extrabold text-[#C41E3A]">${cart.summary?.total ? cart.summary.total.toFixed(2) : '0.00'}</dd>
                                             </div>
                                         </dl>
                                     </div>
 
                                     <div className="mt-8 space-y-4">
-                                        <button
-                                            type="button"
-                                            className="w-full rounded-xl border border-transparent bg-[#C41E3A] px-6 py-4 text-base font-bold text-white shadow-lg shadow-red-100 hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-[#C41E3A] focus:ring-offset-2 transition-all transform hover:-translate-y-0.5"
+                                        <Link
+                                            href={route('checkout.index')}
+                                            className="block w-full text-center rounded-xl border border-transparent bg-[#C41E3A] px-6 py-4 text-base font-bold text-white shadow-lg shadow-red-100 hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-[#C41E3A] focus:ring-offset-2 transition-all transform hover:-translate-y-0.5"
                                         >
                                             Checkout
-                                        </button>
+                                        </Link>
                                         <div className="text-center">
                                             <span className="text-gray-400 text-sm">or</span>
                                             <Link href={route('shop.index')} className="ml-2 font-medium text-[#C41E3A] hover:text-[#a01830] hover:underline">
