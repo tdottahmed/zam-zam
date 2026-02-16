@@ -80,8 +80,8 @@ export default function Show({ order }) {
                                             <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white">
                                                 {item.product && item.product.image ? (
                                                      <StorageImage
-                                                     src={item.product.image}
-                                                     alt={item.product.name}
+                                                     path={item.product.image}
+                                                     name={item.product.name}
                                                      className="h-full w-full object-cover object-center"
                                                      />
                                                 ) : (

@@ -175,7 +175,7 @@ export default function CreateCreditNote({ order }) {
                                                     <div className="flex items-center">
                                                         <div className="h-10 w-10 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden mr-4">
                                                             {item.product?.image && (
-                                                                <StorageImage src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
+                                                                <StorageImage path={item.product.image} name={item.product.name} className="h-full w-full object-cover" />
                                                             )}
                                                         </div>
                                                         <div>
