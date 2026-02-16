@@ -1,18 +1,13 @@
 import { Link } from '@inertiajs/react';
 import StorageImage from '../StorageImage';
 
-export default function CategoriesGrid({ categories = [] }) {
-    // Default categories if none provided
-    const defaultCategories = [
-        { icon: "🌶️", label: "Spices & Herbs", slug: "spices-herbs", color: "bg-red-100 text-red-600" },
-        { icon: "🍚", label: "Rice", slug: "rice", color: "bg-amber-100 text-amber-600" },
-        { icon: "🥩", label: "Frozen Meat", slug: "frozen-meat", color: "bg-rose-100 text-rose-600" },
-        { icon: "🍬", label: "Snacks & Sweets", slug: "snacks-sweets", color: "bg-pink-100 text-pink-600" },
-        { icon: "🥤", label: "Juices", slug: "juices", color: "bg-orange-100 text-orange-600" },
-        { icon: "🍅", label: "Sauces", slug: "sauces", color: "bg-green-100 text-green-600" }
-    ];
 
-    const displayCategories = categories.length > 0 ? categories : defaultCategories;
+
+export default function CategoriesGrid({ categories = [] }) {
+    if (!categories || categories.length === 0) return null;
+
+    // Duplicate categories for seamless loop
+    const displayCategories = [...categories, ...categories, ...categories];
 
     return (
         <section className="py-24 px-4 lg:px-8 bg-gray-50 relative overflow-hidden">
@@ -31,39 +26,41 @@ export default function CategoriesGrid({ categories = [] }) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-8">
-                    {displayCategories.map((cat, index) => (
-                        <Link 
-                            href={route('shop.index', { category: [cat.slug || (cat.label ? cat.label.toLowerCase().replace(/\s+/g, '-') : '')] })} 
-                            key={cat.id || index} 
-                            className="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 transform hover:-translate-y-2 border border-transparent hover:border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden"
-                        >
-                            {/* Hover Gradient Background */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative w-full overflow-hidden group">
+                    <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused] gap-6 lg:gap-8">
+                        {displayCategories.map((cat, index) => (
+                            <Link 
+                                href={route('shop.index', { category: [cat.slug || (cat.label ? cat.label.toLowerCase().replace(/\s+/g, '-') : '')] })} 
+                                key={`${cat.id}-${index}`}
+                                className="group bg-white rounded-3xl p-6 w-64 md:w-72 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-300 transform hover:-translate-y-2 border border-transparent hover:border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden flex-shrink-0"
+                            >
+                                {/* Hover Gradient Background */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                            {/* Icon / Image */}
-                            <div className={`relative w-20 h-20 mb-6 rounded-full flex items-center justify-center text-4xl shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${cat.color || "bg-gray-100 text-gray-600"}`}>
-                                {cat.image ? (
-                                    <StorageImage path={cat.image} name={cat.name || cat.label} className="w-12 h-12 object-contain drop-shadow-sm" />
-                                ) : (
-                                    <span className="filter drop-shadow-md">{cat.icon || "📦"}</span>
-                                )}
-                            </div>
+                                {/* Icon / Image */}
+                                <div className={`relative w-20 h-20 mb-6 rounded-full flex items-center justify-center text-4xl shadow-inner transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${cat.color || "bg-gray-100 text-gray-600"}`}>
+                                    {cat.image ? (
+                                        <StorageImage path={cat.image} name={cat.name || cat.label} className="w-12 h-12 object-contain drop-shadow-sm" />
+                                    ) : (
+                                        <span className="filter drop-shadow-md">{cat.icon || "📦"}</span>
+                                    )}
+                                </div>
 
-                            {/* Text Content */}
-                            <div className="relative z-10">
-                                <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-[#C41E3A] transition-colors">{cat.name || cat.label}</h3>
-                                <p className="text-xs text-gray-400 font-medium uppercase tracking-wider group-hover:text-gray-500 transition-colors">Browse</p>
-                            </div>
-                            
-                            {/* Arrow Indicator */}
-                            <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 text-[#C41E3A]">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                                </svg>
-                            </div>
-                        </Link>
-                    ))}
+                                {/* Text Content */}
+                                <div className="relative z-10">
+                                    <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-[#C41E3A] transition-colors">{cat.name || cat.label}</h3>
+                                    <p className="text-xs text-gray-400 font-medium uppercase tracking-wider group-hover:text-gray-500 transition-colors">Browse</p>
+                                </div>
+                                
+                                {/* Arrow Indicator */}
+                                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 text-[#C41E3A]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="text-center mt-16">

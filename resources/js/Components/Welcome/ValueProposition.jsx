@@ -84,7 +84,7 @@ export default function ValueProposition() {
                 </div>
 
                 {/* Features Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {features.map((feature, idx) => (
                         <div 
                             key={idx} 
@@ -97,23 +97,6 @@ export default function ValueProposition() {
                             <p className="text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
                         </div>
                     ))}
-                </div>
-
-                {/* Stats Section with Divider */}
-                <div className="relative">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-[#C41E3A] rounded-full mb-12"></div>
-                    <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-100/0 md:divide-gray-100">
-                        {stats.map((stat, idx) => (
-                            <div key={idx} className="group cursor-default p-4 hover:bg-gray-50 rounded-2xl transition-colors duration-300">
-                                <div className="text-4xl md:text-5xl font-black text-gray-900 mb-2 group-hover:text-[#C41E3A] transition-colors duration-300">
-                                    {stat.value}
-                                </div>
-                                <div className="text-gray-400 text-sm uppercase tracking-widest font-bold group-hover:text-gray-600 transition-colors">
-                                    {stat.label}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </div>
             </div>
         </section>
