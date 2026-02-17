@@ -40,6 +40,7 @@
                                             <input type="checkbox" @change="toggleAll($event)" class="rounded border-gray-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                                         </th>
                                         <th class="px-4 py-3 min-w-[200px]">Product / Details</th>
+                                        <th class="px-4 py-3 text-center w-28">Highlight</th>
                                         <th class="px-4 py-3 text-center w-28">Qty</th>
                                         <th class="px-4 py-3 text-right w-36">Price ($)</th>
                                         <th class="px-4 py-3 text-right w-48">Discount</th>
@@ -54,8 +55,9 @@
                                             $status = $itemData['status'];
                                             $itemId = $item->id;
                                         @endphp
-                                        <tr class="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors" 
-                                            :class="{'bg-blue-50/50 dark:bg-blue-900/20': items['{{ $itemId }}'].selected}">
+                                        <tr class="transition-colors" 
+                                            :class="{'bg-blue-50/50 dark:bg-blue-900/20': items['{{ $itemId }}'].selected && !items['{{ $itemId }}'].is_highlighted}"
+                                            :style="items['{{ $itemId }}'].is_highlighted && items['{{ $itemId }}'].selected ? `background-color: ${items['{{ $itemId }}'].highlight_color}40` : ''">
                                             
                                             <!-- Checkbox -->
                                             <td class="px-4 py-4 text-center align-top">
@@ -83,6 +85,25 @@
                                                 </template>
                                             </td>
                                             
+                                            <!-- Highlight -->
+                                            <td class="px-4 py-4 text-center align-top">
+                                                <div class="flex flex-col items-center gap-2" x-show="items['{{ $itemId }}'].selected">
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" 
+                                                               x-model="items['{{ $itemId }}'].is_highlighted" 
+                                                               class="sr-only peer">
+                                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                                    </label>
+                                                    <div x-show="items['{{ $itemId }}'].is_highlighted" x-transition>
+                                                        <input type="color" 
+                                                               x-model="items['{{ $itemId }}'].highlight_color"
+                                                               class="h-6 w-8 p-0 border-0 rounded cursor-pointer">
+                                                    </div>
+                                                    <!-- Hidden input for submission -->
+                                                    <input type="hidden" name="items[{{ $itemId }}][highlight_color]" :value="items['{{ $itemId }}'].is_highlighted ? items['{{ $itemId }}'].highlight_color : null">
+                                                </div>
+                                            </td>
+
                                             <!-- Quantity -->
                                             <td class="px-4 py-4 align-top text-center" x-data="{ editing: false }">
                                                 <div class="relative group" @click.away="editing = false">
@@ -308,7 +329,9 @@
                             price: {{ $itemData['item']->unit_price }},
                             discountValue: 0,
                             discountType: 'fixed',
-                            tax_rate: {{ $itemData['item']->product && $itemData['item']->product->tax ? $itemData['item']->product->tax->value : 0 }}
+                            tax_rate: {{ $itemData['item']->product && $itemData['item']->product->tax ? $itemData['item']->product->tax->value : 0 }},
+                            is_highlighted: false,
+                            highlight_color: '#FFFF00'
                         },
                     @endforeach
                 },

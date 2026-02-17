@@ -58,6 +58,7 @@ class OrderInvoiceController extends Controller
             'items.*.quantity' => 'required_with:items.*.selected|numeric|min:0.01',
             'items.*.price' => 'required_with:items.*.selected|numeric|min:0',
             'items.*.discount' => 'nullable|numeric|min:0',
+            'items.*.highlight_color' => 'nullable|string|max:7',
         ]);
 
         // Filter only selected items
@@ -80,7 +81,7 @@ class OrderInvoiceController extends Controller
             'invoice_number' => $validated['invoice_number'],
             'invoice_date' => $validated['invoice_date'],
             'due_date' => $validated['due_date'],
-            'notes' => $validated['notes'],
+            'notes' => $validated['notes'] ?? null,
             'discount_total' => $validated['discount_total'] ?? 0,
             'shipping_amount' => $validated['shipping_amount'] ?? 0,
             'subtotal' => 0, // Will update after calculating items
@@ -115,6 +116,7 @@ class OrderInvoiceController extends Controller
                 'discount_amount' => $discountAmount,
                 'total_price' => $lineTotal,
                 'tax_amount' => $lineTax,
+                'highlight_color' => $data['highlight_color'] ?? null,
             ]);
 
             $subtotal += $lineTotal;
@@ -203,6 +205,7 @@ class OrderInvoiceController extends Controller
                     'amount' => $item->total_price,
                     'discount' => $item->discount_amount,
                     'tax' => $item->tax_amount,
+                    'highlight_color' => $item->highlight_color,
                 ];
             }),
             'total_shipped_qty' => $invoice->items->sum('quantity'),

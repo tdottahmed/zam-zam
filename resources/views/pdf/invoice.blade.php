@@ -305,7 +305,7 @@
     </thead>
     <tbody>
       @foreach ($data['items'] as $item)
-        <tr>
+        <tr style="{{ isset($item['highlight_color']) ? 'background-color: ' . $item['highlight_color'] . '40;' : '' }}">
           <td>{{ $item['s_no'] }}</td>
           <td style="text-align: center;">
               @if(isset($item['image_path']) && file_exists($item['image_path']))
@@ -383,7 +383,7 @@
     <div class="clearfix"></div>
 
     <div style="text-align: center; margin-top: 20px; font-size: 9px;">
-      **No claims after 7 days of delivery.**
+      **Any expired items need to notify -2 months prior otherwise no refund.**
     </div>
 
     <div class="signature-section">

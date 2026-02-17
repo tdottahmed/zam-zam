@@ -18,6 +18,7 @@ class InvoiceItem extends Model
         'discount_amount',
         'total_price',
         'tax_amount',
+        'highlight_color',
     ];
 
     public function invoice()
