@@ -40,6 +40,9 @@
                             <x-admin.actions.button href="{{ route('admin.products.create') }}" variant="secondary">
                                 New Entry
                             </x-admin.actions.button>
+                            <button type="button" x-data="" @click="$dispatch('open-modal', 'import-products')" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                Import
+                            </button>
                             <x-admin.actions.button variant="primary">
                                 Export
                             </x-admin.actions.button>
@@ -94,8 +97,31 @@
             </x-slot:body>
         </x-admin.ui.table>
 
-        <div class="mt-4">
+    <div class="mt-4">
             {{ $products->links() }}
         </div>
     </x-admin.ui.card>
+
+    <x-admin.ui.modal name="import-products" title="Import Products">
+        <form method="POST" action="{{ route('admin.products.import') }}" enctype="multipart/form-data" class="p-6">
+            @csrf
+            <div class="space-y-4">
+                <p class="text-sm text-gray-600">
+                    Upload an Excel file (.xlsx, .xls) to import products. The file should follow the provided template format.
+                </p>
+                <div>
+                    <x-admin.form.label for="import_file" value="Select File" />
+                    <input type="file" id="import_file" name="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100" required />
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3">
+                <x-admin.actions.button type="button" variant="secondary" @click="$dispatch('close-modal', 'import-products')">
+                    Cancel
+                </x-admin.actions.button>
+                <x-admin.actions.button type="submit" variant="primary">
+                    Import Products
+                </x-admin.actions.button>
+            </div>
+        </form>
+    </x-admin.ui.modal>
 @endsection

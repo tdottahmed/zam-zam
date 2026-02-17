@@ -9,6 +9,8 @@ use App\Models\Product;
 use App\Models\Tax;
 use App\Models\SystemSetting;
 use App\Models\Unit;
+use App\Imports\ProductImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -178,5 +180,25 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    /**
+     * Import products from Excel.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        try {
+            Excel::import(new ProductImport, $request->file('file'));
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Products imported successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Import Error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error during import: ' . $e->getMessage());
+        }
     }
 }

@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             BrandSeeder::class,
             UnitSeeder::class,
-            ProductSeeder::class,
+            // ProductSeeder::class,
             SystemSettingSeeder::class,
         ]);
     }
