@@ -83,6 +83,10 @@ class InvoiceHighlightTest extends TestCase
             'product_id' => $product->id,
             'highlight_color' => '#ff0000',
         ]);
+
+        // Verify show page has highlight style
+        $response = $this->actingAs($admin)->get(route('admin.invoices.show', $invoice));
+        $response->assertSee('background-color: #ff000040', false);
     }
 
     public function test_can_store_invoice_without_highlight()

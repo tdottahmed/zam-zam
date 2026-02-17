@@ -98,7 +98,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                     @foreach($invoice->items as $item)
-                                        <tr class="dark:text-white">
+                                        <tr class="dark:text-white" style="{{ $item->highlight_color ? 'background-color: ' . $item->highlight_color . '40;' : '' }}">
                                             <td class="px-4 py-3">
                                                 <div class="font-medium">{{ $item->product_name }}</div>
                                                 @if($item->discount_amount > 0)
