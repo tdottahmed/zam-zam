@@ -35,7 +35,7 @@ export default function BrandsGrid({ brands = [] }) {
                         >
                             <div className="relative w-full aspect-[3/1] flex items-center justify-center">
                                 <StorageImage 
-                                    path={brand.logo} 
+                                    path={brand.image} 
                                     name={brand.name} 
                                     className="max-h-16 w-auto object-contain mix-blend-multiply" 
                                 />

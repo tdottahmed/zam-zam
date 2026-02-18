@@ -54,6 +54,7 @@
 
             <x-slot:head>
                 <x-admin.ui.th>Code</x-admin.ui.th>
+                <x-admin.ui.th>Image</x-admin.ui.th>
                 <x-admin.ui.th>Product Name</x-admin.ui.th>
                 <x-admin.ui.th>Packing</x-admin.ui.th>
                 <x-admin.ui.th>Box Price</x-admin.ui.th>
@@ -65,6 +66,15 @@
                 @forelse($products as $product)
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <x-admin.ui.td class="font-mono text-xs text-gray-500">{{ $product->product_code }}</x-admin.ui.td>
+                        <x-admin.ui.td class="w-16">
+                            @if($product->image)
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="h-10 w-10 object-cover rounded-md border border-gray-200">
+                            @else
+                                <div class="h-10 w-10 bg-gray-50 rounded-md border border-gray-200 flex items-center justify-center text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                            @endif
+                        </x-admin.ui.td>
                         <x-admin.ui.td>
                             <span class="font-medium text-gray-900">{{ $product->name }}</span>
                         </x-admin.ui.td>
@@ -89,7 +99,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             No products found.
                         </td>
                     </tr>
