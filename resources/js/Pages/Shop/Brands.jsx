@@ -29,7 +29,7 @@ export default function Brands({ brands }) {
 
                             <div className="relative z-10 w-32 h-32 mb-6 flex items-center justify-center p-4 bg-gray-50 rounded-full group-hover:bg-white group-hover:scale-110 transition-all duration-300">
                                 <StorageImage 
-                                    path={brand.logo} 
+                                    path={brand.image} 
                                     name={brand.name} 
                                     className="max-h-full max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-500 mix-blend-multiply"
                                 />
