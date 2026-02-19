@@ -66,13 +66,14 @@ class HandleInertiaRequests extends Middleware
                         'total' => $subtotal, 
                     ],
                     'items' => $cart->items()
-                        ->with(['product:id,name,image,unit_price,product_code,unit_id', 'product.unit'])
+                        ->with(['product:id,name,slug,image,unit_price,product_code,unit_id', 'product.unit'])
                         ->latest()
                         ->get()
                         ->map(fn ($item) => [
                             'id' => $item->id,
                             'product_id' => $item->product_id,
                             'name' => $item->product->name,
+                            'slug' => $item->product->slug,
                             'image' => $item->product->image,
                             'unit_price' => $item->product->unit_price,
                             'quantity' => (int) $item->quantity,
@@ -86,6 +87,14 @@ class HandleInertiaRequests extends Middleware
                     return [];
                 }
                 return $request->user()->wishlist()->pluck('product_id');
+            },
+            'settings' => function () {
+                $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
+                return [
+                    'site_name' => $settings['site_name'] ?? config('app.name'),
+                    'site_logo' => isset($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/Zam_logo-120x99.png'),
+                    'site_favicon' => isset($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('favicon.ico'),
+                ];
             },
         ];
     }

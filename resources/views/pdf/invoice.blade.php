@@ -363,6 +363,16 @@
           </tr>
         </table>
       </div>
+      @if($data['shipping'] > 0)
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
+        <table style="width: 100%;">
+          <tr>
+            <td>Shipping {{ $data['shipping_method'] ? '('.$data['shipping_method'].')' : '' }}</td>
+            <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
+          </tr>
+        </table>
+      </div>
+      @endif
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>

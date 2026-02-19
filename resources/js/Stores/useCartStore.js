@@ -111,11 +111,33 @@ const useCartStore = create((set, get) => ({
     }
 }));
 
-// Debounced API call outside the store to persist across renders/calls
-const debouncedUpdate = debounce((itemId, quantity) => {
-    axios.patch(route('cart.update', itemId), { quantity }).catch(err => {
-        console.error('Failed to update cart', err);
-    });
-}, 500);
+// Map to store timeouts for each item
+const updateTimeouts = {};
+
+const debouncedUpdate = (itemId, quantity) => {
+    // Clear existing timeout for this item
+    if (updateTimeouts[itemId]) {
+        clearTimeout(updateTimeouts[itemId]);
+    }
+
+    // Set new timeout
+    updateTimeouts[itemId] = setTimeout(() => {
+        if (!itemId) {
+            console.error('Cannot update cart: itemId is missing');
+            return;
+        }
+
+        const url = route('cart.update', itemId);
+        console.log(`Updating cart item ${itemId} via PATCH ${url}`, { quantity });
+
+        axios.patch(url, { quantity })
+            .catch(err => {
+                console.error('Failed to update cart', err);
+            })
+            .finally(() => {
+                delete updateTimeouts[itemId];
+            });
+    }, 500);
+};
 
 export default useCartStore;

@@ -33,6 +33,14 @@ class SettingsController extends Controller
             $data['auto_send_invoice'] = '0';
         }
 
+        // Handle File Uploads
+        $files = ['site_logo', 'site_favicon'];
+        foreach ($files as $file) {
+            if ($request->hasFile($file)) {
+                $data[$file] = $request->file($file)->store('settings', 'public');
+            }
+        }
+
         foreach ($data as $key => $value) {
             SystemSetting::updateOrCreate(
                 ['key' => $key],

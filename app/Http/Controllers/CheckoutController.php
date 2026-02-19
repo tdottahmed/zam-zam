@@ -20,9 +20,11 @@ class CheckoutController extends Controller
         }
 
         $addresses = $request->user()->addresses()->latest()->get();
+        $shippingMethods = \App\Models\ShippingMethod::where('is_active', true)->get();
 
         return Inertia::render('Checkout/Index', [
             'addresses' => $addresses,
+            'shippingMethods' => $shippingMethods,
         ]);
     }
 
@@ -37,9 +39,10 @@ class CheckoutController extends Controller
             'shipping_address.city' => 'required|string',
             'shipping_address.zip' => 'required|string',
             'shipping_address.country' => 'required|string',
-            'payment_method' => 'required|string|in:cod', // Only COD for now
+            'payment_method' => 'required|string|in:cod,bank_transfer', // Allow COD and Bank Transfer
             'save_address' => 'boolean',
-            'address_id' => 'nullable', // NEW: Allow validation of address_id
+            'address_id' => 'nullable', 
+            'shipping_method_id' => 'required|exists:shipping_methods,id',
         ]);
 
         $user = $request->user();
@@ -52,7 +55,6 @@ class CheckoutController extends Controller
         try {
             DB::beginTransaction();
 
-            // Save address if requested
             // Save address if requested AND it's a new address
             if ($request->boolean('save_address') && $request->input('address_id') === 'new') {
                 $user->addresses()->create([
@@ -68,10 +70,18 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Get Shipping Method
+            $shippingMethod = \App\Models\ShippingMethod::find($validated['shipping_method_id']);
+            $shippingCost = $shippingMethod->cost ?? 0; // Handle nullable cost
+
             // Calculate totals
             $subtotal = $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price);
-            $shipping = 0; // Free shipping for now
-            $tax = 0; // Tax calculation logic later
+            $shipping = $shippingCost; 
+            
+            // Tax Calculation (Get active tax rate)
+            $taxRate = \App\Models\Tax::where('is_active', true)->sum('value');
+            $tax = $subtotal * ($taxRate / 100);
+            
             $total = $subtotal + $shipping + $tax;
 
             // Create Order
@@ -85,6 +95,8 @@ class CheckoutController extends Controller
                 'payment_status' => 'pending',
                 'shipping_address' => $validated['shipping_address'],
                 'billing_address' => $validated['shipping_address'], // Use shipping as billing for now
+                'shipping_method_id' => $shippingMethod->id,
+                'shipping_method_name' => $shippingMethod->name,
             ]);
 
             // Create Order Items

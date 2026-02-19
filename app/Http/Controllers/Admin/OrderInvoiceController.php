@@ -210,6 +210,8 @@ class OrderInvoiceController extends Controller
             }),
             'total_shipped_qty' => $invoice->items->sum('quantity'),
             'subtotal' => $invoice->subtotal,
+            'shipping' => $invoice->shipping_amount,
+            'shipping_method' => $order->shipping_method_name,
             'hst' => $invoice->tax_total,
             'hst_base' => $invoice->subtotal, 
             'total' => $invoice->total,

@@ -133,7 +133,7 @@
                              @endif
                              
                              <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                                 <span>Shipping</span>
+                                 <span>Shipping {{ $order->shipping_method_name ? '('.$order->shipping_method_name.')' : '' }}</span>
                                  <span class="font-medium text-gray-900 dark:text-white">{{ $shipping > 0 ? '$'.number_format($shipping, 2) : 'Free' }}</span>
                              </div>
                              

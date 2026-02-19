@@ -101,6 +101,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         Route::post('sitemap/generate', [\App\Http\Controllers\SitemapController::class, 'generate'])->name('sitemap.generate');
     });
+
+    Route::resource('shipping-methods', \App\Http\Controllers\Admin\ShippingMethodController::class);
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

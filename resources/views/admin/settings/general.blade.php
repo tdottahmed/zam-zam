@@ -17,6 +17,14 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h4 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">Site Identity & Contact</h4>
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div class="sm:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <x-admin.form.file-upload name="site_logo" label="Site Logo" :preview="isset($settings['site_logo']) ? Storage::url($settings['site_logo']) : null" />
+                                </div>
+                                <div>
+                                    <x-admin.form.file-upload name="site_favicon" label="Favicon" :preview="isset($settings['site_favicon']) ? Storage::url($settings['site_favicon']) : null" />
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="site_name">Site Name</label>
                                 <input name="site_name" type="text" value="{{ $settings['site_name'] ?? '' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
@@ -46,8 +54,9 @@
                 </div>
 
                 <!-- Business Rules Card -->
-                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-full">
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Business Rules -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h4 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">Business Rules</h4>
                         <div class="space-y-6">
                             <div>
@@ -72,7 +81,24 @@
                             </div>
                         </div>
                     </div>
-                 </div>
+
+                    <!-- Shipping Management -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">Shipping Information</h4>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="shipping_title">Shipping Title</label>
+                                <input name="shipping_title" type="text" value="{{ $settings['shipping_title'] ?? '' }}" placeholder="e.g. Standard Shipping" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                                <p class="mt-1 text-xs text-gray-500">Displayed to customers during checkout.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="shipping_policy">Shipping Policy / Notes</label>
+                                <textarea name="shipping_policy" rows="4" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm" placeholder="Brief shipping information...">{{ $settings['shipping_policy'] ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="flex justify-end mt-6">

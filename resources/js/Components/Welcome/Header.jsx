@@ -5,7 +5,7 @@ import CartSidebar from '../../Components/Cart/CartSidebar';
 import SearchModal from './SearchModal';
 
 export default function Header() {
-    const { auth, cart, wishlist = [] } = usePage().props;
+    const { auth, cart, wishlist = [], settings } = usePage().props;
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
@@ -73,7 +73,7 @@ export default function Header() {
                             {/* Logo (Center on Mobile, Left on Desktop) */}
                             <div className="flex-shrink-0 flex items-center justify-center lg:justify-start flex-1 lg:flex-none">
                                 <Link href="/">
-                                    <img src="/images/Zam_logo-120x99.png" alt="Zam Zam" className="h-14 lg:h-16 w-auto object-contain" />
+                                    <img src={settings?.site_logo || "/images/Zam_logo-120x99.png"} alt={settings?.site_name || "Zam Zam"} className="h-14 lg:h-16 w-auto object-contain" />
                                 </Link>
                             </div>
 
@@ -202,7 +202,7 @@ export default function Header() {
                 {/* Drawer */}
                 <div className={`absolute top-0 left-0 h-full w-[80%] max-w-[300px] bg-white shadow-2xl transform transition-transform duration-300 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                        <img src="/images/Zam_logo-120x99.png" alt="Zam Zam" className="h-10 w-auto" />
+                        <img src={settings?.site_logo || "/images/Zam_logo-120x99.png"} alt={settings?.site_name || "Zam Zam"} className="h-10 w-auto" />
                         <button 
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="p-2 bg-white rounded-full text-gray-500 hover:text-red-600 shadow-sm"
