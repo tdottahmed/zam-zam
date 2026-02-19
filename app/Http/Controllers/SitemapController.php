@@ -33,7 +33,7 @@ class SitemapController extends Controller
 
         // Add products to sitemap
         Product::all()->each(function (Product $product) use ($sitemap) {
-            $sitemap->add(Url::create(route('shop.show', $product->id)));
+            $sitemap->add(Url::create(route('shop.show', $product->slug)));
         });
 
         return $sitemap;
@@ -41,9 +41,6 @@ class SitemapController extends Controller
 
     public function feed()
     {
-        // This method might not be needed if using the package's route macro, 
-        // but often we want custom control or just to define the items here.
-        // The package usually expects a static method on the model or a controller method returning items.
         
         $products = Product::latest()->take(50)->get();
 
@@ -51,10 +48,10 @@ class SitemapController extends Controller
             return FeedItem::create([
                 'id' => $product->id,
                 'title' => $product->name,
-                'summary' => $product->notes ?? '', 
+                'summary' => $product->description ?? '', 
                 'updated' => $product->updated_at,
-                'link' => route('shop.show', $product->id),
-                'authorName' => 'Admin', // Or config('app.name')
+                'link' => route('shop.show', $product->slug),
+                'authorName' => config('app.name')
             ]);
         });
     }

@@ -60,7 +60,7 @@ export default function Index() {
                                                     <div className="flex justify-between items-start gap-4">
                                                         <div>
                                                             <h3 className="text-lg font-bold text-gray-900 leading-snug">
-                                                                <Link href={route('shop.show', item.product_id)} className="hover:text-[#C41E3A] transition-colors line-clamp-2">
+                                                                <Link href={route('shop.show', item.slug)} className="hover:text-[#C41E3A] transition-colors line-clamp-2">
                                                                     {item.name}
                                                                 </Link>
                                                             </h3>

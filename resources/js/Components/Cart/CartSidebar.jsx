@@ -88,7 +88,7 @@ export default function CartSidebar() {
                                                                         <div>
                                                                             <div className="flex justify-between text-base font-medium text-gray-900">
                                                                                 <h3 className="line-clamp-2 pr-6">
-                                                                                     <Link href={route('shop.show', item.product_id)} onClick={closeCart} className="hover:text-[#C41E3A] transition-colors">
+                                                                                     <Link href={route('shop.show', item.slug)} onClick={closeCart} className="hover:text-[#C41E3A] transition-colors">
                                                                                         {item.name}
                                                                                     </Link>
                                                                                 </h3>

@@ -143,7 +143,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                     {results.map((product) => (
                                         <li key={product.id} className="animate-fadeIn">
                                             <Link
-                                                href={route('shop.show', { product: product.id })}
+                                                href={route('shop.show', { product: product.slug })}
                                                 className="group flex cursor-default select-none items-center rounded-md px-4 py-3 hover:bg-gray-50 transition-colors duration-150"
                                                 onClick={onClose}
                                             >

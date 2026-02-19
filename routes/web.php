@@ -104,7 +104,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
-Route::get('/shop/{product}', [\App\Http\Controllers\ShopController::class, 'show'])->name('shop.show');
+Route::get('/shop/{product:slug}', [\App\Http\Controllers\ShopController::class, 'show'])->name('shop.show');
 Route::get('/brands', [\App\Http\Controllers\ShopController::class, 'brands'])->name('shop.brands');
 
 require __DIR__.'/auth.php';

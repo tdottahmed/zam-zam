@@ -82,7 +82,7 @@ export default function ProductCard({ product }) {
             
             {/* Image Area with Gradient Overlay on Hover */}
             <div className="relative aspect-[4/5] bg-gray-50 overflow-hidden">
-                <Link href={route('shop.show', product.id)} className="block w-full h-full p-6 cursor-pointer">
+                <Link href={route('shop.show', product.slug)} className="block w-full h-full p-6 cursor-pointer">
                     <StorageImage
                         path={product.image}
                         name={product.name}
@@ -127,7 +127,7 @@ export default function ProductCard({ product }) {
                         </h4>
                     )}
                     
-                    <Link href={route('shop.show', product.id)} className="block group-hover:text-[#C41E3A] transition-colors duration-200">
+                    <Link href={route('shop.show', product.slug)} className="block group-hover:text-[#C41E3A] transition-colors duration-200">
                         <h3 className="text-gray-900 font-bold text-[15px] leading-snug line-clamp-2 min-h-[2.5rem]">
                             {product.name}
                         </h3>
