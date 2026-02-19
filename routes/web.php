@@ -10,7 +10,9 @@ Route::get('/about', [\App\Http\Controllers\WelcomeController::class, 'about'])-
 Route::get('/contact', [\App\Http\Controllers\WelcomeController::class, 'contact'])->name('contact');
 
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'sitemap'])->name('sitemap');
-Route::feeds(); // Spatie Feed Routes
+if (Route::hasMacro('feeds')) {
+    Route::feeds(); // Spatie Feed Routes
+}
 
 Route::get('/dashboard', [\App\Http\Controllers\WelcomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
