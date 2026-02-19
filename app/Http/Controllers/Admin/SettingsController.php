@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
 class SettingsController extends Controller
 {
@@ -48,28 +48,101 @@ class SettingsController extends Controller
      */
     public function smtp()
     {
-        $settings = SystemSetting::get()->mapWithKeys(function ($item) {
-            return [$item->key => $item->value];
-        });
+        $settings = [
+            'mail_driver' => config('mail.default'),
+            'mail_host' => config('mail.mailers.smtp.host'),
+            'mail_port' => config('mail.mailers.smtp.port'),
+            'mail_username' => config('mail.mailers.smtp.username'),
+            'mail_password' => config('mail.mailers.smtp.password'),
+            'mail_encryption' => config('mail.mailers.smtp.encryption'),
+            'mail_from_address' => config('mail.from.address'),
+            'mail_from_name' => config('mail.from.name'),
+        ];
 
         return view('admin.settings.smtp', compact('settings'));
     }
 
     /**
-     * Update SMTP settings.
+     * Test SMTP connection.
      */
+    public function testSmtpConnection(Request $request)
+    {
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        try {
+            \Mail::raw('This is a test email to verify your SMTP settings.', function ($message) use ($request) {
+                $message->to($request->test_email)
+                        ->subject('Test SMTP Connection');
+            });
+
+            return redirect()->back()->with('success', 'Test email sent successfully to ' . $request->test_email);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to send test email. Error: ' . $e->getMessage());
+        }
+    }
+
     public function updateSmtp(Request $request)
     {
-        $data = $request->except(['_token', '_method']);
+        $data = $request->validate([
+            'mail_driver' => 'required|string',
+            'mail_host' => 'required|string',
+            'mail_port' => 'required|numeric',
+            'mail_username' => 'nullable|string',
+            'mail_password' => 'nullable|string',
+            'mail_encryption' => 'nullable|string',
+            'mail_from_address' => 'required|email',
+            'mail_from_name' => 'required|string',
+        ]);
 
-        foreach ($data as $key => $value) {
-            SystemSetting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value, 'group' => 'smtp', 'label' => ucwords(str_replace('_', ' ', $key))]
-            );
+        $values = [
+            'MAIL_MAILER' => $data['mail_driver'],
+            'MAIL_HOST' => $data['mail_host'],
+            'MAIL_PORT' => $data['mail_port'],
+            'MAIL_USERNAME' => $data['mail_username'],
+            'MAIL_PASSWORD' => $data['mail_password'],
+            'MAIL_ENCRYPTION' => $data['mail_encryption'],
+            'MAIL_FROM_ADDRESS' => $data['mail_from_address'],
+            'MAIL_FROM_NAME' => '"' . $data['mail_from_name'] . '"',
+        ];
+
+        if ($this->setEnvironmentValue($values)) {
+            Artisan::call('optimize:clear');
+            return redirect()->back()->with('success', 'SMTP settings updated successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Failed to update .env file.');
+        }
+    }
+
+    private function setEnvironmentValue(array $values)
+    {
+        $envFile = app()->environmentFilePath();
+        $str = file_get_contents($envFile);
+
+        if (count($values) > 0) {
+            foreach ($values as $envKey => $envValue) {
+
+                $str .= "\n"; // In case the file doesn't end with a newline
+                $keyPosition = strpos($str, "{$envKey}=");
+                $endOfLinePosition = strpos($str, "\n", $keyPosition);
+                $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+
+                // If key exists, replace it
+                if (is_bool($keyPosition) && $keyPosition === false) {
+                    // Variable doesn't exist, add it
+                    $str .= "{$envKey}={$envValue}\n";
+                } else {
+                    $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
+                }
+            }
         }
 
-        return redirect()->back()->with('success', 'SMTP settings updated successfully.');
+        $str = substr($str, 0, -1);
+        if (!file_put_contents($envFile, $str)) {
+             return false;
+        }
+        return true;
     }
 
     /**

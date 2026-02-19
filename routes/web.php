@@ -9,6 +9,9 @@ Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name
 Route::get('/about', [\App\Http\Controllers\WelcomeController::class, 'about'])->name('about');
 Route::get('/contact', [\App\Http\Controllers\WelcomeController::class, 'contact'])->name('contact');
 
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'sitemap'])->name('sitemap');
+Route::feeds(); // Spatie Feed Routes
+
 Route::get('/dashboard', [\App\Http\Controllers\WelcomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -30,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/credit-notes/{creditNote}', [\App\Http\Controllers\CreditNoteController::class, 'show'])->name('credit-notes.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); // Kept existing route
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Address Routes
@@ -88,12 +91,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         
         Route::get('smtp', 'smtp')->name('smtp');
         Route::put('smtp', 'updateSmtp')->name('smtp.update');
+        Route::post('smtp/test', 'testSmtpConnection')->name('smtp.test');
         
         Route::get('seo', 'seo')->name('seo');
         Route::put('seo', 'updateSeo')->name('seo.update');
         
         Route::get('third-party', 'thirdParty')->name('third-party');
         Route::put('third-party', 'updateThirdParty')->name('third-party.update');
+
+        Route::post('sitemap/generate', [\App\Http\Controllers\SitemapController::class, 'generate'])->name('sitemap.generate');
     });
 });
 
