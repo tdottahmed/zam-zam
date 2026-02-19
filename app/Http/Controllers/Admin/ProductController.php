@@ -62,8 +62,7 @@ class ProductController extends Controller
         $units = Unit::where('is_active', true)->get();
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
-        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
-            ->where('key', 'default_profit_margin')
+        $defaultProfitMargin = SystemSetting::where('key', 'default_profit_margin')
             ->value('value');
 
         return view('admin.products.create', compact('taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
@@ -77,6 +76,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'product_code' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:products,slug',
             'category_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_value' => 'nullable|numeric|min:0',
@@ -89,6 +89,11 @@ class ProductController extends Controller
 
             'notes' => 'nullable|string',
         ]);
+
+        // Generate slug if not provided
+        if (empty($validated['slug'])) {
+            $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        }
 
         // Default to 1 if not provided or invalid
         if (empty($validated['pcs_in_ctn']) || $validated['pcs_in_ctn'] < 1) {
@@ -134,6 +139,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'product_code' => 'nullable|string|max:255',
+            'slug' => 'nullable|string|max:255|unique:products,slug,' . $product->id,
             'category_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'unit_value' => 'nullable|numeric|min:0',
@@ -146,6 +152,11 @@ class ProductController extends Controller
 
             'notes' => 'nullable|string',
         ]);
+
+        // Generate slug if not provided
+        if (empty($validated['slug'])) {
+            $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
+        }
 
         // Default to 1 if not provided or invalid
         if (empty($validated['pcs_in_ctn']) || $validated['pcs_in_ctn'] < 1) {

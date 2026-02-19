@@ -26,6 +26,14 @@
                             <x-admin.form.input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
+                        <!-- Slug -->
+                        <div class="md:col-span-2">
+                            <x-admin.form.label for="slug" value="Slug (URL Friendly)" />
+                            <x-admin.form.input id="slug" name="slug" :value="old('slug')" placeholder="Auto-generated from name" />
+                            <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate.</p>
+                            <x-admin.form.input-error :messages="$errors->get('slug')" class="mt-2" />
+                        </div>
+
                         <!-- Category -->
                         <div>
                             <x-admin.form.select-search 
@@ -241,10 +249,36 @@
                     sellUnit: document.getElementById('unit_price'),
                     profitDisplay: document.getElementById('profit_display'),
                     skuInput: document.getElementById('product_code'),
-                    generateSkuBtn: document.getElementById('generate_sku_btn')
+                    generateSkuBtn: document.getElementById('generate_sku_btn'),
+                    skuInput: document.getElementById('product_code'),
+                    generateSkuBtn: document.getElementById('generate_sku_btn'),
+                    nameInput: document.querySelector('input[name="name"]'),
+                    slugInput: document.querySelector('input[name="slug"]')
                 };
 
-                // SKU Generation
+
+                // Auto-generate Slug
+                if (els.nameInput && els.slugInput) {
+                    els.nameInput.addEventListener('input', function() {
+                        // Only auto-update if empty or previously auto-generated
+                        if (!els.slugInput.value || els.slugInput.dataset.auto === 'true') {
+                            let slug = this.value.toLowerCase()
+                                .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces/dashes)
+                                .replace(/\s+/g, '-')     // space to dash
+                                .replace(/-+/g, '-')      // collapse dashes
+                                .replace(/^-+|-+$/g, ''); // trim dashes from start/end
+                            
+                            els.slugInput.value = slug;
+                            els.slugInput.dataset.auto = 'true';
+                        }
+                    });
+
+                    els.slugInput.addEventListener('input', function() {
+                        this.dataset.auto = 'false';
+                    });
+                }
+
+                const defaultMargin = {!! json_encode($defaultProfitMargin) !!} || 0;
                 if (els.generateSkuBtn) {
                     els.generateSkuBtn.addEventListener('click', function() {
                         const btn = this;
@@ -269,7 +303,7 @@
                     });
                 }
 
-                const defaultMargin = {{ $defaultProfitMargin }};
+
 
                 // State
                 let state = {

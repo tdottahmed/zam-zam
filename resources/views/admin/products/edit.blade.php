@@ -27,6 +27,14 @@
                             <x-admin.form.input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
+                        <!-- Slug -->
+                        <div class="md:col-span-2">
+                            <x-admin.form.label for="slug" value="Slug (URL Friendly)" />
+                            <x-admin.form.input id="slug" name="slug" :value="old('slug', $product->slug)" placeholder="Auto-generated from name" />
+                            <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate.</p>
+                            <x-admin.form.input-error :messages="$errors->get('slug')" class="mt-2" />
+                        </div>
+
                         <!-- Category -->
                         <div>
                             <x-admin.form.select-search 
@@ -275,7 +283,7 @@
                     });
                 }
 
-                const defaultMargin = {{ $defaultProfitMargin }};
+                const defaultMargin = {!! json_encode($defaultProfitMargin) !!} || 0;
 
                 // State
                 let state = {
