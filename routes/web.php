@@ -80,6 +80,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Credit Notes
     Route::resource('credit-notes', \App\Http\Controllers\Admin\CreditNoteController::class);
+
+    // Settings
+    Route::controller(\App\Http\Controllers\Admin\SettingsController::class)->prefix('settings')->name('settings.')->group(function () {
+        Route::get('general', 'general')->name('general');
+        Route::put('general', 'updateGeneral')->name('general.update');
+        
+        Route::get('smtp', 'smtp')->name('smtp');
+        Route::put('smtp', 'updateSmtp')->name('smtp.update');
+        
+        Route::get('seo', 'seo')->name('seo');
+        Route::put('seo', 'updateSeo')->name('seo.update');
+        
+        Route::get('third-party', 'thirdParty')->name('third-party');
+        Route::put('third-party', 'updateThirdParty')->name('third-party.update');
+    });
 });
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

@@ -87,10 +87,10 @@
             </a>
 
              <!-- Settings Dropdown -->
-             <div x-data="{ settingsOpen: false }" class="mt-auto">
+             <div x-data="{ settingsOpen: {{ request()->routeIs('admin.taxes.*') || request()->routeIs('admin.units.*') || request()->routeIs('admin.settings.*') ? 'true' : 'false' }} }" class="mt-auto">
                 <button @click="settingsOpen = !settingsOpen; if(!sidebarOpen) sidebarOpen = true" 
                    class="w-full flex items-center px-4 py-3 rounded-lg group transition-colors text-gray-400 hover:bg-gray-800 hover:text-white justify-between"
-                   :class="{'bg-gray-800 text-white': settingsOpen || {{ request()->routeIs('admin.taxes.*') || request()->routeIs('admin.profit-margin.*') || request()->routeIs('admin.units.*') ? 'true' : 'false' }}}">
+                   :class="{'bg-gray-800 text-white': settingsOpen || {{ request()->routeIs('admin.taxes.*') || request()->routeIs('admin.units.*') || request()->routeIs('admin.settings.*') ? 'true' : 'false' }}}">
                     <div class="flex items-center">
                         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Settings</span>
@@ -99,18 +99,33 @@
                 </button>
                 
                 <div x-show="settingsOpen && sidebarOpen" x-transition class="bg-gray-900 overflow-hidden">
+                    <a href="{{ route('admin.settings.general') }}" 
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.general') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.general') ? 'bg-[#C41E3A]' : '' }}"></span>
+                        General
+                    </a>
+                    <a href="{{ route('admin.settings.smtp') }}" 
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.smtp') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.smtp') ? 'bg-[#C41E3A]' : '' }}"></span>
+                        SMTP
+                    </a>
+                    <a href="{{ route('admin.settings.seo') }}" 
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.seo') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.seo') ? 'bg-[#C41E3A]' : '' }}"></span>
+                        SEO
+                    </a>
+                    <a href="{{ route('admin.settings.third-party') }}" 
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.third-party') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.third-party') ? 'bg-[#C41E3A]' : '' }}"></span>
+                        Third Party
+                    </a>
                      <a href="{{ route('admin.taxes.index') }}" 
-                        class="flex items-center py-2 pl-14 pr-4 text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors {{ request()->routeIs('admin.taxes.*') ? 'text-white bg-gray-800' : '' }}">
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.taxes.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.taxes.*') ? 'bg-[#C41E3A]' : '' }}"></span>
                         Taxes
                     </a>
-                     <a href="{{ route('admin.profit-margin.index') }}" 
-                        class="flex items-center py-2 pl-14 pr-4 text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors {{ request()->routeIs('admin.profit-margin.*') ? 'text-white bg-gray-800' : '' }}">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.profit-margin.*') ? 'bg-[#C41E3A]' : '' }}"></span>
-                        Profit Margin
-                    </a>
                     <a href="{{ route('admin.units.index') }}" 
-                        class="flex items-center py-2 pl-14 pr-4 text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors {{ request()->routeIs('admin.units.*') ? 'text-white bg-gray-800' : '' }}">
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.units.*') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.units.*') ? 'bg-[#C41E3A]' : '' }}"></span>
                         Units
                     </a>
