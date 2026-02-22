@@ -59,6 +59,27 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="address">Address</label>
                                 <textarea name="address" rows="3" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">{{ $settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada" }}</textarea>
                             </div>
+
+                            <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
+                                <h5 class="text-sm font-semibold text-gray-700 mb-3">Alternate Address & Emails</h5>
+                                <p class="text-xs text-gray-500 mb-3">Secondary location and contact emails (e.g. for documents or correspondence).</p>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2" for="address_alt">Alternate Address</label>
+                                        <textarea name="address_alt" id="address_alt" rows="3" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm" placeholder="500 Coronation Drive, Unit-14&#10;Scarborough Ontario-M1E4V7">{{ $settings['address_alt'] ?? "500 Coronation Drive, Unit-14\nScarborough Ontario-M1E4V7" }}</textarea>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" for="contact_email_alt_1">Alternate Email 1</label>
+                                            <input name="contact_email_alt_1" id="contact_email_alt_1" type="email" value="{{ $settings['contact_email_alt_1'] ?? 'zamzamimport2023@gmail.com' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm" placeholder="zamzamimport2023@gmail.com">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2" for="contact_email_alt_2">Alternate Email 2</label>
+                                            <input name="contact_email_alt_2" id="contact_email_alt_2" type="email" value="{{ $settings['contact_email_alt_2'] ?? 'zamzamcanada23@gmail.com' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm" placeholder="zamzamcanada23@gmail.com">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

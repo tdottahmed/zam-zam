@@ -35,6 +35,9 @@ class SystemSettingSeeder extends Seeder
             ['key' => 'tax_id', 'label' => 'Tax ID', 'value' => '731247144RT0001'],
             ['key' => 'address', 'label' => 'Address', 'value' => "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada"],
             ['key' => 'currency_symbol', 'label' => 'Currency Symbol', 'value' => '$'],
+            ['key' => 'address_alt', 'label' => 'Alternate Address', 'value' => "500 Coronation Drive, Unit-14\nScarborough Ontario-M1E4V7"],
+            ['key' => 'contact_email_alt_1', 'label' => 'Alternate Email 1', 'value' => 'zamzamimport2023@gmail.com'],
+            ['key' => 'contact_email_alt_2', 'label' => 'Alternate Email 2', 'value' => 'zamzamcanada23@gmail.com'],
         ];
 
         foreach ($generalSettings as $setting) {
