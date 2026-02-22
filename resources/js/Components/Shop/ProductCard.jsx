@@ -4,7 +4,8 @@ import StorageImage from '../StorageImage';
 import useCartStore from '../../Stores/useCartStore';
 
 export default function ProductCard({ product }) {
-    const { cart: propsCart, wishlist = [] } = usePage().props; // wishlist defaults to []
+    const { cart: propsCart, wishlist = [], auth } = usePage().props;
+    const isAuthenticated = !!auth?.user;
     const { openCart, cart: storeCart, updateQuantity } = useCartStore();
     const [loading, setLoading] = useState(false);
 
@@ -135,15 +136,28 @@ export default function ProductCard({ product }) {
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="text-xl font-black text-gray-900 tracking-tight">
-                            ${Number(product.unit_price).toFixed(2)}
-                        </span>
+                    <div className="flex flex-col min-w-0">
+                        {isAuthenticated ? (
+                            <span className="text-xl font-black text-gray-900 tracking-tight">
+                                ${Number(product.unit_price).toFixed(2)}
+                            </span>
+                        ) : (
+                            <Link
+                                href={route('login')}
+                                className="text-sm font-semibold text-[#C41E3A] hover:text-[#a01830] transition-colors inline-flex items-center gap-1.5"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Sign in to see price
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
+                        )}
                     </div>
 
-                    {/* Add Button / Counter */}
+                    {/* Add Button / Counter — only show for authenticated users (guests can't add to cart) */}
                     <div className="relative z-20">
-                         {quantity > 0 ? (
+                         {isAuthenticated && quantity > 0 ? (
                             <div className="flex items-center bg-[#C41E3A] text-white rounded-full shadow-lg shadow-[#C41E3A]/30 p-1 h-10 ring-2 ring-offset-1 ring-[#C41E3A] animate-in fade-in zoom-in duration-200">
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); handleUpdateQuantity(parseInt(quantity) - 1); }}
@@ -167,7 +181,7 @@ export default function ProductCard({ product }) {
                                     </svg>
                                 </button>
                             </div>
-                        ) : (
+                        ) : isAuthenticated ? (
                             <button 
                                 onClick={addToCart}
                                 disabled={loading}
@@ -178,6 +192,16 @@ export default function ProductCard({ product }) {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                 </svg>
                             </button>
+                        ) : (
+                            <Link
+                                href={route('login')}
+                                className="h-10 w-10 rounded-full bg-gray-100 hover:bg-[#C41E3A] hover:text-white hover:shadow-lg hover:shadow-[#C41E3A]/30 text-gray-900 transition-all duration-300 flex items-center justify-center group/btn"
+                                title="Sign in to add to cart"
+                            >
+                                <svg className="w-5 h-5 transition-transform group-hover/btn:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </Link>
                         )}
                     </div>
                 </div>

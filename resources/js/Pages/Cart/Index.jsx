@@ -6,7 +6,8 @@ import Breadcrumb from '../../Components/Breadcrumb';
 import { useEffect } from 'react';
 
 export default function Index() {
-    const { cart: propsCart } = usePage().props;
+    const { cart: propsCart, auth } = usePage().props;
+    const isPendingApproval = auth?.user?.status === 'pending';
     const { 
         cart: storeCart, 
         setCart, 
@@ -141,12 +142,23 @@ export default function Index() {
                                     </div>
 
                                     <div className="mt-8 space-y-4">
+                                        {isPendingApproval && (
+                                            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+                                                Your account is pending approval. Checkout will be available after an administrator approves your account.
+                                            </div>
+                                        )}
+                                        {isPendingApproval ? (
+                                            <span className="block w-full text-center rounded-xl border border-gray-200 bg-gray-100 px-6 py-4 text-base font-bold text-gray-500 cursor-not-allowed">
+                                                Checkout
+                                            </span>
+                                        ) : (
                                         <Link
                                             href={route('checkout.index')}
                                             className="block w-full text-center rounded-xl border border-transparent bg-[#C41E3A] px-6 py-4 text-base font-bold text-white shadow-lg shadow-red-100 hover:bg-[#a01830] focus:outline-none focus:ring-2 focus:ring-[#C41E3A] focus:ring-offset-2 transition-all transform hover:-translate-y-0.5"
                                         >
                                             Checkout
                                         </Link>
+                                        )}
                                         <div className="text-center">
                                             <span className="text-gray-400 text-sm">or</span>
                                             <Link href={route('shop.index')} className="ml-2 font-medium text-[#C41E3A] hover:text-[#a01830] hover:underline">

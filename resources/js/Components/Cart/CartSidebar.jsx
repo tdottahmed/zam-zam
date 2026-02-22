@@ -5,7 +5,8 @@ import useCartStore from '../../Stores/useCartStore';
 import StorageImage from '../StorageImage';
 
 export default function CartSidebar() {
-    const { cart: propsCart } = usePage().props;
+    const { cart: propsCart, auth } = usePage().props;
+    const isPendingApproval = auth?.user?.status === 'pending';
     const { 
         isCartOpen, 
         closeCart, 
@@ -158,7 +159,19 @@ export default function CartSidebar() {
                                                     <p className="text-xl font-bold text-[#C41E3A]">${cart.summary?.subtotal ? cart.summary.subtotal.toFixed(2) : '0.00'}</p>
                                                 </div>
                                                 <p className="mt-0.5 text-sm text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
+                                                {isPendingApproval && (
+                                                    <p className="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-2">
+                                                        Your account is pending approval. Checkout will be available after an administrator approves your account.
+                                                    </p>
+                                                )}
                                                 <div className="grid gap-3">
+                                                    {isPendingApproval ? (
+                                                        <span
+                                                            className="flex items-center justify-center rounded-md border border-gray-200 bg-gray-100 px-6 py-3 text-base font-medium text-gray-500 cursor-not-allowed"
+                                                        >
+                                                            Proceed to Checkout
+                                                        </span>
+                                                    ) : (
                                                     <Link
                                                         href={route('checkout.index')}
                                                         onClick={closeCart}
@@ -166,6 +179,7 @@ export default function CartSidebar() {
                                                     >
                                                         Proceed to Checkout
                                                     </Link>
+                                                    )}
                                                     <Link
                                                         href={route('cart.index')}
                                                         onClick={closeCart}

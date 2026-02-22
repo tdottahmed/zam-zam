@@ -3,12 +3,36 @@ import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Dashboard({ auth, stats, recent_orders }) {
     const user = auth.user;
+    const isPendingApproval = user?.status === 'pending';
 
     return (
         <AuthenticatedLayout>
             <Head title="Dashboard" />
 
             <div className="py-12 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+                {/* Pending approval banner — shown only when account is pending */}
+                {isPendingApproval && (
+                    <div className="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-6 py-5 shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-800/50 flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-amber-900 dark:text-amber-100">
+                                        Your account is pending approval
+                                    </h3>
+                                    <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+                                        You can browse the shop and save items to your wishlist. Placing orders will be available once an administrator approves your account.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Welcome Section */}
                 <div className="relative overflow-hidden bg-gradient-to-r from-[#1a1a1a] to-[#2d2d2d] rounded-3xl p-8 sm:p-10 shadow-2xl border border-gray-800">
                     <div className="relative z-10">
@@ -16,7 +40,9 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                             Welcome back, {user.name.split(' ')[0]}! 👋
                         </h2>
                         <p className="text-gray-400 text-lg max-w-xl">
-                            Here's what's happening with your account today.
+                            {isPendingApproval
+                                ? "Your registration has been received. We'll notify you when your account is approved."
+                                : "Here's what's happening with your account today."}
                         </p>
                         
                         <div className="mt-8 flex flex-wrap gap-4">
@@ -27,7 +53,7 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                                 Browse Shop
                             </Link>
                             
-                            {user.user_type !== 'admin' && (
+                            {user.user_type !== 'admin' && !isPendingApproval && (
                                 <Link 
                                     href={route('orders.index')} 
                                     className="inline-flex items-center justify-center px-6 py-3 border border-white/30 text-base font-medium rounded-xl text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-200"
@@ -54,7 +80,21 @@ export default function Dashboard({ auth, stats, recent_orders }) {
 
                 {/* Stats / Widgets Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Widget 1: Orders */}
+                    {/* Widget 1: Orders — not clickable for pending users */}
+                    {isPendingApproval ? (
+                        <div className="bg-white dark:bg-[#1E1E1E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 opacity-75 cursor-not-allowed" title="Available after account approval">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </div>
+                                <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">After approval</span>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">—</h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Orders</p>
+                        </div>
+                    ) : (
                     <Link href={route('orders.index')} className="bg-white dark:bg-[#1E1E1E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow group cursor-pointer">
                         <div className="flex items-center justify-between mb-4">
                             <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
@@ -69,6 +109,7 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stats?.total_orders || 0}</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Total Orders</p>
                     </Link>
+                    )}
 
                     {/* Widget 2: Wishlist */}
                     <Link href={route('wishlist.index')} className="bg-white dark:bg-[#1E1E1E] p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow group cursor-pointer">
@@ -113,10 +154,23 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                 <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                     <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">Recent Orders</h3>
-                        <Link href={route('orders.index')} className="text-sm font-medium text-[#C41E3A] hover:text-[#a01830]">
-                            View all
-                        </Link>
+                        {!isPendingApproval && (
+                            <Link href={route('orders.index')} className="text-sm font-medium text-[#C41E3A] hover:text-[#a01830]">
+                                View all
+                            </Link>
+                        )}
                     </div>
+                    {isPendingApproval ? (
+                        <div className="px-6 py-12 text-center">
+                            <div className="inline-flex w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
+                                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 font-medium">Orders will appear here once your account is approved.</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">You can still browse the shop and save items to your wishlist.</p>
+                        </div>
+                    ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
@@ -160,6 +214,7 @@ export default function Dashboard({ auth, stats, recent_orders }) {
                             </tbody>
                         </table>
                     </div>
+                    )}
                 </div>
 
             </div>

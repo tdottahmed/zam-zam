@@ -13,8 +13,15 @@ class CheckoutController extends Controller
 {
     public function index(Request $request)
     {
-        $cart = $request->user()->cart;
-        
+        $user = $request->user();
+
+        if (($user->status ?? 'approved') !== 'approved') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Your account is pending approval. You cannot place orders until an administrator approves your account.');
+        }
+
+        $cart = $user->cart;
+
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index');
         }
@@ -30,6 +37,11 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+        if (($request->user()->status ?? 'approved') !== 'approved') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Your account is pending approval. You cannot place orders until an administrator approves your account.');
+        }
+
         $validated = $request->validate([
             'email' => 'required|email',
             'phone' => 'required|string',
