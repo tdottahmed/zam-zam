@@ -4,9 +4,9 @@
   <title>Product List - {{ $company['name'] }}</title>
   <style>
     body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #000; margin: 0; padding: 0; }
-    /* Reserve enough space for header (logo + company block + separator) and footer so body never overlaps */
-    @page { margin-top: 125px; margin-bottom: 55px; header: page-header; footer: page-footer; }
-    @page :first { margin-top: 125px; margin-bottom: 55px; header: page-header; footer: page-footer; }
+    /* Reserve ample space for header and footer so body content never overlaps */
+    @page { margin-top: 165px; margin-bottom: 60px; header: page-header; footer: page-footer; }
+    @page :first { margin-top: 165px; margin-bottom: 60px; header: page-header; footer: page-footer; }
     .header-top { width: 100%; margin-bottom: 8px; display: table; table-layout: fixed; }
     .logo-container { display: table-cell; vertical-align: top; width: auto; }
     .logo { display: inline-block; height: 58px; width: auto; max-height: 58px; }
@@ -55,6 +55,7 @@
   <sethtmlpageheader name="page-header" value="on" />
   <sethtmlpagefooter name="page-footer" value="on" />
 
+  <div style="padding-top: 15px;">
   <div class="report-title">Product List</div>
   <div style="font-size: 10px; color: #666; margin-bottom: 10px;">Generated on {{ $generatedAt }}</div>
 
@@ -97,6 +98,7 @@
       @endforelse
     </tbody>
   </table>
+  </div>
 
 </body>
 </html>
