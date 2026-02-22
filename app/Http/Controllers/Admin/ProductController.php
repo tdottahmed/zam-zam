@@ -42,6 +42,15 @@ class ProductController extends Controller
     }
 
     /**
+     * Toggle product featured flag.
+     */
+    public function toggleFeatured(Product $product)
+    {
+        $product->update(['is_featured' => ! $product->is_featured]);
+        return back()->with('success', $product->is_featured ? 'Product marked as featured.' : 'Product removed from featured.');
+    }
+
+    /**
      * Get the next available SKU.
      */
     public function nextSku()

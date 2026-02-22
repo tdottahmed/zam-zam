@@ -59,6 +59,7 @@
                 <x-admin.ui.th>Packing</x-admin.ui.th>
                 <x-admin.ui.th>Box Price</x-admin.ui.th>
                 <x-admin.ui.th>Unit Price</x-admin.ui.th>
+                <x-admin.ui.th class="text-center">Featured</x-admin.ui.th>
                 <x-admin.ui.th class="text-right">Actions</x-admin.ui.th>
             </x-slot:head>
 
@@ -81,6 +82,15 @@
                         <x-admin.ui.td>{{ $product->pcs_in_ctn }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->box_price, 2) }}</x-admin.ui.td>
                         <x-admin.ui.td>${{ number_format($product->unit_price, 2) }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-center">
+                            <form method="POST" action="{{ route('admin.products.toggle-featured', $product) }}" class="inline-block">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" role="switch" aria-checked="{{ $product->is_featured ? 'true' : 'false' }}" title="{{ $product->is_featured ? 'Remove from homepage featured' : 'Show on homepage featured' }}" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#C41E3A] focus:ring-offset-2 {{ $product->is_featured ? 'bg-[#C41E3A]' : 'bg-gray-200 dark:bg-gray-600' }}">
+                                    <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $product->is_featured ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                                </button>
+                            </form>
+                        </x-admin.ui.td>
                         <x-admin.ui.td class="text-right">
                              <div class="flex items-center justify-end gap-2">
                                 <x-admin.actions.icon-button href="{{ route('admin.products.edit', $product) }}" variant="secondary" size="sm">
@@ -99,7 +109,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                             No products found.
                         </td>
                     </tr>

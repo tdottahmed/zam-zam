@@ -26,9 +26,11 @@ class Product extends Model
         'alert_quantity',
         'notes',
         'image',
+        'is_featured',
     ];
 
     protected $casts = [
+        'is_featured' => 'boolean',
         'pcs_in_ctn' => 'integer',
         'box_price' => 'float',
         'unit_price' => 'float',
