@@ -16,11 +16,21 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
-        
+        $status = $request->get('status');
+        $userType = $request->get('user_type');
+
         $users = User::query()
             ->when($search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($userType !== null && $userType !== '', function ($query) use ($userType) {
+                $query->where('user_type', $userType);
+            })
+            ->when($status !== null && $status !== '', function ($query) use ($status) {
+                $query->where('status', $status);
             })
             ->latest()
             ->paginate(10)
@@ -47,7 +57,8 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
             'user_type' => ['required', 'string', 'in:user,admin'],
-            
+            'status' => ['required', 'string', 'in:pending,approved'],
+
             // Profile validation
             'profile' => ['nullable', 'array'],
             'profile.contact_no' => ['nullable', 'string', 'max:255'],
@@ -76,6 +87,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'user_type' => $validated['user_type'],
+            'status' => $validated['status'],
             'email_verified_at' => now(),
         ]);
 
@@ -152,12 +164,14 @@ class UserController extends Controller
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
                 'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
                 'user_type' => ['required', 'string', 'in:user,admin'],
+                'status' => ['required', 'string', 'in:pending,approved'],
             ]);
 
             $user->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'user_type' => $validated['user_type'],
+                'status' => $validated['status'],
             ]);
 
             if ($request->filled('password')) {

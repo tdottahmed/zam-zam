@@ -24,6 +24,10 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {

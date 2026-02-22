@@ -89,6 +89,9 @@
             <x-slot:search>
                 <div class="w-full space-y-4">
                     <form action="{{ route('admin.orders.index') }}" method="GET" class="flex flex-col lg:flex-row gap-4 w-full">
+                        @if(request('user_id'))
+                            <input type="hidden" name="user_id" value="{{ request('user_id') }}">
+                        @endif
                          <!-- Search Input -->
                         <div class="w-full lg:w-96 relative">
                             <x-admin.form.input name="search" value="{{ request('search') }}" placeholder="Search ID, Customer, Email..." />
@@ -112,7 +115,7 @@
                              <button type="submit" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md transition-colors">
                                 Filter
                             </button>
-                             @if(request()->anyFilled(['search', 'status']))
+                             @if(request()->anyFilled(['search', 'status', 'user_id']))
                                 <a href="{{ route('admin.orders.index') }}" class="px-4 py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                                     Clear
                                 </a>

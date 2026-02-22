@@ -67,9 +67,16 @@
                         </div>
 
                         <!-- Role -->
-                        <div class="col-span-2">
+                        <div class="col-span-2 md:col-span-1">
                             <x-admin.form.group label="Role" for="user_type" required>
                                 <x-admin.form.select name="user_type" id="user_type" :options="['user' => 'User (Customer)', 'admin' => 'Administrator']" :selected="old('user_type', $user->user_type)" />
+                            </x-admin.form.group>
+                        </div>
+
+                        <!-- Account Status (approve / keep pending) -->
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Account Status" for="status" required>
+                                <x-admin.form.select name="status" id="status" :options="['pending' => 'Pending approval', 'approved' => 'Approved']" :selected="old('status', $user->status ?? 'approved')" />
                             </x-admin.form.group>
                         </div>
                     </div>
