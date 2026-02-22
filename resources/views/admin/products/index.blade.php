@@ -43,9 +43,9 @@
                             <button type="button" x-data="" @click="$dispatch('open-modal', 'import-products')" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
                                 Import
                             </button>
-                            <x-admin.actions.button variant="primary">
-                                Export
-                            </x-admin.actions.button>
+                            <a href="{{ route('admin.products.export-pdf', request()->only(['search', 'filter_by'])) }}" target="_blank" class="inline-flex items-center justify-center px-4 py-2 bg-[#C41E3A] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-[#a01830] active:bg-[#8a1428] focus:outline-none focus:border-[#8a1428] focus:ring ring-[#C41E3A] disabled:opacity-25 transition ease-in-out duration-150">
+                                Export PDF
+                            </a>
                         </div>
                     </div>
 

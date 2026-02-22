@@ -52,6 +52,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('products/next-sku', [\App\Http\Controllers\Admin\ProductController::class, 'nextSku'])->name('products.next-sku');
     Route::post('products/import', [\App\Http\Controllers\Admin\ProductController::class, 'import'])->name('products.import');
+    Route::get('products/export-pdf', [\App\Http\Controllers\Admin\ProductController::class, 'exportPdf'])->name('products.export-pdf');
     Route::patch('products/{product}/toggle-featured', [\App\Http\Controllers\Admin\ProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
     Route::resource('products', \App\Http\Controllers\Admin\ProductController::class);
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);

@@ -12,6 +12,7 @@ use App\Models\Unit;
 use App\Imports\ProductImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 
 class ProductController extends Controller
 {
@@ -48,6 +49,44 @@ class ProductController extends Controller
     {
         $product->update(['is_featured' => ! $product->is_featured]);
         return back()->with('success', $product->is_featured ? 'Product marked as featured.' : 'Product removed from featured.');
+    }
+
+    /**
+     * Export product list as PDF (respects current index filters).
+     */
+    public function exportPdf(Request $request)
+    {
+        $search = $request->input('search');
+        $filterBy = $request->input('filter_by');
+
+        $products = Product::with(['tax', 'unit', 'category', 'brand'])
+            ->when($search, function ($query, $search) use ($filterBy) {
+                if ($filterBy && in_array($filterBy, ['name', 'product_code', 'unit_value', 'box_price', 'unit_price'])) {
+                    $query->where($filterBy, 'like', "%{$search}%");
+                } else {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('product_code', 'like', "%{$search}%");
+                    });
+                }
+            })
+            ->latest()
+            ->get();
+
+        $settings = SystemSetting::where('group', 'general')->pluck('value', 'key');
+        $company = [
+            'name' => $settings['site_name'] ?? 'ZamZam Import and Export Inc.',
+            'address' => nl2br(e($settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada")),
+            'phone' => $settings['contact_phone'] ?? '+1 416-283-4488',
+            'cell' => $settings['contact_cell'] ?? '+1 647-482-1133',
+            'email' => $settings['contact_email'] ?? 'zamzamimport2023@gmail.com',
+            'tax_id' => $settings['tax_id'] ?? '731247144RT0001',
+        ];
+
+        $generatedAt = now()->format('M d, Y g:i A');
+
+        $pdf = PDF::loadView('pdf.products', compact('products', 'company', 'generatedAt'));
+        return $pdf->stream('products-' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
