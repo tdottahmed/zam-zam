@@ -3,15 +3,16 @@
 <head>
   <title>Product List - {{ $company['name'] }}</title>
   <style>
-    body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #000; }
-    @page { margin-top: 100px; header: page-header; footer: page-footer; }
-    @page :first { header: page-header; footer: page-footer; }
-    .header-top { width: 100%; margin-bottom: 16px; display: table; table-layout: fixed; }
+    body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #000; margin: 0; padding: 0; }
+    /* Reserve enough space for header (logo + company block + separator) and footer so body never overlaps */
+    @page { margin-top: 125px; margin-bottom: 55px; header: page-header; footer: page-footer; }
+    @page :first { margin-top: 125px; margin-bottom: 55px; header: page-header; footer: page-footer; }
+    .header-top { width: 100%; margin-bottom: 8px; display: table; table-layout: fixed; }
     .logo-container { display: table-cell; vertical-align: top; width: auto; }
-    .logo { display: inline-block; height: 70px; width: auto; }
-    .company-info { display: table-cell; vertical-align: top; text-align: right; font-size: 11px; line-height: 1.5; color: #333; }
-    .company-name { font-size: 14px; font-weight: bold; margin-bottom: 4px; color: #000; }
-    .header-separator { border-top: 1px solid #000; margin: 10px 0; }
+    .logo { display: inline-block; height: 58px; width: auto; max-height: 58px; }
+    .company-info { display: table-cell; vertical-align: top; text-align: right; font-size: 10px; line-height: 1.4; color: #333; }
+    .company-name { font-size: 12px; font-weight: bold; margin-bottom: 2px; color: #000; }
+    .header-separator { border-top: 1px solid #000; margin: 6px 0 0 0; }
     .report-title { font-size: 18px; font-weight: bold; margin: 12px 0; color: #333; }
     table { width: 100%; border-collapse: collapse; font-size: 10px; }
     th, td { text-align: left; padding: 6px 5px; border-bottom: 1px solid #ccc; }
@@ -52,6 +53,7 @@
   </htmlpagefooter>
 
   <sethtmlpageheader name="page-header" value="on" />
+  <sethtmlpagefooter name="page-footer" value="on" />
 
   <div class="report-title">Product List</div>
   <div style="font-size: 10px; color: #666; margin-bottom: 10px;">Generated on {{ $generatedAt }}</div>
