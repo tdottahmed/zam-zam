@@ -18,12 +18,15 @@
         </form>
     </div>
 
-    <div class="space-y-8">
-        <!-- Form 1: User Information -->
-        <form action="{{ route('admin.users.update', $user) }}" method="POST">
-            @csrf
-            @method('PUT')
-            
+    <!-- Wrapper Form -->
+    <form action="{{ route('admin.users.update', $user) }}" method="POST" x-data="userEditForm()">
+        @csrf
+        @method('PUT')
+
+        <input type="hidden" name="delete_address_ids" :value="deletedAddressIds.join(',')">
+
+        <div class="space-y-8">
+            <!-- User Information Card -->
             <x-admin.ui.card>
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
@@ -32,7 +35,7 @@
                             User Information
                         </h2>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Name -->
                         <div class="col-span-2 md:col-span-1">
@@ -73,20 +76,103 @@
 
                     <div class="mt-6 flex justify-end">
                         <x-admin.actions.button type="submit" variant="primary">
-                            Save Profile
+                            Update User
                         </x-admin.actions.button>
                     </div>
                 </div>
             </x-admin.ui.card>
-        </form>
 
-        <!-- Form 2: Address Book -->
-        <form action="{{ route('admin.users.update', $user) }}" method="POST" x-data="userEditForm()">
-            @csrf
-            @method('PUT')
-            
-            <input type="hidden" name="delete_address_ids" :value="deletedAddressIds.join(',')">
+            <!-- Contact & Profession -->
+            <x-admin.ui.card>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            Contact & Profession
+                        </h2>
+                    </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Contact Number" for="profile_contact_no">
+                                <x-admin.form.input type="text" name="profile[contact_no]" id="profile_contact_no" value="{{ old('profile.contact_no', $user->profile?->contact_no) }}" placeholder="Primary phone number" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Job Title" for="profile_job_title">
+                                <x-admin.form.input type="text" name="profile[job_title]" id="profile_job_title" value="{{ old('profile.job_title', $user->profile?->job_title) }}" placeholder="e.g. Procurement Manager" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2">
+                            <x-admin.form.group label="Notes" for="profile_notes">
+                                <textarea name="profile[notes]" id="profile_notes" rows="3" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-20 transition shadow-sm">{{ old('profile.notes', $user->profile?->notes) }}</textarea>
+                            </x-admin.form.group>
+                        </div>
+                    </div>
+                </div>
+            </x-admin.ui.card>
+
+            <!-- Company Details -->
+            <x-admin.ui.card>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            Company Details
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Company Name" for="profile_company_name">
+                                <x-admin.form.input type="text" name="profile[company_name]" id="profile_company_name" value="{{ old('profile.company_name', $user->profile?->company_name) }}" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Tax ID" for="profile_tax_id">
+                                <x-admin.form.input type="text" name="profile[tax_id]" id="profile_tax_id" value="{{ old('profile.tax_id', $user->profile?->tax_id) }}" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Website" for="profile_website">
+                                <x-admin.form.input type="url" name="profile[website]" id="profile_website" value="{{ old('profile.website', $user->profile?->website) }}" placeholder="https://example.com" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Fax" for="profile_fax">
+                                <x-admin.form.input type="text" name="profile[fax]" id="profile_fax" value="{{ old('profile.fax', $user->profile?->fax) }}" />
+                            </x-admin.form.group>
+                        </div>
+                    </div>
+                </div>
+            </x-admin.ui.card>
+
+            <!-- Bank Information -->
+            <x-admin.ui.card>
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Bank Information
+                        </h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Bank Name" for="profile_bank_name">
+                                <x-admin.form.input type="text" name="profile[bank_name]" id="profile_bank_name" value="{{ old('profile.bank_name', $user->profile?->bank_name) }}" />
+                            </x-admin.form.group>
+                        </div>
+                        <div class="col-span-2 md:col-span-1">
+                            <x-admin.form.group label="Bank Account No / Details" for="profile_bank_account_no">
+                                <x-admin.form.input type="text" name="profile[bank_account_no]" id="profile_bank_account_no" value="{{ old('profile.bank_account_no', $user->profile?->bank_account_no) }}" />
+                            </x-admin.form.group>
+                        </div>
+                    </div>
+                </div>
+            </x-admin.ui.card>
+
+            <!-- Address Book Card (Dynamic) -->
             <x-admin.ui.card>
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
@@ -103,7 +189,7 @@
                     <div class="space-y-4">
                         <template x-for="(address, index) in addresses" :key="address.id || address.tempId">
                             <div class="relative bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600 transition-all hover:border-primary/50">
-                                
+
                                 <div class="absolute top-4 right-4">
                                     <button type="button" @click="removeAddress(index)" class="text-gray-400 hover:text-red-500 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -111,18 +197,25 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <!-- Address inputs -->
+                                    <div class="col-span-2">
+                                        <x-admin.form.label x-bind:for="'type_' + index" value="Address Type" />
+                                        <select x-bind:name="'addresses[' + (address.id || address.tempId) + '][type]'" x-model="address.type" class="mt-1 w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-20 transition shadow-sm" x-bind:id="'type_' + index" required>
+                                            <option value="Shipping">Shipping Address</option>
+                                            <option value="Billing">Billing Address</option>
+                                            <option value="Business">Business Address</option>
+                                        </select>
+                                    </div>
                                     <div class="col-span-2">
                                         <x-admin.form.label x-bind:for="'address_line_1_' + index" value="Address Line 1" />
-                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][address_line_1]'" x-model="address.address_line_1" class="mt-1" x-bind:id="'address_line_1_' + index" />
+                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][address_line_1]'" x-model="address.address_line_1" class="mt-1" x-bind:id="'address_line_1_' + index" placeholder="Street address, P.O. box, etc." required />
                                     </div>
                                     <div class="col-span-2">
                                         <x-admin.form.label x-bind:for="'address_line_2_' + index" value="Address Line 2" />
-                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][address_line_2]'" x-model="address.address_line_2" class="mt-1" x-bind:id="'address_line_2_' + index" />
+                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][address_line_2]'" x-model="address.address_line_2" class="mt-1" x-bind:id="'address_line_2_' + index" placeholder="Apartment, suite, unit, etc." />
                                     </div>
                                     <div>
                                         <x-admin.form.label x-bind:for="'city_' + index" value="City" />
-                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][city]'" x-model="address.city" class="mt-1" x-bind:id="'city_' + index" />
+                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][city]'" x-model="address.city" class="mt-1" x-bind:id="'city_' + index" required />
                                     </div>
                                     <div>
                                         <x-admin.form.label x-bind:for="'state_' + index" value="State" />
@@ -147,31 +240,32 @@
                                 </div>
                             </div>
                         </template>
-                        
+
                         <div x-show="addresses.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm italic">
-                            No addresses found. Click "Add Address" to create one.
+                            No addresses added yet. Click "Add Address" to add one.
                         </div>
                     </div>
 
                     <div class="mt-6 flex justify-end">
                         <x-admin.actions.button type="submit" variant="primary">
-                            Save Addresses
+                            Update User (with Addresses)
                         </x-admin.actions.button>
                     </div>
                 </div>
             </x-admin.ui.card>
-        </form>
-    </div>
+        </div>
+    </form>
 
     <script>
         function userEditForm() {
             return {
-                addresses: @json($user->addresses),
+                addresses: @json($addressesForEdit),
                 deletedAddressIds: [],
-                
+
                 addAddress() {
                     this.addresses.push({
                         tempId: 'new_' + Date.now(),
+                        type: 'Shipping',
                         address_line_1: '',
                         address_line_2: '',
                         city: '',
@@ -179,10 +273,10 @@
                         postal_code: '',
                         country: '',
                         phone: '',
-                        is_default: false
+                        is_default: this.addresses.length === 0
                     });
                 },
-                
+
                 removeAddress(index) {
                     const address = this.addresses[index];
                     if (address.id) {

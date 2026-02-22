@@ -148,6 +148,8 @@ class OrderInvoiceController extends Controller
         // Map data to the structure required by invoice.blade.php
         $order = $invoice->order;
         
+        $settings = \App\Models\SystemSetting::where('group', 'general')->pluck('value', 'key');
+        
         $data = [
             'invoice_number' => $invoice->invoice_number,
             'invoice_date' => $invoice->invoice_date->format('d-M-Y'),
@@ -156,6 +158,14 @@ class OrderInvoiceController extends Controller
             'purchase_order' => '',
             'salesperson' => auth()->user()->name, // Or store creator in invoice
             'payment_instructions' => 'Please pay via Bank Transfer', 
+            'company' => [
+                'name' => $settings['site_name'] ?? 'ZamZam Import and Export Inc.',
+                'address' => nl2br(e($settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada")),
+                'phone' => $settings['contact_phone'] ?? '+1 416-283-4488',
+                'cell' => $settings['contact_cell'] ?? '+1 647-482-1133',
+                'email' => $settings['contact_email'] ?? 'zamzamimport2023@gmail.com',
+                'tax_id' => $settings['tax_id'] ?? '731247144RT0001',
+            ],
             'partner' => [
                 'name' => $order->user->name ?? $order->shipping_address['name'] ?? 'Guest',
                 'address_1' => $order->shipping_address['address'] ?? '',

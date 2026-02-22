@@ -27,17 +27,27 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="site_name">Site Name</label>
-                                <input name="site_name" type="text" value="{{ $settings['site_name'] ?? '' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                                <input name="site_name" type="text" value="{{ $settings['site_name'] ?? 'ZamZam Import and Export Inc.' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="contact_email">Contact Email</label>
-                                <input name="contact_email" type="email" value="{{ $settings['contact_email'] ?? '' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                                <input name="contact_email" type="email" value="{{ $settings['contact_email'] ?? 'zamzamimport2023@gmail.com' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="contact_phone">Contact Phone</label>
-                                <input name="contact_phone" type="text" value="{{ $settings['contact_phone'] ?? '' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                                <input name="contact_phone" type="text" value="{{ $settings['contact_phone'] ?? '+1 416-283-4488' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="contact_cell">Contact Cell</label>
+                                <input name="contact_cell" type="text" value="{{ $settings['contact_cell'] ?? '+1 647-482-1133' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
+                            </div>
+
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="tax_id">Tax ID</label>
+                                <input name="tax_id" type="text" value="{{ $settings['tax_id'] ?? '731247144RT0001' }}" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">
                             </div>
                             
                              <div>
@@ -47,7 +57,7 @@
 
                             <div class="sm:col-span-2">
                                 <label class="block text-sm font-medium text-gray-700 mb-2" for="address">Address</label>
-                                <textarea name="address" rows="3" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">{{ $settings['address'] ?? '' }}</textarea>
+                                <textarea name="address" rows="3" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm">{{ $settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada" }}</textarea>
                             </div>
                         </div>
                     </div>

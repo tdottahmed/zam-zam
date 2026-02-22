@@ -204,8 +204,8 @@
   <!-- Define Footer -->
   <htmlpagefooter name="page-footer">
     <div class="page-footer-content">
-      <div>Zam Zam Import export Inc | 8905 Hwy 50 , Unit 7, Vaughan , Ontario (CA) L4H 5A1 , Canada | +1 416-746-5550</div>
-      <div>Email: hello@superasia.ca | Web: http://www.superasia.ca | HST:847720521RT0001</div>
+      <div>{{ $data['company']['name'] }} | {!! strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) !!} | Phone: {{ $data['company']['phone'] }} | Cell: {{ $data['company']['cell'] }}</div>
+      <div>Email: {{ $data['company']['email'] }} | Web: http://www.superasia.ca | HST: {{ $data['company']['tax_id'] }}</div>
       <div style="margin-top: 5px;">Page: {PAGENO} / {nbpg}</div>
     </div>
   </htmlpagefooter>

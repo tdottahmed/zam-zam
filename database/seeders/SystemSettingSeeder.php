@@ -23,5 +23,28 @@ class SystemSettingSeeder extends Seeder
             'value' => 10.00,
             'is_active' => true,
         ]);
+
+        // General Settings
+        SystemSetting::where('group', 'general')->delete();
+
+        $generalSettings = [
+            ['key' => 'site_name', 'label' => 'Site Name', 'value' => 'ZamZam Import and Export Inc.'],
+            ['key' => 'contact_email', 'label' => 'Contact Email', 'value' => 'zamzamimport2023@gmail.com'],
+            ['key' => 'contact_phone', 'label' => 'Contact Phone', 'value' => '+1 416-283-4488'],
+            ['key' => 'contact_cell', 'label' => 'Contact Cell', 'value' => '+1 647-482-1133'],
+            ['key' => 'tax_id', 'label' => 'Tax ID', 'value' => '731247144RT0001'],
+            ['key' => 'address', 'label' => 'Address', 'value' => "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada"],
+            ['key' => 'currency_symbol', 'label' => 'Currency Symbol', 'value' => '$'],
+        ];
+
+        foreach ($generalSettings as $setting) {
+            SystemSetting::create([
+                'group' => 'general',
+                'key' => $setting['key'],
+                'label' => $setting['label'],
+                'value' => $setting['value'],
+                'is_active' => true,
+            ]);
+        }
     }
 }

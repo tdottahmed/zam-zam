@@ -48,14 +48,27 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
             'user_type' => ['required', 'string', 'in:user,admin'],
             
+            // Profile validation
+            'profile' => ['nullable', 'array'],
+            'profile.contact_no' => ['nullable', 'string', 'max:255'],
+            'profile.company_name' => ['nullable', 'string', 'max:255'],
+            'profile.website' => ['nullable', 'string', 'max:255'],
+            'profile.job_title' => ['nullable', 'string', 'max:255'],
+            'profile.fax' => ['nullable', 'string', 'max:255'],
+            'profile.tax_id' => ['nullable', 'string', 'max:255'],
+            'profile.bank_name' => ['nullable', 'string', 'max:255'],
+            'profile.bank_account_no' => ['nullable', 'string', 'max:255'],
+            'profile.notes' => ['nullable', 'string'],
+
             // Address validation (multiple)
             'addresses' => ['nullable', 'array'],
+            'addresses.*.type' => ['nullable', 'string', 'in:Business,Shipping,Billing'],
             'addresses.*.address_line_1' => ['required_with:addresses', 'string', 'max:255'],
             'addresses.*.city' => ['required_with:addresses', 'string', 'max:255'],
             'addresses.*.state' => ['nullable', 'string', 'max:255'],
             'addresses.*.postal_code' => ['nullable', 'string', 'max:20'],
             'addresses.*.country' => ['nullable', 'string', 'max:255'],
-            'addresses.*.phone' => ['nullable', 'string', 'max:20'],
+            'addresses.*.phone' => ['nullable', 'string', 'max:50'],
         ]);
 
         $user = User::create([
@@ -66,12 +79,17 @@ class UserController extends Controller
             'email_verified_at' => now(),
         ]);
 
+        // Create profile if provided
+        if ($request->has('profile')) {
+            $user->profile()->create($validated['profile']);
+        }
+
         // Create addresses if provided
         if ($request->has('addresses')) {
             foreach ($request->addresses as $addressData) {
                 $user->addresses()->create([
-                    'type' => 'shipping', // Default
-                    'name' => $user->name, // Default to user name/email if not specified in address form (Edit view didn't have specific name/email per address, assuming same user)
+                    'type' => $addressData['type'] ?? 'shipping',
+                    'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $addressData['phone'] ?? null,
                     'address_line_1' => $addressData['address_line_1'],
@@ -102,8 +120,22 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $user->load('addresses');
-        return view('admin.users.edit', compact('user'));
+        $user->load('addresses', 'profile');
+        $addressesForEdit = $user->addresses->map(function ($a) {
+            return [
+                'id' => $a->id,
+                'type' => $a->type ?? 'Shipping',
+                'address_line_1' => $a->address_line_1,
+                'address_line_2' => $a->address_line_2 ?? '',
+                'city' => $a->city,
+                'state' => $a->state ?? '',
+                'postal_code' => $a->postal_code ?? '',
+                'country' => $a->country ?? '',
+                'phone' => $a->phone ?? '',
+                'is_default' => (bool) $a->is_default,
+            ];
+        })->values();
+        return view('admin.users.edit', compact('user', 'addressesForEdit'));
     }
 
     /**
@@ -111,7 +143,9 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Handle User Basic Information Update
+        $updated = false;
+
+        // Handle User Basic Information + Profile (main form submit)
         if ($request->has('name') || $request->has('email')) {
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
@@ -131,27 +165,52 @@ class UserController extends Controller
                     'password' => Hash::make($validated['password']),
                 ]);
             }
+            $updated = true;
 
-            return back()->with('success', 'User profile updated successfully.');
+            // Handle Profile Update
+            if ($request->has('profile')) {
+                $profileData = $request->validate([
+                    'profile.contact_no' => ['nullable', 'string', 'max:255'],
+                    'profile.company_name' => ['nullable', 'string', 'max:255'],
+                    'profile.website' => ['nullable', 'string', 'max:255'],
+                    'profile.job_title' => ['nullable', 'string', 'max:255'],
+                    'profile.fax' => ['nullable', 'string', 'max:255'],
+                    'profile.tax_id' => ['nullable', 'string', 'max:255'],
+                    'profile.bank_name' => ['nullable', 'string', 'max:255'],
+                    'profile.bank_account_no' => ['nullable', 'string', 'max:255'],
+                    'profile.notes' => ['nullable', 'string'],
+                ]);
+
+                $user->profile()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    $profileData['profile'] ?? []
+                );
+            }
         }
-        
-        // Handle Address Update
+
+        // Handle Address Update (same request when submitted from single form)
         if ($request->has('addresses') || $request->filled('delete_address_ids')) {
-             if ($request->has('addresses')) {
-                 foreach ($request->addresses as $id => $data) {
-                     if (str_starts_with($id, 'new_')) {
-                         $user->addresses()->create($data);
-                     } else {
-                         $user->addresses()->where('id', $id)->update($data);
-                     }
-                 }
-             }
-        
             if ($request->filled('delete_address_ids')) {
                 $user->addresses()->whereIn('id', explode(',', $request->delete_address_ids))->delete();
             }
+            if ($request->has('addresses')) {
+                foreach ($request->addresses as $id => $data) {
+                    $data['is_default'] = isset($data['is_default']) && $data['is_default'];
+                    if (is_string($id) && str_starts_with($id, 'new_')) {
+                        $user->addresses()->create(array_merge($data, [
+                            'name' => $user->name,
+                            'email' => $user->email,
+                        ]));
+                    } elseif (is_numeric($id)) {
+                        $user->addresses()->where('id', $id)->update($data);
+                    }
+                }
+            }
+            $updated = true;
+        }
 
-            return back()->with('success', 'Address book updated successfully.');
+        if ($updated) {
+            return back()->with('success', 'User updated successfully.');
         }
 
         return back()->with('warning', 'No changes were saved.');
