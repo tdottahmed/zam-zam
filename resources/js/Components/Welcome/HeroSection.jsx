@@ -28,7 +28,7 @@ export default function HeroSection() {
                     </h1>
                     
                     <p className="text-lg md:text-2xl mb-10 text-gray-200 leading-relaxed font-light max-w-2xl mx-auto">
-                        Your premier distributor for authentic Indian, Pakistani, and Middle Eastern cuisine. We bridge the gap between global brands and Canadian shelves.
+                        Your premier distributor for authentic Indian, Pakistani,Bangladeshi and Middle Eastern cuisine. We bridge the gap between global brands and Canadian shelves.
                     </p>
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
