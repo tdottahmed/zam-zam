@@ -27,6 +27,7 @@
             <x-slot:head>
                 <x-admin.ui.th>Name</x-admin.ui.th>
                 <x-admin.ui.th>Code</x-admin.ui.th>
+                <x-admin.ui.th>Type</x-admin.ui.th>
                 <x-admin.ui.th>Status</x-admin.ui.th>
                 <x-admin.ui.th class="text-right">Actions</x-admin.ui.th>
             </x-slot:head>
@@ -39,6 +40,18 @@
                         <x-admin.ui.td>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                 {{ $unit->code }}
+                            </span>
+                        </x-admin.ui.td>
+                        <x-admin.ui.td>
+                            @php
+                                $typeStyles = [
+                                    'weight' => 'bg-blue-100 text-blue-800',
+                                    'stock'  => 'bg-green-100 text-green-800',
+                                    'both'   => 'bg-purple-100 text-purple-800',
+                                ];
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $typeStyles[$unit->type] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ ucfirst($unit->type) }}
                             </span>
                         </x-admin.ui.td>
                         <x-admin.ui.td>

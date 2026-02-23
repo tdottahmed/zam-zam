@@ -41,10 +41,13 @@ class UnitController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:units',
+            'name'      => 'required|string|max:255',
+            'code'      => 'required|string|max:255|unique:units',
+            'type'      => 'required|in:stock,weight,both',
             'is_active' => 'boolean',
         ]);
+
+        if (!isset($validated['is_active'])) $validated['is_active'] = false;
 
         Unit::create($validated);
 
@@ -66,10 +69,13 @@ class UnitController extends Controller
     public function update(Request $request, Unit $unit)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:units,code,' . $unit->id,
+            'name'      => 'required|string|max:255',
+            'code'      => 'required|string|max:255|unique:units,code,' . $unit->id,
+            'type'      => 'required|in:stock,weight,both',
             'is_active' => 'boolean',
         ]);
+
+        if (!isset($validated['is_active'])) $validated['is_active'] = false;
 
         $unit->update($validated);
 

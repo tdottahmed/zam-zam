@@ -119,15 +119,16 @@
                             <x-admin.form.input-error :messages="$errors->get('unit_value')" class="mt-2" />
                         </div>
 
-                        <!-- Unit Select -->
+                        <!-- Unit Select (Weight/Both units only) -->
                         <div>
                             <x-admin.form.select-search 
                                 name="unit_id" 
-                                label="Unit (GM, ML, etc.)" 
-                                :options="$units->pluck('code', 'id')" 
+                                label="Weight Unit (GM, ML, etc.)" 
+                                :options="$units->whereIn('type', ['weight', 'both'])->where('is_active', true)->pluck('code', 'id')" 
                                 :selected="old('unit_id')"
-                                placeholder="Select Unit"
+                                placeholder="Select Weight Unit"
                             />
+                            <p class="text-xs text-gray-500 mt-1">Only Weight &amp; Both-type units are shown.</p>
                             <x-admin.form.input-error :messages="$errors->get('unit_id')" class="mt-2" />
                         </div>
 

@@ -12,6 +12,7 @@ class Unit extends Model
     protected $fillable = [
         'name',
         'code',
+        'type',
         'is_active',
     ];
 
