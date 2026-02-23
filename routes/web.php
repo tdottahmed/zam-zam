@@ -9,6 +9,8 @@ Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name
 Route::get('/about', [\App\Http\Controllers\WelcomeController::class, 'about'])->name('about');
 Route::get('/contact', [\App\Http\Controllers\WelcomeController::class, 'contact'])->name('contact');
 
+Route::post('/newsletter', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'sitemap'])->name('sitemap');
 if (Route::hasMacro('feeds')) {
     Route::feeds(); // Spatie Feed Routes
@@ -76,6 +78,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Users
     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+    // Newsletter Subscribers
+    Route::get('newsletter-subscribers', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'index'])->name('newsletter-subscribers.index');
+    Route::delete('newsletter-subscribers/{newsletter_subscriber}', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'destroy'])->name('newsletter-subscribers.destroy');
 
     // Invoices Resource
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);

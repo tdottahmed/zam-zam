@@ -86,6 +86,13 @@
                 <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Users</span>
             </a>
 
+            <!-- Newsletter Subscribers -->
+            <a href="{{ route('admin.newsletter-subscribers.index') }}" 
+               class="flex items-center px-4 py-3 rounded-lg group transition-colors {{ request()->routeIs('admin.newsletter-subscribers.*') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <span class="ml-4 font-medium whitespace-nowrap" x-show="sidebarOpen">Newsletter</span>
+            </a>
+
              <!-- Settings Dropdown -->
              <div x-data="{ settingsOpen: {{ request()->routeIs('admin.taxes.*') || request()->routeIs('admin.units.*') ||request()->routeIs('admin.shipping-methods.*') || request()->routeIs('admin.settings.*') ? 'true' : 'false' }} }" class="mt-auto">
                 <button @click="settingsOpen = !settingsOpen; if(!sidebarOpen) sidebarOpen = true" 
