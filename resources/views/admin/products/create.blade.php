@@ -109,53 +109,80 @@
 
                 <!-- Section 2: Packaging & Stock Management -->
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Packaging & Stock Management</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- Weight (GM/ML) -->
-                        <div>
-                            <x-admin.form.label for="unit_value" value="Weight (GM/ML)" />
-                            <x-admin.form.input id="unit_value" name="unit_value" type="number" step="0.01" min="0" :value="old('unit_value')" placeholder="e.g. 248" />
-                            <p class="text-xs text-gray-500 mt-1">Numeric value; unit selected below (e.g. 248 + GM).</p>
-                            <x-admin.form.input-error :messages="$errors->get('unit_value')" class="mt-2" />
-                        </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-5 border-b pb-2">Packaging &amp; Stock Management</h3>
 
-                        <!-- Unit Select (Weight/Both units only) -->
-                        <div>
-                            <x-admin.form.select-search 
-                                name="unit_id" 
-                                label="Weight Unit (GM, ML, etc.)" 
-                                :options="$units->whereIn('type', ['weight', 'both'])->where('is_active', true)->pluck('code', 'id')" 
-                                :selected="old('unit_id')"
-                                placeholder="Select Weight Unit"
-                            />
-                            <p class="text-xs text-gray-500 mt-1">Only Weight &amp; Both-type units are shown.</p>
-                            <x-admin.form.input-error :messages="$errors->get('unit_id')" class="mt-2" />
-                        </div>
-
-                        <!-- PC's In (CTN/BAG) -->
-                        <div>
-                            <x-admin.form.label for="pcs_in_ctn" value="PC's In (CTN/BAG) *" />
-                            <x-admin.form.input id="pcs_in_ctn" name="pcs_in_ctn" type="number" min="1" :value="old('pcs_in_ctn', 1)" required />
-                            <p class="text-xs text-gray-500 mt-1">Pieces per box or bag.</p>
-                            <x-admin.form.input-error :messages="$errors->get('pcs_in_ctn')" class="mt-2" />
-                        </div>
-
-                        <!-- Initial Stock + Stock unit -->
-                        <div>
-                            <x-admin.form.label for="quantity" value="Initial Stock Quantity" />
-                            <div class="mt-1 flex gap-2">
-                                <x-admin.form.input id="quantity" name="quantity" type="number" min="0" :value="old('quantity', 0)" class="flex-1 min-w-0" />
-                                <select id="stock_unit" name="stock_unit" class="block w-28 rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm">
-                                    @foreach(\App\Models\Product::stockUnitOptions() as $value => $label)
-                                        <option value="{{ $value }}" {{ old('stock_unit', 'piece') == $value ? 'selected' : '' }}>{{ $label }}</option>
-                                    @endforeach
-                                </select>
+                    {{-- Row 1: Weight / Packaging --}}
+                    <div class="mb-6">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
+                            Weight &amp; Packaging
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Weight Value -->
+                            <div>
+                                <x-admin.form.label for="unit_value" value="Weight / Volume Value" />
+                                <x-admin.form.input id="unit_value" name="unit_value" type="number" step="0.01" min="0" :value="old('unit_value')" placeholder="e.g. 248" />
+                                <p class="text-xs text-gray-500 mt-1">Numeric value paired with the unit below (e.g. 248 + GM).</p>
+                                <x-admin.form.input-error :messages="$errors->get('unit_value')" class="mt-2" />
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Current stock on hand (in the selected unit: piece, dozen, or box).</p>
-                            <x-admin.form.input-error :messages="$errors->get('quantity')" class="mt-2" />
-                            <x-admin.form.input-error :messages="$errors->get('stock_unit')" class="mt-2" />
-                        </div>
 
+                            <!-- Weight Unit -->
+                            <div>
+                                <x-admin.form.select-search
+                                    name="unit_id"
+                                    label="Weight Unit (GM, ML, KG…)"
+                                    :options="$units->whereIn('type', ['weight', 'both'])->where('is_active', true)->pluck('code', 'id')"
+                                    :selected="old('unit_id')"
+                                    placeholder="Select Weight Unit"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Only Weight &amp; Both-type units shown.</p>
+                                <x-admin.form.input-error :messages="$errors->get('unit_id')" class="mt-2" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Row 2: Stock --}}
+                    <div class="pt-5 border-t border-gray-100">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            Stock
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- PC's In (CTN/BAG) -->
+                            <div>
+                                <x-admin.form.label for="pcs_in_ctn" value="PC's In (CTN/BAG) *" />
+                                <x-admin.form.input id="pcs_in_ctn" name="pcs_in_ctn" type="number" min="1" :value="old('pcs_in_ctn', 1)" required />
+                                <p class="text-xs text-gray-500 mt-1">Pieces per box or bag.</p>
+                                <x-admin.form.input-error :messages="$errors->get('pcs_in_ctn')" class="mt-2" />
+                            </div>
+
+                            <!-- Initial Stock Quantity -->
+                            <div>
+                                <x-admin.form.label for="quantity" value="Initial Stock Quantity" />
+                                <x-admin.form.input id="quantity" name="quantity" type="number" min="0" :value="old('quantity', 0)" class="mt-1" />
+                                <p class="text-xs text-gray-500 mt-1">Current stock on hand.</p>
+                                <x-admin.form.input-error :messages="$errors->get('quantity')" class="mt-2" />
+                            </div>
+
+                            <!-- Stock Unit -->
+                            @php
+                                $stockUnitOptions = $units
+                                    ->whereIn('type', ['stock', 'both'])
+                                    ->where('is_active', true)
+                                    ->mapWithKeys(fn($u) => [$u->name => $u->name . ' (' . $u->code . ')']);
+                            @endphp
+                            <div>
+                                <x-admin.form.select-search
+                                    name="stock_unit"
+                                    label="Stock Unit"
+                                    :options="$stockUnitOptions"
+                                    :selected="old('stock_unit', 'Piece')"
+                                    placeholder="Select Stock Unit"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Unit the stock quantity is measured in.</p>
+                                <x-admin.form.input-error :messages="$errors->get('stock_unit')" class="mt-2" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 

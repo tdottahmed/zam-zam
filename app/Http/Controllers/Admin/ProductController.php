@@ -110,9 +110,9 @@ class ProductController extends Controller
         $units = Unit::where('is_active', true)->get();
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
-        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
+        $defaultProfitMargin = SystemSetting::where('group', 'general')
             ->where('key', 'default_profit_margin')
-            ->value('value');
+            ->value('value') ?? 0;
 
         return view('admin.products.create', compact('taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
     }
@@ -191,9 +191,9 @@ class ProductController extends Controller
         $units = Unit::where('is_active', true)->get();
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
-        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
+        $defaultProfitMargin = SystemSetting::where('group', 'general')
             ->where('key', 'default_profit_margin')
-            ->value('value');
+            ->value('value') ?? 0;
 
         return view('admin.products.edit', compact('product', 'taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
     }
