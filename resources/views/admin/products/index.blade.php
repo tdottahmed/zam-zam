@@ -23,7 +23,7 @@
                                 <x-admin.form.select name="filter_by" :options="[
                                     'name' => 'Name',
                                     'product_code' => 'Code',
-                                    'weight' => 'Weight',
+                                    'unit_value' => 'Weight',
                                     'box_price' => 'Box Price',
                                     'unit_price' => 'Unit Price'
                                 ]" placeholder="Filter By" :selected="request('filter_by')" />
@@ -53,12 +53,14 @@
             </x-slot:search>
 
             <x-slot:head>
-                <x-admin.ui.th>Code</x-admin.ui.th>
-                <x-admin.ui.th>Image</x-admin.ui.th>
+                <x-admin.ui.th class="w-12">SL</x-admin.ui.th>
                 <x-admin.ui.th>Product Name</x-admin.ui.th>
-                <x-admin.ui.th>Packing</x-admin.ui.th>
-                <x-admin.ui.th>Box Price</x-admin.ui.th>
-                <x-admin.ui.th>Unit Price</x-admin.ui.th>
+                <x-admin.ui.th class="text-right">Box $</x-admin.ui.th>
+                <x-admin.ui.th class="text-right">Unit $</x-admin.ui.th>
+                <x-admin.ui.th class="text-right">Buying $</x-admin.ui.th>
+                <x-admin.ui.th>Weight</x-admin.ui.th>
+                <x-admin.ui.th class="text-center">PCs/BAG</x-admin.ui.th>
+                <x-admin.ui.th class="w-16 text-center">Image</x-admin.ui.th>
                 <x-admin.ui.th class="text-center">Featured</x-admin.ui.th>
                 <x-admin.ui.th class="text-right">Actions</x-admin.ui.th>
             </x-slot:head>
@@ -66,7 +68,18 @@
             <x-slot:body>
                 @forelse($products as $product)
                     <tr class="hover:bg-gray-50/50 transition-colors">
-                        <x-admin.ui.td class="font-mono text-xs text-gray-500">{{ $product->product_code }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-gray-500">{{ $products->firstItem() ? ($loop->iteration + $products->firstItem() - 1) : $loop->iteration }}</x-admin.ui.td>
+                        <x-admin.ui.td>
+                            <div class="font-medium text-gray-900">{{ $product->name }}</div>
+                            @if($product->product_code)
+                                <div class="font-mono text-xs text-gray-500">{{ $product->product_code }}</div>
+                            @endif
+                        </x-admin.ui.td>
+                        <x-admin.ui.td class="text-right">${{ number_format($product->box_price ?? 0, 2) }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-right">${{ number_format($product->unit_price ?? 0, 2) }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-right">${{ number_format($product->buying_price ?? 0, 2) }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-gray-600">{{ $product->weight_display ?? '—' }}</x-admin.ui.td>
+                        <x-admin.ui.td class="text-center">{{ $product->pcs_in_ctn }}</x-admin.ui.td>
                         <x-admin.ui.td class="w-16">
                             @if($product->image)
                                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="h-10 w-10 object-cover rounded-md border border-gray-200">
@@ -76,12 +89,6 @@
                                 </div>
                             @endif
                         </x-admin.ui.td>
-                        <x-admin.ui.td>
-                            <span class="font-medium text-gray-900">{{ $product->name }}</span>
-                        </x-admin.ui.td>
-                        <x-admin.ui.td>{{ $product->pcs_in_ctn }}</x-admin.ui.td>
-                        <x-admin.ui.td>${{ number_format($product->box_price, 2) }}</x-admin.ui.td>
-                        <x-admin.ui.td>${{ number_format($product->unit_price, 2) }}</x-admin.ui.td>
                         <x-admin.ui.td class="text-center">
                             <form method="POST" action="{{ route('admin.products.toggle-featured', $product) }}" class="inline-block">
                                 @csrf
@@ -109,7 +116,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="10" class="px-6 py-4 text-center text-gray-500">
                             No products found.
                         </td>
                     </tr>

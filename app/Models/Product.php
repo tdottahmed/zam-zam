@@ -23,6 +23,7 @@ class Product extends Model
         'tax_id',
         'buying_price',
         'quantity',
+        'stock_unit',
         'alert_quantity',
         'notes',
         'image',
@@ -61,5 +62,33 @@ class Product extends Model
     public function brand()
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    /**
+     * Display weight as "248GM" or "500ML" (unit_value + unit code) for legacy/client display.
+     */
+    public function getWeightDisplayAttribute(): ?string
+    {
+        if ($this->unit_value === null || $this->unit_value === '') {
+            return null;
+        }
+        $code = $this->unit ? strtoupper($this->unit->code) : '';
+        return $code ? (floatval($this->unit_value) . $code) : (floatval($this->unit_value) . '');
+    }
+
+    /** Stock unit options for inventory (piece, dozen, box). */
+    public static function stockUnitOptions(): array
+    {
+        return [
+            'piece' => 'Piece',
+            'dozen' => 'Dozen',
+            'box'   => 'Box',
+        ];
+    }
+
+    /** Human-readable stock unit label. */
+    public function getStockUnitLabelAttribute(): string
+    {
+        return self::stockUnitOptions()[$this->stock_unit] ?? ucfirst($this->stock_unit ?? 'piece');
     }
 }

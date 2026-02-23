@@ -110,7 +110,8 @@ class ProductController extends Controller
         $units = Unit::where('is_active', true)->get();
         $categories = Category::where('status', true)->get();
         $brands = Brand::where('status', true)->get();
-        $defaultProfitMargin = SystemSetting::where('key', 'default_profit_margin')
+        $defaultProfitMargin = SystemSetting::where('group', 'profit_margin')
+            ->where('key', 'default_profit_margin')
             ->value('value');
 
         return view('admin.products.create', compact('taxes', 'units', 'categories', 'brands', 'defaultProfitMargin'));
@@ -130,11 +131,11 @@ class ProductController extends Controller
             'unit_value' => 'nullable|numeric|min:0',
             'unit_id' => 'nullable|exists:units,id',
             'pcs_in_ctn' => 'required|integer|min:1',
-            'box_price' => 'nullable|numeric|min:0',
-            'unit_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
-            'buying_price' => 'nullable|numeric|min:0',
-
+            'buying_price_stock_unit' => 'nullable|numeric|min:0',
+            'selling_price_stock_unit' => 'nullable|numeric|min:0',
+            'quantity' => 'nullable|integer|min:0',
+            'stock_unit' => 'nullable|string|in:piece,dozen,box',
             'notes' => 'nullable|string',
         ]);
 
@@ -148,10 +149,28 @@ class ProductController extends Controller
             $validated['pcs_in_ctn'] = 1;
         }
 
-        // Calculate unit_price from box_price if available
-        if (isset($validated['box_price']) && $validated['pcs_in_ctn'] > 0) {
-            $validated['unit_price'] = $validated['box_price'] / $validated['pcs_in_ctn'];
+        $pcs = (int) $validated['pcs_in_ctn'];
+        $stockUnit = $validated['stock_unit'] ?? 'piece';
+        $multiplier = $stockUnit === 'piece' ? 1 : ($stockUnit === 'dozen' ? 12 : $pcs);
+
+        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '' && $multiplier > 0) {
+            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'] / $multiplier;
+        } else {
+            $validated['buying_price'] = null;
         }
+        unset($validated['buying_price_stock_unit']);
+
+        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '' && $multiplier > 0) {
+            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'] / $multiplier;
+            $validated['box_price'] = $validated['unit_price'] * $pcs;
+        } else {
+            $validated['unit_price'] = null;
+            $validated['box_price'] = null;
+        }
+        unset($validated['selling_price_stock_unit']);
+
+        $validated['stock_unit'] = $stockUnit;
+        $validated['quantity'] = (int) ($validated['quantity'] ?? 0);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
@@ -193,11 +212,11 @@ class ProductController extends Controller
             'unit_value' => 'nullable|numeric|min:0',
             'unit_id' => 'nullable|exists:units,id',
             'pcs_in_ctn' => 'required|integer|min:1',
-            'box_price' => 'nullable|numeric|min:0',
-            'unit_price' => 'nullable|numeric|min:0',
             'tax_id' => 'nullable|exists:taxes,id',
-            'buying_price' => 'nullable|numeric|min:0',
-
+            'buying_price_stock_unit' => 'nullable|numeric|min:0',
+            'selling_price_stock_unit' => 'nullable|numeric|min:0',
+            'quantity' => 'nullable|integer|min:0',
+            'stock_unit' => 'nullable|string|in:piece,dozen,box',
             'notes' => 'nullable|string',
         ]);
 
@@ -211,10 +230,28 @@ class ProductController extends Controller
             $validated['pcs_in_ctn'] = 1;
         }
 
-        // Calculate unit_price from box_price if available
-        if (isset($validated['box_price']) && $validated['pcs_in_ctn'] > 0) {
-            $validated['unit_price'] = $validated['box_price'] / $validated['pcs_in_ctn'];
+        $pcs = (int) $validated['pcs_in_ctn'];
+        $stockUnit = $validated['stock_unit'] ?? 'piece';
+        $multiplier = $stockUnit === 'piece' ? 1 : ($stockUnit === 'dozen' ? 12 : $pcs);
+
+        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '' && $multiplier > 0) {
+            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'] / $multiplier;
+        } else {
+            $validated['buying_price'] = null;
         }
+        unset($validated['buying_price_stock_unit']);
+
+        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '' && $multiplier > 0) {
+            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'] / $multiplier;
+            $validated['box_price'] = $validated['unit_price'] * $pcs;
+        } else {
+            $validated['unit_price'] = null;
+            $validated['box_price'] = null;
+        }
+        unset($validated['selling_price_stock_unit']);
+
+        $validated['stock_unit'] = $stockUnit;
+        $validated['quantity'] = (int) ($validated['quantity'] ?? 0);
 
         if ($request->hasFile('image')) {
             // Delete old image if exists

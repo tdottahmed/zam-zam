@@ -62,19 +62,32 @@
   <table>
     <thead>
       <tr>
-        <th style="width: 50px;">Code</th>
-        <th style="width: 50px;" class="text-center">Image</th>
+        <th style="width: 35px;">SL</th>
         <th style="width: 35%;">Product Name</th>
-        <th style="width: 60px;" class="text-center">Packing</th>
-        <th style="width: 80px;" class="text-right">Box Price</th>
-        <th style="width: 80px;" class="text-right">Unit Price</th>
-        <th style="width: 70px;" class="text-center">Featured</th>
+        <th style="width: 70px;" class="text-right">Box $</th>
+        <th style="width: 70px;" class="text-right">Unit $</th>
+        <th style="width: 70px;" class="text-right">Buying $</th>
+        <th style="width: 55px;">Weight</th>
+        <th style="width: 55px;" class="text-center">PCs/BAG</th>
+        <th style="width: 50px;" class="text-center">Image</th>
+        <th style="width: 50px;" class="text-center">Featured</th>
       </tr>
     </thead>
     <tbody>
       @forelse($products as $product)
         <tr>
-          <td class="font-mono" style="font-size: 9px;">{{ $product->product_code ?: '-' }}</td>
+          <td class="text-center">{{ $loop->iteration }}</td>
+          <td>
+            <span>{{ $product->name }}</span>
+            @if($product->product_code)
+              <span class="font-mono" style="font-size: 9px; color: #666;"> ({{ $product->product_code }})</span>
+            @endif
+          </td>
+          <td class="text-right">${{ number_format($product->box_price ?? 0, 2) }}</td>
+          <td class="text-right">${{ number_format($product->unit_price ?? 0, 2) }}</td>
+          <td class="text-right">${{ number_format($product->buying_price ?? 0, 2) }}</td>
+          <td>{{ $product->weight_display ?? '—' }}</td>
+          <td class="text-center">{{ $product->pcs_in_ctn ?? '-' }}</td>
           <td class="text-center">
             @php
               $imgPath = $product->image ? public_path('storage/' . $product->image) : null;
@@ -85,15 +98,11 @@
               —
             @endif
           </td>
-          <td>{{ $product->name }}</td>
-          <td class="text-center">{{ $product->pcs_in_ctn ?? '-' }}</td>
-          <td class="text-right">${{ number_format($product->box_price ?? 0, 2) }}</td>
-          <td class="text-right">${{ number_format($product->unit_price ?? 0, 2) }}</td>
           <td class="text-center">{{ ($product->is_featured ?? false) ? 'Yes' : 'No' }}</td>
         </tr>
       @empty
         <tr>
-          <td colspan="7" class="text-center" style="padding: 20px;">No products found.</td>
+          <td colspan="9" class="text-center" style="padding: 20px;">No products found.</td>
         </tr>
       @endforelse
     </tbody>

@@ -111,11 +111,19 @@
                 <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h3 class="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Packaging & Stock Management</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                         <!-- Unit Select -->
+                        <!-- Weight (GM/ML) -->
+                        <div>
+                            <x-admin.form.label for="unit_value" value="Weight (GM/ML)" />
+                            <x-admin.form.input id="unit_value" name="unit_value" type="number" step="0.01" min="0" :value="old('unit_value')" placeholder="e.g. 248" />
+                            <p class="text-xs text-gray-500 mt-1">Numeric value; unit selected below (e.g. 248 + GM).</p>
+                            <x-admin.form.input-error :messages="$errors->get('unit_value')" class="mt-2" />
+                        </div>
+
+                        <!-- Unit Select -->
                         <div>
                             <x-admin.form.select-search 
                                 name="unit_id" 
-                                label="Unit" 
+                                label="Unit (GM, ML, etc.)" 
                                 :options="$units->pluck('code', 'id')" 
                                 :selected="old('unit_id')"
                                 placeholder="Select Unit"
@@ -123,100 +131,68 @@
                             <x-admin.form.input-error :messages="$errors->get('unit_id')" class="mt-2" />
                         </div>
 
-                        <!-- PC's In Carton -->
+                        <!-- PC's In (CTN/BAG) -->
                         <div>
-                            <x-admin.form.label for="pcs_in_ctn" value="Units per Carton *" />
+                            <x-admin.form.label for="pcs_in_ctn" value="PC's In (CTN/BAG) *" />
                             <x-admin.form.input id="pcs_in_ctn" name="pcs_in_ctn" type="number" min="1" :value="old('pcs_in_ctn', 1)" required />
-                            <p class="text-xs text-gray-500 mt-1">master_packaging</p>
+                            <p class="text-xs text-gray-500 mt-1">Pieces per box or bag.</p>
                             <x-admin.form.input-error :messages="$errors->get('pcs_in_ctn')" class="mt-2" />
                         </div>
 
-                        <!-- Initial Stock -->
+                        <!-- Initial Stock + Stock unit -->
                         <div>
                             <x-admin.form.label for="quantity" value="Initial Stock Quantity" />
-                            <x-admin.form.input id="quantity" name="quantity" type="number" :value="old('quantity', 0)" />
-                            <p class="text-xs text-gray-500 mt-1">Current stock on hand.</p>
+                            <div class="mt-1 flex gap-2">
+                                <x-admin.form.input id="quantity" name="quantity" type="number" min="0" :value="old('quantity', 0)" class="flex-1 min-w-0" />
+                                <select id="stock_unit" name="stock_unit" class="block w-28 rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm">
+                                    @foreach(\App\Models\Product::stockUnitOptions() as $value => $label)
+                                        <option value="{{ $value }}" {{ old('stock_unit', 'piece') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Current stock on hand (in the selected unit: piece, dozen, or box).</p>
                             <x-admin.form.input-error :messages="$errors->get('quantity')" class="mt-2" />
+                            <x-admin.form.input-error :messages="$errors->get('stock_unit')" class="mt-2" />
                         </div>
 
-                        <!-- Alert Quantity -->
-                        <div>
-                            <x-admin.form.label for="alert_quantity" value="Low Stock Alert Level" />
-                            <x-admin.form.input id="alert_quantity" name="alert_quantity" type="number" :value="old('alert_quantity')" placeholder="e.g. 10" />
-                            <p class="text-xs text-gray-500 mt-1">Get notified when stock drops below this.</p>
-                            <x-admin.form.input-error :messages="$errors->get('alert_quantity')" class="mt-2" />
-                        </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Wholesale Pricing Engine -->
+                <!-- Section 3: Wholesale Pricing Engine (prices per stock unit: piece / dozen / box) -->
                 <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 shadow-sm">
                     <div class="flex items-center justify-between mb-4 border-b border-blue-200 pb-2">
-                         <h3 class="text-lg font-medium text-blue-900">Wholesale Pricing Engine</h3>
-                         <span class="text-xs text-blue-700 bg-white px-3 py-1 rounded-full border border-blue-200">Default Margin: <span id="margin_display" class="font-bold">{{ $defaultProfitMargin }}</span>%</span>
+                        <h3 class="text-lg font-medium text-blue-900">Wholesale Pricing Engine</h3>
+                        <span class="text-xs text-blue-700 bg-white px-3 py-1 rounded-full border border-blue-200">Default margin: <span id="default_margin_badge" class="font-bold">{{ $defaultProfitMargin ?? '—' }}</span>%</span>
+                    </div>
+                    <p class="text-sm text-blue-800/90 mb-4">Prices are <strong>per stock unit</strong> (same as above: piece, dozen, or box). Enter buying price and selling is suggested using the default margin; change selling to see your custom profit margin.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <label for="buying_price_stock_unit" id="label_buying" class="block text-sm font-medium text-gray-700">Buying price ($/<span id="price_unit_label">piece</span>)</label>
+                            <div class="relative rounded-md shadow-sm mt-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input type="number" step="0.01" min="0" name="buying_price_stock_unit" id="buying_price_stock_unit" value="{{ old('buying_price_stock_unit') }}" placeholder="0.00" class="block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A] sm:text-sm" />
+                            </div>
+                            <x-admin.form.input-error :messages="$errors->get('buying_price_stock_unit')" class="mt-2" />
+                        </div>
+                        <div>
+                            <label for="selling_price_stock_unit" id="label_selling" class="block text-sm font-medium text-gray-700">Selling price ($/<span id="selling_unit_label">piece</span>)</label>
+                            <div class="relative rounded-md shadow-sm mt-1">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                <input type="number" step="0.01" min="0" name="selling_price_stock_unit" id="selling_price_stock_unit" value="{{ old('selling_price_stock_unit') }}" placeholder="0.00" class="block w-full pl-7 rounded-md border-green-400 text-green-800 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
+                            </div>
+                            <x-admin.form.input-error :messages="$errors->get('selling_price_stock_unit')" class="mt-2" />
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- COST SIDE -->
-                        <div class="space-y-4">
-                            <h4 class="font-semibold text-gray-700 uppercase text-xs tracking-wider">Cost Price (Buying)</h4>
-                            
-                            <div>
-                                <x-admin.form.label for="buying_price" value="Cost per Unit" />
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <x-admin.form.input id="cost_per_unit" name="buying_price" type="number" step="0.01" :value="old('buying_price')" class="pl-7 bg-white" placeholder="0.00" />
-                                </div>
-                            </div>
-
-                            <div class="relative">
-                                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                    <div class="w-full border-t border-gray-300"></div>
-                                </div>
-                                <div class="relative flex justify-center">
-                                    <span class="px-2 bg-blue-50 text-xs text-gray-500">OR</span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <x-admin.form.label for="cost_per_carton" value="Cost per Carton" />
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <x-admin.form.input id="cost_per_carton" type="number" step="0.01" class="pl-7 bg-white" placeholder="0.00" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- SELLING SIDE -->
-                        <div class="space-y-4 border-l pl-8 border-blue-200">
-                             <h4 class="font-semibold text-gray-700 uppercase text-xs tracking-wider">Selling Price (Wholesale)</h4>
-                            
-                             <div>
-                                <x-admin.form.label for="box_price" value="Price per Carton" />
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <x-admin.form.input id="box_price" name="box_price" type="number" step="0.01" :value="old('box_price')" class="pl-7 bg-green-50 font-bold text-green-700 border-green-300 focus:border-green-500 focus:ring-green-500" placeholder="0.00" />
-                                </div>
-                                <p class="text-xs text-green-600 mt-1" id="profit_display">Profit: $0.00 (0%)</p>
-                                <x-admin.form.input-error :messages="$errors->get('box_price')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-admin.form.label for="unit_price" value="Price per Unit (Ref)" />
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">$</span>
-                                    </div>
-                                    <x-admin.form.input id="unit_price" name="unit_price" type="number" step="0.01" :value="old('unit_price')" class="pl-7 bg-gray-50 text-gray-600" readonly />
-                                </div>
-                                <x-admin.form.input-error :messages="$errors->get('unit_price')" class="mt-2" />
-                            </div>
+                    <div class="flex flex-wrap items-center gap-4 p-4 bg-white/70 rounded-lg border border-blue-200">
+                        <div>
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Profit margin</span>
+                            <p id="profit_display" class="text-lg font-bold text-green-700 mt-0.5">— Enter buying price (selling will use default margin)</p>
                         </div>
                     </div>
                 </div>
@@ -240,140 +216,120 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Elements
                 const els = {
                     pcsInCtn: document.getElementById('pcs_in_ctn'),
-                    costUnit: document.getElementById('cost_per_unit'),
-                    costCarton: document.getElementById('cost_per_carton'),
+                    buyingCarton: document.getElementById('buying_price_carton'),
                     sellCarton: document.getElementById('box_price'),
-                    sellUnit: document.getElementById('unit_price'),
+                    unitPriceHidden: document.getElementById('unit_price'),
                     profitDisplay: document.getElementById('profit_display'),
-                    skuInput: document.getElementById('product_code'),
-                    generateSkuBtn: document.getElementById('generate_sku_btn'),
+                    unitPriceDisplay: document.getElementById('unit_price_display'),
                     skuInput: document.getElementById('product_code'),
                     generateSkuBtn: document.getElementById('generate_sku_btn'),
                     nameInput: document.querySelector('input[name="name"]'),
                     slugInput: document.querySelector('input[name="slug"]')
                 };
 
-
                 // Auto-generate Slug
                 if (els.nameInput && els.slugInput) {
                     els.nameInput.addEventListener('input', function() {
-                        // Only auto-update if empty or previously auto-generated
                         if (!els.slugInput.value || els.slugInput.dataset.auto === 'true') {
                             let slug = this.value.toLowerCase()
-                                .replace(/[^\w\s-]/g, '') // Remove non-word chars (except spaces/dashes)
-                                .replace(/\s+/g, '-')     // space to dash
-                                .replace(/-+/g, '-')      // collapse dashes
-                                .replace(/^-+|-+$/g, ''); // trim dashes from start/end
-                            
+                                .replace(/[^\w\s-]/g, '')
+                                .replace(/\s+/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-+|-+$/g, '');
                             els.slugInput.value = slug;
                             els.slugInput.dataset.auto = 'true';
                         }
                     });
-
-                    els.slugInput.addEventListener('input', function() {
-                        this.dataset.auto = 'false';
-                    });
+                    els.slugInput.addEventListener('input', function() { this.dataset.auto = 'false'; });
                 }
 
-                const defaultMargin = {!! json_encode($defaultProfitMargin) !!} || 0;
                 if (els.generateSkuBtn) {
                     els.generateSkuBtn.addEventListener('click', function() {
                         const btn = this;
                         const icon = btn.querySelector('svg');
-                        
-                        // Add spin class
                         icon.classList.add('animate-spin');
                         btn.disabled = true;
-
                         fetch('{{ route("admin.products.next-sku") }}')
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.sku) {
-                                    els.skuInput.value = data.sku;
-                                }
-                            })
-                            .catch(error => console.error('Error generating SKU:', error))
-                            .finally(() => {
-                                icon.classList.remove('animate-spin');
-                                btn.disabled = false;
-                            });
+                            .then(r => r.json())
+                            .then(data => { if (data.sku) els.skuInput.value = data.sku; })
+                            .catch(e => console.error('Error generating SKU:', e))
+                            .finally(() => { icon.classList.remove('animate-spin'); btn.disabled = false; });
                     });
                 }
 
+                // Pricing per stock unit: default margin applied when entering buying; custom margin when user edits selling
+                const defaultMargin = parseFloat({!! json_encode($defaultProfitMargin) !!}) || 0;
+                const stockUnitEl = document.getElementById('stock_unit');
+                const buyingEl = document.getElementById('buying_price_stock_unit');
+                const sellingEl = document.getElementById('selling_price_stock_unit');
+                const priceUnitLabel = document.getElementById('price_unit_label');
+                const sellingUnitLabel = document.getElementById('selling_unit_label');
 
-
-                // State
-                let state = {
-                    pcs: 1,
-                    costUnit: 0,
-                    margin: defaultMargin
-                };
-
-                function updateState() {
-                    state.pcs = parseFloat(els.pcsInCtn.value) || 1;
-                    state.costUnit = parseFloat(els.costUnit.value) || 0;
+                function getMultiplier() {
+                    const su = (stockUnitEl && stockUnitEl.value) || 'piece';
+                    const pcs = parseFloat(els.pcsInCtn?.value) || 1;
+                    if (su === 'dozen') return 12;
+                    if (su === 'box') return pcs;
+                    return 1;
                 }
 
-                function calculateFromUnitCost() {
-                    updateState();
-                    // Update Carton Cost
-                    const cartonCost = state.costUnit * state.pcs;
-                    els.costCarton.value = cartonCost > 0 ? cartonCost.toFixed(2) : '';
-
-                    // Calculate Selling Prices (Carton)
-                    const sellCarton = cartonCost + (cartonCost * (state.margin / 100));
-                    els.sellCarton.value = sellCarton > 0 ? sellCarton.toFixed(2) : '';
-
-                    // Calculate Selling Prices (Unit)
-                    const sellUnit = sellCarton / state.pcs;
-                    els.sellUnit.value = sellUnit > 0 ? sellUnit.toFixed(2) : '';
-
-                    updateProfit();
+                function getUnitLabel() {
+                    const su = (stockUnitEl && stockUnitEl.value) || 'piece';
+                    return su;
                 }
 
-                function calculateFromCartonCost() {
-                    const cartonCost = parseFloat(els.costCarton.value) || 0;
-                    state.pcs = parseFloat(els.pcsInCtn.value) || 1;
-                    
-                    // Update Unit Cost
-                    const unitCost = cartonCost / state.pcs;
-                    els.costUnit.value = unitCost > 0 ? unitCost.toFixed(2) : '';
-
-                    calculateFromUnitCost(); // Cascade
+                function updatePriceLabels() {
+                    const label = getUnitLabel();
+                    if (priceUnitLabel) priceUnitLabel.textContent = label;
+                    if (sellingUnitLabel) sellingUnitLabel.textContent = label;
                 }
 
-                function updateProfit() {
-                    const cost = parseFloat(els.costCarton.value) || 0;
-                    const sell = parseFloat(els.sellCarton.value) || 0;
+                function updatePricing() {
+                    const buy = parseFloat(buyingEl?.value) || 0;
+                    const sell = parseFloat(sellingEl?.value) || 0;
 
-                    if (cost > 0 && sell > 0) {
-                        const profit = sell - cost;
-                        const marginPercent = ((profit / cost) * 100).toFixed(1);
-                        els.profitDisplay.textContent = `Profit: $${profit.toFixed(2)} (${marginPercent}%)`;
+                    if (buy > 0 && sell > 0) {
+                        const profit = sell - buy;
+                        const marginPercent = ((profit / buy) * 100).toFixed(1);
+                        els.profitDisplay.textContent = marginPercent + '%';
+                        els.profitDisplay.classList.remove('text-gray-500');
+                        els.profitDisplay.classList.add('text-green-700');
+                    } else if (buy > 0) {
+                        els.profitDisplay.textContent = 'Enter selling price or leave to use default margin (' + defaultMargin + '%)';
+                        els.profitDisplay.classList.add('text-gray-500');
+                        els.profitDisplay.classList.remove('text-green-700');
                     } else {
-                        els.profitDisplay.textContent = 'Profit: $0.00 (0%)';
+                        els.profitDisplay.textContent = '— Enter buying price (selling will use default margin)';
+                        els.profitDisplay.classList.add('text-gray-500');
+                        els.profitDisplay.classList.remove('text-green-700');
                     }
                 }
 
-                // Listeners
-                els.pcsInCtn.addEventListener('input', calculateFromUnitCost); // Recalculate totals if pack size changes
-                els.costUnit.addEventListener('input', calculateFromUnitCost);
-                els.costCarton.addEventListener('input', calculateFromCartonCost);
-                
-                // Manual override of selling price
-                els.sellCarton.addEventListener('input', function() {
-                    const sellCarton = parseFloat(this.value) || 0;
-                    state.pcs = parseFloat(els.pcsInCtn.value) || 1;
-                    
-                    // Update Unit Sell Price
-                    const sellUnit = sellCarton / state.pcs;
-                    els.sellUnit.value = sellUnit > 0 ? sellUnit.toFixed(2) : '';
+                function onBuyingInput() {
+                    const buy = parseFloat(buyingEl?.value) || 0;
+                    if (buy > 0 && defaultMargin > 0 && sellingEl) {
+                        const suggested = buy * (1 + defaultMargin / 100);
+                        if (!sellingEl.dataset.userEdited) {
+                            sellingEl.value = suggested.toFixed(2);
+                        }
+                    }
+                    updatePricing();
+                }
 
-                    updateProfit();
-                });
+                if (buyingEl) buyingEl.addEventListener('input', onBuyingInput);
+                if (sellingEl) {
+                    sellingEl.addEventListener('input', function() {
+                        this.dataset.userEdited = '1';
+                        updatePricing();
+                    });
+                }
+                if (stockUnitEl) stockUnitEl.addEventListener('change', function() { updatePriceLabels(); updatePricing(); });
+                if (els.pcsInCtn) els.pcsInCtn.addEventListener('input', updatePriceLabels);
+
+                updatePriceLabels();
+                updatePricing();
             });
         </script>
     </x-admin.ui.card>
