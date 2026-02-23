@@ -30,7 +30,7 @@
                         <!-- Slug -->
                         <div class="md:col-span-2">
                             <x-admin.form.label for="slug" value="Slug (URL Friendly)" />
-                            <x-admin.form.input id="slug" name="slug" :value="old('slug', $product->slug)" placeholder="Auto-generated from name" />
+                            <x-admin.form.input id="slug" name="slug" :value="old('slug', $product->slug)" placeholder="Auto-generated from name" data-auto="true" />
                             <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate.</p>
                             <x-admin.form.input-error :messages="$errors->get('slug')" class="mt-2" />
                         </div>
@@ -266,8 +266,26 @@
                     pcsInCtn: document.getElementById('pcs_in_ctn'),
                     profitDisplay: document.getElementById('profit_display'),
                     skuInput: document.getElementById('product_code'),
-                    generateSkuBtn: document.getElementById('generate_sku_btn')
+                    generateSkuBtn: document.getElementById('generate_sku_btn'),
+                    nameInput: document.querySelector('input[name="name"]'),
+                    slugInput: document.querySelector('input[name="slug"]')
                 };
+
+                // Auto-generate slug from name (same as create)
+                if (els.nameInput && els.slugInput) {
+                    els.nameInput.addEventListener('input', function() {
+                        if (!els.slugInput.value || els.slugInput.dataset.auto === 'true') {
+                            var slug = this.value.toLowerCase()
+                                .replace(/[^\w\s-]/g, '')
+                                .replace(/\s+/g, '-')
+                                .replace(/-+/g, '-')
+                                .replace(/^-+|-+$/g, '');
+                            els.slugInput.value = slug;
+                            els.slugInput.dataset.auto = 'true';
+                        }
+                    });
+                    els.slugInput.addEventListener('input', function() { this.dataset.auto = 'false'; });
+                }
 
                 if (els.generateSkuBtn) {
                     els.generateSkuBtn.addEventListener('click', function() {

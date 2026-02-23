@@ -29,9 +29,9 @@ class ProductController extends Controller
                 if ($filterBy && in_array($filterBy, ['name', 'product_code', 'unit_value', 'box_price', 'unit_price'])) {
                     $query->where($filterBy, 'like', "%{$search}%");
                 } else {
-                    $query->where(function($q) use ($search) {
+                    $query->where(function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('product_code', 'like', "%{$search}%");
+                            ->orWhere('product_code', 'like', "%{$search}%");
                     });
                 }
             })
@@ -216,7 +216,7 @@ class ProductController extends Controller
             'buying_price_stock_unit' => 'nullable|numeric|min:0',
             'selling_price_stock_unit' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|integer|min:0',
-            'stock_unit' => 'nullable|string|in:piece,dozen,box',
+            'stock_unit' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
