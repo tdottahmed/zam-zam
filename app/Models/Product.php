@@ -44,6 +44,9 @@ class Product extends Model
         'tax_id' => 'integer',
     ];
 
+    /** Appended for frontend: weight display, stock unit label, price per stock unit. */
+    protected $appends = ['weight_display', 'stock_unit_label', 'price_per_stock_unit'];
+
     public function tax()
     {
         return $this->belongsTo(Tax::class);
@@ -90,5 +93,19 @@ class Product extends Model
     public function getStockUnitLabelAttribute(): string
     {
         return self::stockUnitOptions()[$this->stock_unit] ?? ucfirst($this->stock_unit ?? 'piece');
+    }
+
+    /**
+     * Selling price in the product's stock unit (for frontend display).
+     * piece => unit_price, dozen => unit_price * 12, box => unit_price * pcs_in_ctn.
+     */
+    public function getPricePerStockUnitAttribute(): ?float
+    {
+        if ($this->unit_price === null) {
+            return null;
+        }
+        $su = $this->stock_unit ?? 'piece';
+        $mult = $su === 'piece' ? 1 : ($su === 'dozen' ? 12 : (int) ($this->pcs_in_ctn ?: 1));
+        return round((float) $this->unit_price * $mult, 2);
     }
 }

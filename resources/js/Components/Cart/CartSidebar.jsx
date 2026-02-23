@@ -95,7 +95,13 @@ export default function CartSidebar() {
                                                                                 </h3>
                                                                                 <p className="ml-4 tabular-nums font-bold text-[#C41E3A]">${item.total.toFixed(2)}</p>
                                                                             </div>
-                                                                            {item.unit && <p className="mt-1 text-sm text-gray-500">{item.unit_price} / {item.unit}</p>}
+                                                                            {(item.price_per_stock_unit != null && item.stock_unit_label) || item.unit ? (
+                                                                                <p className="mt-1 text-sm text-gray-500">
+                                                                                    {item.price_per_stock_unit != null && item.stock_unit_label
+                                                                                        ? `$${Number(item.price_per_stock_unit).toFixed(2)} per ${item.stock_unit_label.toLowerCase()}`
+                                                                                        : `$${Number(item.unit_price).toFixed(2)} / ${item.unit}`}
+                                                                                </p>
+                                                                            ) : null}
                                                                         </div>
                                                                         
                                                                         <div className="flex flex-1 items-end justify-between text-sm mt-3">

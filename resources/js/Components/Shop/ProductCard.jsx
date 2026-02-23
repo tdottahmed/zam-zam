@@ -93,10 +93,10 @@ export default function ProductCard({ product }) {
                 
                 {/* Floating Badges */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-10 pointers-events-none">
-                    {/* Unit Badge (Red Pill) */}
-                    {product.unit && (
+                    {/* Weight badge (e.g. 248GM) or unit when no weight */}
+                    {(product.weight_display || product.unit?.name) && (
                         <span className="bg-[#C41E3A] text-white shadow-lg shadow-[#C41E3A]/20 text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider backdrop-blur-sm">
-                            {product.unit.name}
+                            {product.weight_display || product.unit?.name}
                         </span>
                     )}
                     
@@ -138,9 +138,14 @@ export default function ProductCard({ product }) {
                 <div className="mt-4 flex items-center justify-between">
                     <div className="flex flex-col min-w-0">
                         {isAuthenticated ? (
-                            <span className="text-xl font-black text-gray-900 tracking-tight">
-                                ${Number(product.unit_price).toFixed(2)}
-                            </span>
+                            <>
+                                <span className="text-xl font-black text-gray-900 tracking-tight">
+                                    ${Number(product.price_per_stock_unit ?? product.unit_price).toFixed(2)}
+                                </span>
+                                <span className="text-xs text-gray-500 mt-0.5">
+                                    per {product.stock_unit_label?.toLowerCase() ?? 'piece'}
+                                </span>
+                            </>
                         ) : (
                             <Link
                                 href={route('login')}

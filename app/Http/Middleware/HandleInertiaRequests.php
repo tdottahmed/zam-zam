@@ -66,7 +66,7 @@ class HandleInertiaRequests extends Middleware
                         'total' => $subtotal, 
                     ],
                     'items' => $cart->items()
-                        ->with(['product:id,name,slug,image,unit_price,product_code,unit_id', 'product.unit'])
+                        ->with(['product:id,name,slug,image,unit_price,product_code,unit_id,stock_unit,pcs_in_ctn,unit_value', 'product.unit'])
                         ->latest()
                         ->get()
                         ->map(fn ($item) => [
@@ -79,6 +79,8 @@ class HandleInertiaRequests extends Middleware
                             'quantity' => (int) $item->quantity,
                             'total' => $item->quantity * $item->product->unit_price,
                             'unit' => $item->product->unit ? $item->product->unit->code : ($item->product->unit_value ? $item->product->unit_value : 'unit'),
+                            'price_per_stock_unit' => $item->product->price_per_stock_unit,
+                            'stock_unit_label' => $item->product->stock_unit_label,
                         ]),
                 ];
             },

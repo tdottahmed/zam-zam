@@ -162,8 +162,11 @@ export default function SearchModal({ isOpen, onClose }) {
                                                     </p>
                                                     <div className="flex items-center gap-2 mt-0.5">
                                                         <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{product.category ? product.category.name : 'Product'}</span>
+                                                        {product.weight_display && (
+                                                            <span className="text-xs text-gray-600">{product.weight_display}</span>
+                                                        )}
                                                         <span className="text-xs font-medium text-[#C41E3A]">
-                                                            {product.unit_price} {product.unit ? product.unit.code : ''}
+                                                            ${Number(product.price_per_stock_unit ?? product.unit_price).toFixed(2)} / {product.stock_unit_label?.toLowerCase() ?? 'piece'}
                                                         </span>
                                                     </div>
                                                 </div>
