@@ -95,9 +95,14 @@ class HandleInertiaRequests extends Middleware
             'settings' => function () {
                 $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
                 return [
-                    'site_name' => $settings['site_name'] ?? config('app.name'),
-                    'site_logo' => isset($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/Zam_logo-120x99.png'),
-                    'site_favicon' => isset($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('favicon.ico'),
+                    'site_name'        => $settings['site_name'] ?? config('app.name'),
+                    'site_logo'        => isset($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/Zam_logo-120x99.png'),
+                    'site_favicon'     => isset($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('favicon.ico'),
+                    'social_facebook'  => $settings['social_facebook'] ?? '',
+                    'social_instagram' => $settings['social_instagram'] ?? '',
+                    'social_linkedin'  => $settings['social_linkedin'] ?? '',
+                    'social_twitter'   => $settings['social_twitter'] ?? '',
+                    'social_youtube'   => $settings['social_youtube'] ?? '',
                 ];
             },
         ];
