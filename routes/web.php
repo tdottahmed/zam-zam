@@ -113,7 +113,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::resource('shipping-methods', \App\Http\Controllers\Admin\ShippingMethodController::class);
+
+    // Pages
+    Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 });
+
+Route::get('/pages/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->name('pages.show');
 
 Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{product:slug}', [\App\Http\Controllers\ShopController::class, 'show'])->name('shop.show');

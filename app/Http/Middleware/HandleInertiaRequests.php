@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Page;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -90,6 +91,7 @@ class HandleInertiaRequests extends Middleware
                 }
                 return $request->user()->wishlist()->pluck('product_id');
             },
+            'pages' => fn () => Page::orderBy('title')->get(['id', 'title', 'slug']),
             'settings' => function () {
                 $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
                 return [

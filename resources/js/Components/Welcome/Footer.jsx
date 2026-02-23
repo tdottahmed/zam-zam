@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 
 export default function Footer() {
+    const { pages = [] } = usePage().props;
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -126,21 +127,19 @@ export default function Footer() {
                             Support
                         </h3>
                         <ul className="space-y-4">
-                            {[
-                                "FAQ",
-                                "Shipping",
-                                "Returns",
-                                "Privacy Policy",
-                            ].map((item) => (
-                                <li key={item}>
+                            {pages.map((page) => (
+                                <li key={page.slug}>
                                     <Link
-                                        href="#"
+                                        href={route("pages.show", page.slug)}
                                         className="hover:text-[#C41E3A] transition-colors duration-200 block text-sm"
                                     >
-                                        {item}
+                                        {page.title}
                                     </Link>
                                 </li>
                             ))}
+                            {pages.length === 0 && (
+                                <li className="text-gray-600 text-sm">–</li>
+                            )}
                         </ul>
                     </div>
 
