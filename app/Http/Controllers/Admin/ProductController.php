@@ -135,7 +135,7 @@ class ProductController extends Controller
             'buying_price_stock_unit' => 'nullable|numeric|min:0',
             'selling_price_stock_unit' => 'nullable|numeric|min:0',
             'quantity' => 'nullable|integer|min:0',
-            'stock_unit' => 'nullable|string|in:piece,dozen,box',
+            'stock_unit' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
 
