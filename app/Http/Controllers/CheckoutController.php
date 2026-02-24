@@ -28,10 +28,12 @@ class CheckoutController extends Controller
 
         $addresses = $request->user()->addresses()->latest()->get();
         $shippingMethods = \App\Models\ShippingMethod::where('is_active', true)->get();
+        $offlinePaymentMethods = \App\Models\OfflinePaymentMethod::where('is_active', true)->get();
 
         return Inertia::render('Checkout/Index', [
             'addresses' => $addresses,
             'shippingMethods' => $shippingMethods,
+            'offlinePaymentMethods' => $offlinePaymentMethods,
         ]);
     }
 
@@ -42,6 +44,9 @@ class CheckoutController extends Controller
                 ->with('error', 'Your account is pending approval. You cannot place orders until an administrator approves your account.');
         }
 
+        $activeOfflineMethods = \App\Models\OfflinePaymentMethod::where('is_active', true)->pluck('id')->map(function($id) { return 'offline_' . $id; })->toArray();
+        $allowedMethods = array_merge(['cod', 'bank_transfer'], $activeOfflineMethods);
+
         $validated = $request->validate([
             'email' => 'required|email',
             'phone' => 'required|string',
@@ -51,7 +56,8 @@ class CheckoutController extends Controller
             'shipping_address.city' => 'required|string',
             'shipping_address.zip' => 'required|string',
             'shipping_address.country' => 'required|string',
-            'payment_method' => 'required|string|in:cod,bank_transfer', // Allow COD and Bank Transfer
+            'payment_method' => 'required|string|in:' . implode(',', $allowedMethods),
+            'payment_data' => 'nullable|array',
             'save_address' => 'boolean',
             'address_id' => 'nullable', 
             'shipping_method_id' => 'required|exists:shipping_methods,id',
@@ -104,6 +110,7 @@ class CheckoutController extends Controller
                 'shipping_amount' => $shipping,
                 'tax_amount' => $tax,
                 'payment_method' => $validated['payment_method'],
+                'payment_data' => $validated['payment_data'] ?? null,
                 'payment_status' => 'pending',
                 'shipping_address' => $validated['shipping_address'],
                 'billing_address' => $validated['shipping_address'], // Use shipping as billing for now
@@ -136,7 +143,7 @@ class CheckoutController extends Controller
             // Notify Admins
             \App\Models\User::where('user_type', 'admin')->get()->each->notify(new \App\Notifications\OrderPlacedNotification($order));
 
-            return redirect()->route('shop.index')->with('success', 'Order placed successfully! Order ID: ' . $order->id);
+            return redirect()->route('orders.show', $order->id)->with('success', 'Order placed successfully! Order ID: ' . $order->id);
 
         } catch (\Exception $e) {
             DB::rollBack();

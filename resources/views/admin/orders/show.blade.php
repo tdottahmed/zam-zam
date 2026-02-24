@@ -283,9 +283,43 @@
                         @if($order->payment_method)
                             <div>
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Payment</p>
-                                <div class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                    <span class="uppercase font-medium">{{ $order->payment_method }}</span>
+                                <div class="flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-300">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                        <span class="uppercase font-medium">
+                                            @if(str_starts_with($order->payment_method, 'offline_'))
+                                                @php
+                                                    $methodId = str_replace('offline_', '', $order->payment_method);
+                                                    $offlineMethod = \App\Models\OfflinePaymentMethod::find($methodId);
+                                                @endphp
+                                                {{ $offlineMethod ? $offlineMethod->name : 'Offline Payment' }}
+                                            @else
+                                                {{ str_replace('_', ' ', $order->payment_method) }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                    @if($order->payment_data && is_array($order->payment_data))
+                                        <div class="mt-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700 text-xs shadow-sm">
+                                            <p class="font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide text-[10px]">Additional Details</p>
+                                            <dl class="space-y-1.5">
+                                                @foreach($order->payment_data as $key => $value)
+                                                    <div class="flex flex-col mb-1.5">
+                                                        <dt class="text-gray-400 capitalize flex items-center gap-1">{{ str_replace('_', ' ', $key) }}</dt>
+                                                        <dd class="font-medium text-gray-900 dark:text-gray-100 mt-0.5">
+                                                            @if(is_string($value) && preg_match('/\.(jpeg|jpg|gif|png|webp|pdf)$/i', $value))
+                                                                <a href="{{ asset('storage/' . $value) }}" target="_blank" class="text-primary hover:underline flex items-center gap-1">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                                                    View Document
+                                                                </a>
+                                                            @else
+                                                                {{ $value ?: 'N/A' }}
+                                                            @endif
+                                                        </dd>
+                                                    </div>
+                                                @endforeach
+                                            </dl>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endif

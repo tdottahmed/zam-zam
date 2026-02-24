@@ -1,10 +1,31 @@
 import StorageImage from '@/Components/StorageImage';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 
-export default function Show({ order }) {
+export default function Show({ order, offlinePaymentMethods = [] }) {
     const shippingAddress = order.shipping_address || {};
     const items = order.items || [];
+    
+    const isOfflineMethod = order.payment_method?.startsWith('offline_');
+    const offlineMethodId = isOfflineMethod ? Number(order.payment_method.replace('offline_', '')) : null;
+    const offlineMethod = isOfflineMethod ? offlinePaymentMethods.find(m => m.id === offlineMethodId) : null;
+    
+    // Check if we need to show the payment form
+    // We show it if it's an offline method, payment_status is pending, and we have a matched method
+    const needsPaymentDetails = isOfflineMethod && order.payment_status === 'pending' && offlineMethod && (!order.payment_data || Object.keys(order.payment_data).length === 0);
+
+    const { data, setData, post, processing, errors } = useForm({
+        payment_data: order.payment_data || {}
+    });
+
+    const submitPayment = (e) => {
+        e.preventDefault();
+        post(route('orders.submit-payment', order.id), {
+            preserveScroll: true,
+            forceFormData: true, // Needed for file uploads
+        });
+    };
 
     // Helper status badge with consistent styling
     const StatusBadge = ({ status }) => (
@@ -208,14 +229,93 @@ export default function Show({ order }) {
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                                        {order.payment_method?.replace('_', ' ') || 'Credit Card'}
+                                        {offlineMethod ? offlineMethod.name : (order.payment_method?.replace('_', ' ') || 'Credit Card')}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Payment is successful
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 capitalize">
+                                        Status: {order.payment_status}
                                     </p>
                                 </div>
                             </div>
+
+                            {isOfflineMethod && order.payment_data && Object.keys(order.payment_data).length > 0 && (
+                                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Submitted Details:</h4>
+                                    <dl className="space-y-3">
+                                        {Object.entries(order.payment_data).map(([key, value]) => {
+                                            const fieldDef = offlineMethod?.required_fields?.find(f => f.name === key);
+                                            const label = fieldDef?.label || key.replace('_', ' ');
+                                            const isImage = typeof value === 'string' && value.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null;
+                                            
+                                            return (
+                                                <div key={key}>
+                                                    <dt className="text-xs text-gray-500 dark:text-gray-400 capitalize">{label}</dt>
+                                                    <dd className="text-sm font-medium text-gray-900 dark:text-white mt-1">
+                                                        {isImage || fieldDef?.type === 'file' ? (
+                                                            <a href={`/storage/${value}`} target="_blank" rel="noreferrer" className="text-[#C41E3A] hover:underline flex items-center gap-1">
+                                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                                                View Document
+                                                            </a>
+                                                        ) : (
+                                                            value
+                                                        )}
+                                                    </dd>
+                                                </div>
+                                            );
+                                        })}
+                                    </dl>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Payment Submission Form */}
+                        {needsPaymentDetails && (
+                            <div className="bg-white dark:bg-[#1E1E1E] rounded-3xl shadow-sm border border-[#C41E3A]/30 p-6 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-[#C41E3A]"></div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Complete Your Payment</h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                                    {offlineMethod.description || "Please submit the following details to verify your payment."}
+                                </p>
+                                
+                                <form onSubmit={submitPayment} className="space-y-4">
+                                    {offlineMethod.required_fields?.map((field, index) => (
+                                        <div key={index}>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                {field.label} {field.is_required ? <span className="text-red-500">*</span> : null}
+                                            </label>
+                                            
+                                            {field.type === 'file' ? (
+                                                <input 
+                                                    type="file" 
+                                                    required={field.is_required}
+                                                    onChange={e => setData('payment_data', {...data.payment_data, [field.name]: e.target.files[0]})}
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#C41E3A]/10 file:text-[#C41E3A] hover:file:bg-[#C41E3A]/20 transition-colors border border-gray-300 dark:border-gray-700 rounded-xl"
+                                                />
+                                            ) : (
+                                                <input 
+                                                    type={field.type === 'number' ? 'number' : 'text'}
+                                                    required={field.is_required}
+                                                    value={data.payment_data[field.name] || ''}
+                                                    onChange={e => setData('payment_data', {...data.payment_data, [field.name]: e.target.value})}
+                                                    className="block w-full rounded-xl border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-[#C41E3A] focus:ring-[#C41E3A]/20 transition-colors text-sm py-2.5"
+                                                    placeholder={`Enter ${field.label}`}
+                                                />
+                                            )}
+                                            {errors[`payment_data.${field.name}`] && (
+                                                <p className="mt-1 text-sm text-red-600">{errors[`payment_data.${field.name}`]}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                    
+                                    <button 
+                                        type="submit" 
+                                        disabled={processing}
+                                        className="w-full mt-2 inline-flex justify-center items-center px-4 py-2.5 bg-[#C41E3A] border border-transparent rounded-xl font-semibold text-white uppercase tracking-widest hover:bg-[#a01830] focus:bg-[#a01830] active:bg-[#801326] focus:outline-none focus:ring-2 focus:ring-[#C41E3A] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md disabled:opacity-50"
+                                    >
+                                        {processing ? 'Submitting...' : 'Submit Payment Details'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
 
                     </div>
                 </div>

@@ -16,6 +16,7 @@ class Order extends Model
         'shipping_amount',
         'tax_amount',
         'payment_method',
+        'payment_data',
         'payment_status',
         'shipping_address',
         'billing_address',
@@ -25,6 +26,7 @@ class Order extends Model
     protected $casts = [
         'shipping_address' => 'array',
         'billing_address' => 'array',
+        'payment_data' => 'array',
     ];
 
     public function user()

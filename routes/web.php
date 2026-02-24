@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/payment', [\App\Http\Controllers\OrderController::class, 'submitPayment'])->name('orders.submit-payment');
     Route::get('/orders/{order}/invoice', [\App\Http\Controllers\OrderController::class, 'downloadInvoice'])->name('orders.download-invoice');
     
     // Credit Note Routes
@@ -116,6 +117,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Pages
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
+
+    // Offline Payment Methods
+    Route::resource('offline-payment-methods', \App\Http\Controllers\Admin\OfflinePaymentMethodController::class);
 });
 
 Route::get('/pages/{slug}', [\App\Http\Controllers\PageController::class, 'show'])->name('pages.show');

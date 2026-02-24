@@ -280,7 +280,7 @@
         <td style="background-color: #fff4e5; padding: 10px; border-radius: 5px; border: 1px solid #ffe0b2;">
           <div style="font-size: 9px; text-transform: uppercase; color: #d35400; font-weight: bold;">Payment Instructions</div>
           <div style="font-size: 10px; color: #555; margin-top: 3px; line-height: 1.3;">
-            {{ $data['payment_instructions'] }}
+            {!! $data['payment_instructions'] !!}
           </div>
         </td>
       </tr>

@@ -53,7 +53,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-semibold text-gray-800">Payment Gateways</h4>
+                            <h4 class="text-lg font-semibold text-gray-800">Online Gateways</h4>
                             <p class="text-sm text-gray-500">Manage Stripe and PayPal credentials</p>
                         </div>
                     </div>

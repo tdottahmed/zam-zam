@@ -6,7 +6,7 @@ import useCartStore from "../../Stores/useCartStore";
 import AddressSelector from "../../Components/Checkout/AddressSelector";
 import { Transition } from "@headlessui/react";
 
-export default function Checkout({ addresses = [], shippingMethods = [] }) {
+export default function Checkout({ addresses = [], shippingMethods = [], offlinePaymentMethods = [] }) {
     const { cart: propsCart, auth } = usePage().props;
     const {
         cart: storeCart,
@@ -41,6 +41,7 @@ export default function Checkout({ addresses = [], shippingMethods = [] }) {
             country: "",
         },
         payment_method: "cod",
+        payment_data: {},
         save_address: true,
         address_id: "new", // Track selected address ID
         shipping_method_id:
@@ -554,23 +555,18 @@ export default function Checkout({ addresses = [], shippingMethods = [] }) {
                                     Payment Method
                                 </h2>
                                 <div className="space-y-4">
+                                    {/* COD */}
                                     <label
-                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "cod" ? "border-[#C41E3A] bg-red-50/30" : "border-gray-100 hover:border-gray-200"}`}
+                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "cod" ? "border-[#C41E3A] bg-red-50/30 ring-1 ring-[#C41E3A]/20" : "border-gray-100 hover:border-gray-300"}`}
                                     >
-                                        <div className="mt-0.5">
+                                        <div className="mt-0.5 flex-shrink-0">
                                             <input
                                                 type="radio"
                                                 name="payment-method"
-                                                checked={
-                                                    data.payment_method ===
-                                                    "cod"
-                                                }
-                                                onChange={() =>
-                                                    setData(
-                                                        "payment_method",
-                                                        "cod",
-                                                    )
-                                                }
+                                                checked={data.payment_method === "cod"}
+                                                onChange={() => {
+                                                    setData((prev) => ({ ...prev, payment_method: "cod", payment_data: {} }));
+                                                }}
                                                 className="h-5 w-5 border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
                                             />
                                         </div>
@@ -579,42 +575,82 @@ export default function Checkout({ addresses = [], shippingMethods = [] }) {
                                                 Cash on Delivery (COD)
                                             </span>
                                             <p className="text-sm text-gray-500 mt-0.5">
-                                                Pay exactly what you see when
-                                                you receive your order.
+                                                Pay exactly what you see when you receive your order.
                                             </p>
                                         </div>
                                     </label>
 
+                                    {/* Legacy Bank Transfer (Optional) */}
                                     <label
-                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "bank_transfer" ? "border-[#C41E3A] bg-red-50/30" : "border-gray-100 hover:border-gray-200"}`}
+                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "bank_transfer" ? "border-[#C41E3A] bg-red-50/30 ring-1 ring-[#C41E3A]/20" : "border-gray-100 hover:border-gray-300"}`}
                                     >
-                                        <div className="mt-0.5">
+                                        <div className="mt-0.5 flex-shrink-0">
                                             <input
                                                 type="radio"
                                                 name="payment-method"
-                                                checked={
-                                                    data.payment_method ===
-                                                    "bank_transfer"
-                                                }
-                                                onChange={() =>
-                                                    setData(
-                                                        "payment_method",
-                                                        "bank_transfer",
-                                                    )
-                                                }
+                                                checked={data.payment_method === "bank_transfer"}
+                                                onChange={() => {
+                                                    setData((prev) => ({ ...prev, payment_method: "bank_transfer", payment_data: {} }));
+                                                }}
                                                 className="h-5 w-5 border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
                                             />
                                         </div>
                                         <div>
                                             <span className="block text-sm font-bold text-gray-900">
-                                                Bank Transfer
+                                                Bank Transfer (Legacy)
                                             </span>
                                             <p className="text-sm text-gray-500 mt-0.5">
-                                                Direct bank transfer to our
-                                                account.
+                                                Direct bank transfer to our account.
                                             </p>
                                         </div>
                                     </label>
+
+                                    {/* Dynamic Offline Payment Methods */}
+                                    {offlinePaymentMethods.map((method) => {
+                                        const methodId = `offline_${method.id}`;
+                                        const isSelected = data.payment_method === methodId;
+                                        const requiredFields = method.required_fields || [];
+
+                                        return (
+                                            <div key={method.id} className={`relative p-4 border-2 rounded-xl transition-all duration-200 ${isSelected ? "border-[#C41E3A] bg-red-50/30 ring-1 ring-[#C41E3A]/20" : "border-gray-100 hover:border-gray-300"}`}>
+                                                <label className="flex items-start gap-4 cursor-pointer">
+                                                    <div className="mt-0.5 flex-shrink-0">
+                                                        <input
+                                                            type="radio"
+                                                            name="payment-method"
+                                                            checked={isSelected}
+                                                            onChange={() => {
+                                                                setData((prev) => ({ ...prev, payment_method: methodId, payment_data: {} }));
+                                                            }}
+                                                            className="h-5 w-5 border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <span className="block text-sm font-bold text-gray-900">
+                                                            {method.name}
+                                                        </span>
+                                                        {method.description && (
+                                                            <p className="text-sm text-gray-500 mt-1 whitespace-pre-line">
+                                                                {method.description}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </label>
+
+                                                {/* Delayed Payment Info */}
+                                                {isSelected && requiredFields.length > 0 && (
+                                                    <div className="mt-4 pt-3 border-t border-red-100">
+                                                        <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100 font-medium leading-relaxed">
+                                                            <svg className="w-4 h-4 inline-block mr-1.5 -translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            You will be prompted to provide payment details ({requiredFields.map(f => f.label).join(', ')}) after placing your order.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </section>
                         </div>

@@ -23,7 +23,11 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         // Share Global Settings with All Views
-        $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
+        try {
+            $settings = \App\Models\SystemSetting::all()->pluck('value', 'key');
+        } catch (\Exception $e) {
+            $settings = collect();
+        }
         
         $globalSettings = [
             'site_name' => $settings['site_name'] ?? config('app.name'),

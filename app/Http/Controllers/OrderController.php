@@ -31,8 +31,70 @@ class OrderController extends Controller
         $order->load(['items.product', 'invoice', 'creditNotes.items.product']);
 
         return Inertia::render('Orders/Show', [
-            'order' => $order
+            'order' => $order,
+            'offlinePaymentMethods' => \App\Models\OfflinePaymentMethod::where('is_active', true)->get()
         ]);
+    }
+
+    public function submitPayment(Request $request, Order $order)
+    {
+        if ($order->user_id != Auth::id()) {
+            abort(403);
+        }
+
+        // Must be an offline payment method to submit payment data this way
+        if (!str_starts_with($order->payment_method, 'offline_')) {
+            return back()->with('error', 'Payment submission is only available for offline payment methods.');
+        }
+
+        $methodId = str_replace('offline_', '', $order->payment_method);
+        $method = \App\Models\OfflinePaymentMethod::find($methodId);
+
+        if (!$method) {
+            return back()->with('error', 'Invalid payment method.');
+        }
+
+        $rules = [];
+        $requiredFields = $method->required_fields ?? [];
+
+        foreach ($requiredFields as $field) {
+            $rule = [];
+            if (!empty($field['is_required'])) {
+                $rule[] = 'required';
+            } else {
+                $rule[] = 'nullable';
+            }
+
+            if (($field['type'] ?? 'text') === 'file') {
+                $rule[] = 'file';
+                $rule[] = 'max:10240'; // 10MB limit
+            } elseif (($field['type'] ?? 'text') === 'number') {
+                $rule[] = 'numeric';
+            } else {
+                $rule[] = 'string';
+            }
+            
+            $rules['payment_data.' . $field['name']] = implode('|', $rule);
+        }
+
+        $validated = $request->validate($rules);
+
+        $paymentData = $validated['payment_data'] ?? [];
+
+        // Handle File Uploads
+        foreach ($requiredFields as $field) {
+            if (($field['type'] ?? 'text') === 'file' && $request->hasFile('payment_data.' . $field['name'])) {
+                $path = $request->file('payment_data.' . $field['name'])->store('payment_receipts', 'public');
+                $paymentData[$field['name']] = $path;
+            }
+        }
+
+        $order->update([
+            'payment_data' => $paymentData,
+            'payment_status' => 'pending', // Keeps it pending so admin can verify
+        ]);
+
+        return back()->with('success', 'Payment details submitted successfully. We will verify and process your order soon.');
     }
 
     public function downloadInvoice(Order $order)
