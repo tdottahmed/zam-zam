@@ -13,21 +13,21 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+     * List only customers (admins are managed outside this CRUD).
+     */
     public function index(Request $request)
     {
         $search = $request->get('search');
         $status = $request->get('status');
-        $userType = $request->get('user_type');
 
         $users = User::query()
+            ->where('user_type', 'user')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 });
-            })
-            ->when($userType !== null && $userType !== '', function ($query) use ($userType) {
-                $query->where('user_type', $userType);
             })
             ->when($status !== null && $status !== '', function ($query) use ($status) {
                 $query->where('status', $status);
@@ -56,7 +56,6 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
-            'user_type' => ['required', 'string', 'in:user,admin'],
             'status' => ['required', 'string', 'in:pending,approved'],
 
             // Profile validation
@@ -86,7 +85,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'user_type' => $validated['user_type'],
+            'user_type' => 'user',
             'status' => $validated['status'],
             'email_verified_at' => now(),
         ]);
@@ -116,7 +115,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+            ->with('success', 'Customer created successfully.');
     }
 
     /**
@@ -132,6 +131,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        abort_if($user->user_type !== 'user', 404, 'Only customer accounts can be edited here.');
+
         $user->load('addresses', 'profile');
         $addressesForEdit = $user->addresses->map(function ($a) {
             return [
@@ -155,22 +156,22 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        abort_if($user->user_type !== 'user', 404, 'Only customer accounts can be updated here.');
+
         $updated = false;
 
-        // Handle User Basic Information + Profile (main form submit)
+        // Handle Customer Basic Information + Profile (main form submit)
         if ($request->has('name') || $request->has('email')) {
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
                 'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
-                'user_type' => ['required', 'string', 'in:user,admin'],
                 'status' => ['required', 'string', 'in:pending,approved'],
             ]);
 
             $user->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'user_type' => $validated['user_type'],
                 'status' => $validated['status'],
             ]);
 
@@ -224,7 +225,7 @@ class UserController extends Controller
         }
 
         if ($updated) {
-            return back()->with('success', 'User updated successfully.');
+            return back()->with('success', 'Customer updated successfully.');
         }
 
         return back()->with('warning', 'No changes were saved.');
@@ -235,12 +236,14 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        abort_if($user->user_type !== 'user', 404, 'Only customer accounts can be deleted from here.');
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete yourself.');
         }
-        
+
         $user->delete();
         return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'Customer deleted successfully.');
     }
 }

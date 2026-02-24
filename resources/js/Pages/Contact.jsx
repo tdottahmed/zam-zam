@@ -1,8 +1,19 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import Breadcrumb from '@/Components/Breadcrumb';
 
 export default function Contact() {
+    const { settings = {} } = usePage().props;
+    const address = settings.address || '';
+    const addressAlt = settings.address_alt || '';
+    const phone = settings.contact_phone || '';
+    const cell = settings.contact_cell || '';
+    const emails = [
+        settings.contact_email,
+        settings.contact_email_alt_1,
+        settings.contact_email_alt_2,
+    ].filter(Boolean);
+
     return (
         <CustomerLayout>
             <Head title="Contact Us" />
@@ -18,46 +29,61 @@ export default function Contact() {
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Contact Info Cards */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
-                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                                </svg>
+                        {(address || addressAlt) && (
+                            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
+                                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-1">Our Location</h3>
+                                    {address && (
+                                        <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-line">{address}</p>
+                                    )}
+                                    {addressAlt && (
+                                        <p className="text-gray-500 text-sm leading-relaxed mt-2 whitespace-pre-line">{addressAlt}</p>
+                                    )}
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-1">Our Location</h3>
-                                <p className="text-gray-500 text-sm leading-relaxed">
-                                    8905 Hwy 50, Unit 7,<br/> Vaughan, ON L4H 5A1,<br/> Canada
-                                </p>
-                            </div>
-                        </div>
+                        )}
 
-                        <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
-                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
-                                </svg>
+                        {(phone || cell) && (
+                            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
+                                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-1">Phone</h3>
+                                    {phone && <p className="text-gray-500 text-sm mb-1">{phone}</p>}
+                                    {cell && <p className="text-gray-500 text-sm mb-1">{cell}</p>}
+                                    <p className="text-gray-400 text-xs mt-1">Mon-Fri 9am to 6pm EST</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-1">Phone</h3>
-                                <p className="text-gray-500 text-sm mb-1">+1 (416) 746-5550</p>
-                                <p className="text-gray-400 text-xs">Mon-Fri 9am to 6pm EST</p>
-                            </div>
-                        </div>
+                        )}
 
-                         <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
-                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                </svg>
+                        {emails.length > 0 && (
+                            <div className="bg-white p-8 rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 flex items-start gap-4">
+                                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-[#C41E3A] flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-1">Email</h3>
+                                    {emails.map((email, index) => (
+                                        <p key={`contact-email-${index}`} className="text-gray-500 text-sm">
+                                            <a href={`mailto:${email}`} className="hover:text-[#C41E3A] transition-colors">
+                                                {email}
+                                            </a>
+                                        </p>
+                                    ))}
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-1">Email</h3>
-                                <p className="text-gray-500 text-sm">hello@superasia.ca</p>
-                                <p className="text-gray-500 text-sm">sales@superasia.ca</p>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Contact Form */}

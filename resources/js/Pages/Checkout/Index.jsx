@@ -40,7 +40,7 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
             zip: "",
             country: "",
         },
-        payment_method: "cod",
+        payment_method: offlinePaymentMethods.length > 0 ? offlinePaymentMethods[0].name : "",
         payment_data: {},
         save_address: true,
         address_id: "new", // Track selected address ID
@@ -555,59 +555,9 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
                                     Payment Method
                                 </h2>
                                 <div className="space-y-4">
-                                    {/* COD */}
-                                    <label
-                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "cod" ? "border-[#C41E3A] bg-red-50/30 ring-1 ring-[#C41E3A]/20" : "border-gray-100 hover:border-gray-300"}`}
-                                    >
-                                        <div className="mt-0.5 flex-shrink-0">
-                                            <input
-                                                type="radio"
-                                                name="payment-method"
-                                                checked={data.payment_method === "cod"}
-                                                onChange={() => {
-                                                    setData((prev) => ({ ...prev, payment_method: "cod", payment_data: {} }));
-                                                }}
-                                                className="h-5 w-5 border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <span className="block text-sm font-bold text-gray-900">
-                                                Cash on Delivery (COD)
-                                            </span>
-                                            <p className="text-sm text-gray-500 mt-0.5">
-                                                Pay exactly what you see when you receive your order.
-                                            </p>
-                                        </div>
-                                    </label>
-
-                                    {/* Legacy Bank Transfer (Optional) */}
-                                    <label
-                                        className={`relative flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${data.payment_method === "bank_transfer" ? "border-[#C41E3A] bg-red-50/30 ring-1 ring-[#C41E3A]/20" : "border-gray-100 hover:border-gray-300"}`}
-                                    >
-                                        <div className="mt-0.5 flex-shrink-0">
-                                            <input
-                                                type="radio"
-                                                name="payment-method"
-                                                checked={data.payment_method === "bank_transfer"}
-                                                onChange={() => {
-                                                    setData((prev) => ({ ...prev, payment_method: "bank_transfer", payment_data: {} }));
-                                                }}
-                                                className="h-5 w-5 border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A]"
-                                            />
-                                        </div>
-                                        <div>
-                                            <span className="block text-sm font-bold text-gray-900">
-                                                Bank Transfer (Legacy)
-                                            </span>
-                                            <p className="text-sm text-gray-500 mt-0.5">
-                                                Direct bank transfer to our account.
-                                            </p>
-                                        </div>
-                                    </label>
-
-                                    {/* Dynamic Offline Payment Methods */}
+                                {/* Dynamic Offline Payment Methods */}
                                     {offlinePaymentMethods.map((method) => {
-                                        const methodId = `offline_${method.id}`;
+                                        const methodId = method.name;
                                         const isSelected = data.payment_method === methodId;
                                         const requiredFields = method.required_fields || [];
 

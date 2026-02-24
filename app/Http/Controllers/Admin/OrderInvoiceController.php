@@ -151,23 +151,20 @@ class OrderInvoiceController extends Controller
         $settings = \App\Models\SystemSetting::where('group', 'general')->pluck('value', 'key');
         
         $paymentInstructions = 'Method: ' . strtoupper(str_replace('_', ' ', $order->payment_method));
-        if (str_starts_with($order->payment_method, 'offline_')) {
-            $methodId = str_replace('offline_', '', $order->payment_method);
-            $offlineMethod = \App\Models\OfflinePaymentMethod::find($methodId);
-            if ($offlineMethod) {
-                $paymentInstructions = "Method: " . $offlineMethod->name . "<br>";
-                if ($order->payment_data && is_array($order->payment_data)) {
-                    foreach ($order->payment_data as $k => $v) {
-                        $paymentInstructions .= ucwords(str_replace('_', ' ', $k)) . ": <strong>" . e($v) . "</strong><br>";
-                    }
+        $offlineMethod = \App\Models\OfflinePaymentMethod::where('name', $order->payment_method)->first();
+        if ($offlineMethod) {
+            $paymentInstructions = "Method: " . $offlineMethod->name . "<br>";
+            if ($order->payment_data && is_array($order->payment_data)) {
+                foreach ($order->payment_data as $k => $v) {
+                    $paymentInstructions .= ucwords(str_replace('_', ' ', $k)) . ": <strong>" . e($v) . "</strong><br>";
                 }
             }
         }
 
         $data = [
             'invoice_number' => $invoice->invoice_number,
-            'invoice_date' => $invoice->invoice_date->format('d-M-Y'),
-            'due_date' => $invoice->due_date->format('d-M-Y'),
+            'invoice_date' => \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y'),
+            'due_date' => \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y'),
             'source' => 'Web Order', // Or make dynamic if needed
             'purchase_order' => '',
             'salesperson' => auth()->user()->name, // Or store creator in invoice

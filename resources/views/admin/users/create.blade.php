@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Create User')
+@section('title', 'Add Customer')
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Create New User</h1>
-        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Add a new user to the system with their addresses.</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Add Customer</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Create a customer account with profile and addresses.</p>
     </div>
 
     <!-- Wrapper Form -->
@@ -19,7 +19,7 @@
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            User Information
+                            Account Information
                         </h2>
                     </div>
                     
@@ -52,14 +52,7 @@
                             </x-admin.form.group>
                         </div>
 
-                        <!-- Role -->
-                        <div class="col-span-2 md:col-span-1">
-                            <x-admin.form.group label="Role" for="user_type" required>
-                                <x-admin.form.select name="user_type" id="user_type" :options="['user' => 'User (Customer)', 'admin' => 'Administrator']" :selected="old('user_type')" />
-                            </x-admin.form.group>
-                        </div>
-
-                        <!-- Status (admin-created users are approved by default) -->
+                        <!-- Status (new customers can be approved or pending) -->
                         <div class="col-span-2 md:col-span-1">
                             <x-admin.form.group label="Account Status" for="status" required>
                                 <x-admin.form.select name="status" id="status" :options="['pending' => 'Pending approval', 'approved' => 'Approved']" :selected="old('status', 'approved')" />
@@ -67,10 +60,10 @@
                         </div>
                     </div>
 
-                    <!-- Submit Button for User Info Section -->
+                    <!-- Submit Button for Account Section -->
                     <div class="mt-6 flex justify-end">
                         <x-admin.actions.button type="submit" variant="primary">
-                            Create User
+                            Create Customer
                         </x-admin.actions.button>
                     </div>
                 </div>
@@ -244,7 +237,7 @@
                     <!-- Submit Button for Address Section -->
                     <div class="mt-6 flex justify-end">
                         <x-admin.actions.button type="submit" variant="primary">
-                            Create User (with Addresses)
+                            Create Customer
                         </x-admin.actions.button>
                      </div>
                 </div>

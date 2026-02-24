@@ -44,8 +44,8 @@ class CheckoutController extends Controller
                 ->with('error', 'Your account is pending approval. You cannot place orders until an administrator approves your account.');
         }
 
-        $activeOfflineMethods = \App\Models\OfflinePaymentMethod::where('is_active', true)->pluck('id')->map(function($id) { return 'offline_' . $id; })->toArray();
-        $allowedMethods = array_merge(['cod', 'bank_transfer'], $activeOfflineMethods);
+        $activeOfflineMethods = \App\Models\OfflinePaymentMethod::where('is_active', true)->pluck('name')->toArray();
+        $allowedMethods = $activeOfflineMethods;
 
         $validated = $request->validate([
             'email' => 'required|email',

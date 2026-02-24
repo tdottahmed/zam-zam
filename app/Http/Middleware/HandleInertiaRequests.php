@@ -103,6 +103,14 @@ class HandleInertiaRequests extends Middleware
                     'social_linkedin'  => $settings['social_linkedin'] ?? '',
                     'social_twitter'   => $settings['social_twitter'] ?? '',
                     'social_youtube'   => $settings['social_youtube'] ?? '',
+                    // Contact page
+                    'address'          => $settings['address'] ?? '',
+                    'address_alt'      => $settings['address_alt'] ?? '',
+                    'contact_email'    => $settings['contact_email'] ?? '',
+                    'contact_phone'    => $settings['contact_phone'] ?? '',
+                    'contact_cell'     => $settings['contact_cell'] ?? '',
+                    'contact_email_alt_1' => $settings['contact_email_alt_1'] ?? '',
+                    'contact_email_alt_2' => $settings['contact_email_alt_2'] ?? '',
                 ];
             },
         ];

@@ -43,15 +43,10 @@ class OrderController extends Controller
         }
 
         // Must be an offline payment method to submit payment data this way
-        if (!str_starts_with($order->payment_method, 'offline_')) {
-            return back()->with('error', 'Payment submission is only available for offline payment methods.');
-        }
-
-        $methodId = str_replace('offline_', '', $order->payment_method);
-        $method = \App\Models\OfflinePaymentMethod::find($methodId);
+        $method = \App\Models\OfflinePaymentMethod::where('name', $order->payment_method)->first();
 
         if (!$method) {
-            return back()->with('error', 'Invalid payment method.');
+            return back()->with('error', 'Payment submission is only available for active offline payment methods, or the method is invalid.');
         }
 
         $rules = [];
@@ -118,12 +113,12 @@ class OrderController extends Controller
         
         $data = [
             'invoice_number' => $invoice->invoice_number,
-            'invoice_date' => $invoice->invoice_date->format('d-M-Y'),
-            'due_date' => $invoice->due_date->format('d-M-Y'),
+            'invoice_date' => \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y'),
+            'due_date' => \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y'),
             'source' => 'Web Order', 
             'purchase_order' => '',
             'salesperson' => 'System', 
-            'payment_instructions' => 'Paid via ' . ucfirst($order->payment_method), 
+            'payment_instructions' => 'Paid via ' . $order->payment_method, 
             'partner' => [
                 'name' => $order->user->name ?? $order->shipping_address['name'] ?? 'Guest',
                 'address_1' => $order->shipping_address['address'] ?? '',

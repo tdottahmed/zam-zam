@@ -7,7 +7,7 @@ import CategoriesGrid from '@/Components/Welcome/CategoriesGrid';
 import ValueProposition from '@/Components/Welcome/ValueProposition';
 import CallToAction from '@/Components/Welcome/CallToAction';
 
-export default function Welcome({ auth, brands, categories, featuredProducts = [], featuredProductsIsBestSelling = false }) {
+export default function Welcome({ auth, brands, categories, featuredProducts = [], featuredProductsIsBestSelling = false }) {    
     return (
         <CustomerLayout auth={auth}>
             <Head title="Zam Zam Import export Inc - Landing Page" />

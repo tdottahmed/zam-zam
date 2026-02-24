@@ -7,9 +7,8 @@ export default function Show({ order, offlinePaymentMethods = [] }) {
     const shippingAddress = order.shipping_address || {};
     const items = order.items || [];
     
-    const isOfflineMethod = order.payment_method?.startsWith('offline_');
-    const offlineMethodId = isOfflineMethod ? Number(order.payment_method.replace('offline_', '')) : null;
-    const offlineMethod = isOfflineMethod ? offlinePaymentMethods.find(m => m.id === offlineMethodId) : null;
+    const isOfflineMethod = offlinePaymentMethods.some(m => m.name === order.payment_method);
+    const offlineMethod = isOfflineMethod ? offlinePaymentMethods.find(m => m.name === order.payment_method) : null;
     
     // Check if we need to show the payment form
     // We show it if it's an offline method, payment_status is pending, and we have a matched method
@@ -229,7 +228,7 @@ export default function Show({ order, offlinePaymentMethods = [] }) {
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                                        {offlineMethod ? offlineMethod.name : (order.payment_method?.replace('_', ' ') || 'Credit Card')}
+                                        {offlineMethod ? offlineMethod.name : (order.payment_method || 'Unknown')}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 capitalize">
                                         Status: {order.payment_status}

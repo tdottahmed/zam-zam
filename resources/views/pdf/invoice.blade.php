@@ -196,7 +196,7 @@
         <div class="logo-container">
           <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="logo">
         </div>
-        <div class="flavor-text">Flavors of the World.</div>
+        <div class="flavor-text">Pure Deshi Taste.</div>
       </div>
     </div>
   </htmlpageheader>

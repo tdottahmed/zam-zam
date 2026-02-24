@@ -1,19 +1,19 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit User')
+@section('title', 'Edit Customer')
 
 @section('content')
     <div class="mb-6 flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit User</h1>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Update user profile and manage addresses.</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Customer</h1>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Update customer profile and addresses.</p>
         </div>
-        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this customer? This cannot be undone.');">
             @csrf
             @method('DELETE')
             <x-admin.actions.button type="submit" variant="danger">
                 <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                Delete User
+                Delete Customer
             </x-admin.actions.button>
         </form>
     </div>
@@ -32,7 +32,7 @@
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            User Information
+                            Account Information
                         </h2>
                     </div>
 
@@ -66,14 +66,7 @@
                             </x-admin.form.group>
                         </div>
 
-                        <!-- Role -->
-                        <div class="col-span-2 md:col-span-1">
-                            <x-admin.form.group label="Role" for="user_type" required>
-                                <x-admin.form.select name="user_type" id="user_type" :options="['user' => 'User (Customer)', 'admin' => 'Administrator']" :selected="old('user_type', $user->user_type)" />
-                            </x-admin.form.group>
-                        </div>
-
-                        <!-- Account Status (approve / keep pending) -->
+                        <!-- Account Status -->
                         <div class="col-span-2 md:col-span-1">
                             <x-admin.form.group label="Account Status" for="status" required>
                                 <x-admin.form.select name="status" id="status" :options="['pending' => 'Pending approval', 'approved' => 'Approved']" :selected="old('status', $user->status ?? 'approved')" />
@@ -83,7 +76,7 @@
 
                     <div class="mt-6 flex justify-end">
                         <x-admin.actions.button type="submit" variant="primary">
-                            Update User
+                            Update Customer
                         </x-admin.actions.button>
                     </div>
                 </div>
