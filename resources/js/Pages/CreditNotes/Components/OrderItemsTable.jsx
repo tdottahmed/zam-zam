@@ -2,15 +2,12 @@ import React from 'react';
 import StorageImage from '@/Components/StorageImage';
 
 export default function OrderItemsTable({
-    selectedOrder,
     data, 
     updateItem,
     removeItem
 }) {
-    // Only display items that the user specifically selected via the autocomplete
-    const displayItems = selectedOrder.items.filter(item => {
-        return data.items.find(i => i.id === item.id)?.selected === true;
-    });
+    // Only display items that the user specifically selected
+    const displayItems = data.items.filter(item => item.selected === true);
 
     if (displayItems.length === 0) {
         return (
@@ -19,7 +16,7 @@ export default function OrderItemsTable({
                     <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                 </div>
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">No items added yet</h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Search above and select items from this order to add them to your return request.</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Search above and select items from any past order to add them to your return request.</p>
             </div>
         );
     }
@@ -28,7 +25,7 @@ export default function OrderItemsTable({
         <div className="bg-white dark:bg-[#1E1E1E] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 mt-6 overflow-hidden">
             <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4 bg-gray-50/50 dark:bg-gray-800/20 flex justify-between items-center">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Items to Return <span className="text-gray-400 font-normal ml-1">(Order #{selectedOrder.id})</span>
+                    Items to Return
                 </h3>
                 <span className="bg-red-50 text-[#C41E3A] dark:bg-red-900/20 text-xs font-bold px-2.5 py-1 rounded-full">{displayItems.length} selected</span>
             </div>
@@ -47,26 +44,27 @@ export default function OrderItemsTable({
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                         {displayItems.map((item) => {
-                            const formItem = data.items.find(i => i.id === item.id);
-
                             return (
                                 <tr key={item.id} className="bg-white dark:bg-[#1E1E1E] hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors group">
                                     <td className="px-5 py-4 align-middle">
                                         <div className="flex items-center">
                                             <div className="h-12 w-12 flex-shrink-0 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden mr-3 border border-gray-200 dark:border-gray-600 shadow-sm">
-                                                {item.product?.image && <StorageImage path={item.product.image} name={item.product.name} className="h-full w-full object-cover" />}
+                                                {item.image && <StorageImage path={item.image} name={item.product_name} className="h-full w-full object-cover" />}
                                             </div>
                                             <div>
                                                 <div className="font-bold text-gray-900 dark:text-white line-clamp-1">{item.product_name}</div>
                                                 <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className="text-xs text-gray-500 font-mono">{item.product?.product_code || '---'}</span>
+                                                    <span className="text-xs text-gray-500 font-mono">{item.product_code || '---'}</span>
                                                     <span className="text-xs font-medium text-gray-400">${Number(item.unit_price).toFixed(2)}/ea</span>
+                                                </div>
+                                                <div className="text-[11px] font-semibold text-[#C41E3A] mt-1 bg-red-50 dark:bg-red-900/20 inline-block px-1.5 py-0.5 rounded">
+                                                    Order #{item.order_id} ({item.order_date})
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-4 py-4 align-middle text-center font-semibold text-gray-700 dark:text-gray-300">
-                                        {item.quantity}
+                                        {item.max_quantity}
                                     </td>
                                     <td className="px-4 py-4 align-middle">
                                         <div className="flex items-center justify-center">
@@ -74,11 +72,11 @@ export default function OrderItemsTable({
                                                 <input 
                                                     type="number"
                                                     min="1"
-                                                    max={item.quantity}
-                                                    value={formItem.quantity}
+                                                    max={item.max_quantity}
+                                                    value={item.quantity}
                                                     onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)}
                                                     className={`w-20 text-center font-bold rounded-lg border-gray-300 shadow-sm dark:border-gray-600 dark:bg-gray-700 py-1.5 focus:ring-[#C41E3A] focus:border-[#C41E3A] transition-colors ${
-                                                        formItem.quantity > item.quantity ? 'border-red-300 text-red-900 bg-red-50 focus:ring-red-500' : 'text-gray-900 dark:text-white bg-white'
+                                                        item.quantity > item.max_quantity ? 'border-red-300 text-red-900 bg-red-50 focus:ring-red-500' : 'text-gray-900 dark:text-white bg-white'
                                                     }`}
                                                 />
                                             </div>
@@ -86,7 +84,7 @@ export default function OrderItemsTable({
                                     </td>
                                     <td className="px-4 py-4 align-middle">
                                         <select
-                                            value={formItem.reason || ''}
+                                            value={item.reason || ''}
                                             onChange={(e) => updateItem(item.id, 'reason', e.target.value)}
                                             className="w-full rounded-lg border-gray-300 shadow-sm dark:border-gray-600 dark:bg-gray-700 py-1.5 focus:ring-[#C41E3A] focus:border-[#C41E3A] text-sm text-gray-900 dark:text-gray-100 transition-colors"
                                         >
@@ -99,7 +97,7 @@ export default function OrderItemsTable({
                                         </select>
                                     </td>
                                     <td className="px-4 py-4 align-middle text-right font-extrabold text-gray-900 dark:text-white">
-                                        ${(item.unit_price * formItem.quantity).toFixed(2)}
+                                        ${(item.unit_price * item.quantity).toFixed(2)}
                                     </td>
                                     <td className="px-4 py-4 align-middle text-center">
                                         <button 

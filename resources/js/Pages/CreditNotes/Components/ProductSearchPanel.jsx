@@ -6,8 +6,7 @@ export default function ProductSearchPanel({
     setProductSearch, 
     isSearching, 
     searchResults, 
-    onSelectProduct,
-    selectedOrder // To change placeholder dynamically
+    onSelectProduct
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef(null);
@@ -45,7 +44,7 @@ export default function ProductSearchPanel({
                     onFocus={() => {
                         if (searchResults.length > 0) setIsOpen(true);
                     }}
-                    placeholder={selectedOrder ? "Search for another item from this same order..." : "Search for a past purchase by Item Name..."}
+                    placeholder="Search for a past purchase by Item Name or SKU..."
                     className="pl-12 w-full rounded-2xl border border-gray-200 dark:border-gray-700 dark:bg-gray-800/80 shadow-md hover:shadow-lg focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-40 text-base py-4 placeholder-gray-400 transition-all font-medium"
                 />
                 {isSearching && (

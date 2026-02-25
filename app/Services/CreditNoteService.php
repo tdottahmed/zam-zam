@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\CreditNote;
 use App\Repositories\CreditNoteRepository;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Exception;
 
 class CreditNoteService
@@ -18,14 +19,20 @@ class CreditNoteService
         $this->repository = $repository;
     }
 
-    public function createDraft(Order $order, array $itemsData, string $reason, ?string $description): mixed
+    public function createDraft(User $user, array $itemsData, string $reason, ?string $description): mixed
     {
-        return DB::transaction(function () use ($order, $itemsData, $reason, $description) {
+        return DB::transaction(function () use ($user, $itemsData, $reason, $description) {
             
+            // Determine the order_id. If all items belong to the same order, set it. Otherwise, leave null.
+            $orderItemIds = array_column($itemsData, 'id');
+            $orderItems = OrderItem::whereIn('id', $orderItemIds)->get();
+            $uniqueOrderIds = $orderItems->pluck('order_id')->unique();
+            $orderId = $uniqueOrderIds->count() === 1 ? $uniqueOrderIds->first() : null;
+
             // 1. Create Credit Note Header
             $creditNote = $this->repository->create([
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
+                'order_id' => $orderId,
+                'user_id' => $user->id,
                 'status' => 'draft',
                 'credit_type' => 'adjust_against_invoice', // Default, user can change later if needed
                 'reason' => $reason,
@@ -87,8 +94,15 @@ class CreditNoteService
     {
         return DB::transaction(function () use ($creditNote, $itemsData, $reason, $description) {
             
+            // Determine the order_id based on new items.
+            $orderItemIds = array_column($itemsData, 'id');
+            $orderItems = OrderItem::whereIn('id', $orderItemIds)->get();
+            $uniqueOrderIds = $orderItems->pluck('order_id')->unique();
+            $orderId = $uniqueOrderIds->count() === 1 ? $uniqueOrderIds->first() : null;
+
             // 1. Update Header
             $this->repository->update($creditNote, [
+                'order_id' => $orderId,
                 'reason' => $reason,
                 'admin_notes' => $description,
             ]);

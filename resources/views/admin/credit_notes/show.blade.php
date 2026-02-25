@@ -31,7 +31,7 @@
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Back to List
             </x-admin.actions.button>
-             <x-admin.actions.button href="{{ route('admin.orders.show', $creditNote->order_id) }}" variant="secondary">
+             <x-admin.actions.button href="#" variant="secondary">
                 View Order
             </x-admin.actions.button>
         </div>
@@ -117,26 +117,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </x-admin.ui.card>
-
-            <x-admin.ui.card>
-                 <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                    <h3 class="font-semibold text-gray-900 dark:text-white">Reason & Comments</h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <span class="text-sm text-gray-500 block mb-1">Reason for Return</span>
-                        <p class="text-gray-900 dark:text-white font-medium capitalize">{{ str_replace('_', ' ', $creditNote->reason) }}</p>
-                    </div>
-                    @if($creditNote->description)
-                    <div>
-                        <span class="text-sm text-gray-500 block mb-1">Customer Comments</span>
-                        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-gray-700 dark:text-gray-300 text-sm leading-relaxed border border-gray-100 dark:border-gray-700">
-                            {{ $creditNote->description }}
-                        </div>
-                    </div>
-                    @endif
                 </div>
             </x-admin.ui.card>
         </div>
@@ -237,28 +217,21 @@
             <!-- Admin Internal Notes -->
              <x-admin.ui.card>
                  <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                    <h3 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        Internal Notes
-                    </h3>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">Reason & Comments</h3>
                 </div>
-                <div class="p-6">
-                     <form action="{{ route('admin.credit-notes.update', $creditNote) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <textarea 
-                            name="admin_note" 
-                            rows="4" 
-                            class="w-full rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-[#C41E3A] focus:ring-[#C41E3A] text-sm"
-                            placeholder="Add internal notes..."
-                        >{{ $creditNote->admin_note }}</textarea>
-                        
-                        <div class="mt-4 flex justify-end">
-                             <button type="submit" class="text-sm font-medium text-gray-500 hover:text-[#C41E3A] transition-colors">
-                                Save Note
-                            </button>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <span class="text-sm text-gray-500 block mb-1">Reason for Return</span>
+                        <p class="text-gray-900 dark:text-white font-medium capitalize">{{ str_replace('_', ' ', $creditNote->reason) }}</p>
+                    </div>
+                    @if($creditNote->admin_notes)
+                    <div>
+                        <span class="text-sm text-gray-500 block mb-1">Notes</span>
+                        <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-gray-700 dark:text-gray-300 text-sm leading-relaxed border border-gray-100 dark:border-gray-700">
+                            {{ $creditNote->admin_notes }}
                         </div>
-                    </form>
+                    </div>
+                    @endif
                 </div>
             </x-admin.ui.card>
         </div>

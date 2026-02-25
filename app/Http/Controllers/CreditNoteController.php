@@ -101,7 +101,6 @@ class CreditNoteController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => 'required|exists:orders,id',
             'reason' => 'required|string|max:255',
             'description' => 'nullable|string',
             'items' => 'required|array|min:1',
@@ -111,12 +110,6 @@ class CreditNoteController extends Controller
             'items.*.reason' => 'nullable|string', // Per-item reason
         ]);
 
-        $order = Order::findOrFail($validated['order_id']);
-
-        if ($order->user_id != auth()->id()) {
-            abort(403);
-        }
-
         // Filter only selected items
         $selectedItems = collect($validated['items'])->filter(fn($item) => $item['selected']);
 
@@ -124,9 +117,20 @@ class CreditNoteController extends Controller
             return back()->withErrors(['items' => 'Please select at least one item to return.']);
         }
 
+        // Validate that all selected items belong to orders owned by this user
+        $orderItemIds = $selectedItems->pluck('id');
+        $validItemsCount = \App\Models\OrderItem::whereIn('id', $orderItemIds)
+            ->whereHas('order', function($q) {
+                $q->where('user_id', auth()->id());
+            })->count();
+
+        if ($validItemsCount !== $selectedItems->count()) {
+            abort(403, 'Unauthorized access to some order items.');
+        }
+
         try {
             $creditNote = $this->creditNoteService->createDraft(
-                $order,
+                auth()->user(),
                 $selectedItems->toArray(),
                 $validated['reason'],
                 $validated['description']
@@ -147,7 +151,7 @@ class CreditNoteController extends Controller
             abort(403);
         }
 
-        $creditNote->load(['items.product', 'order:id,created_at']);
+        $creditNote->load(['items.product', 'order:id,created_at', 'items.orderItem.order:id,created_at']);
 
         return Inertia::render('CreditNotes/Show', [
             'creditNote' => $creditNote
@@ -160,7 +164,7 @@ class CreditNoteController extends Controller
             abort(403);
         }
 
-        $creditNote->load(['items.product', 'order.items.product']);
+        $creditNote->load(['items.product', 'items.orderItem.order:id,created_at']);
 
         return Inertia::render('CreditNotes/Edit', [
             'creditNote' => $creditNote
@@ -187,6 +191,17 @@ class CreditNoteController extends Controller
 
         if ($selectedItems->isEmpty()) {
             return back()->withErrors(['items' => 'Please select at least one item to return.']);
+        }
+
+        // Validate that all selected items belong to orders owned by this user
+        $orderItemIds = $selectedItems->pluck('id');
+        $validItemsCount = \App\Models\OrderItem::whereIn('id', $orderItemIds)
+            ->whereHas('order', function($q) {
+                $q->where('user_id', auth()->id());
+            })->count();
+
+        if ($validItemsCount !== $selectedItems->count()) {
+            abort(403, 'Unauthorized access to some order items.');
         }
 
         try {

@@ -102,6 +102,11 @@ export default function CreditNoteDetails({ creditNote }) {
                                                         <div>
                                                             <div className="text-sm font-medium text-gray-900 dark:text-white">{item.product?.name}</div>
                                                             {item.reason && <div className="text-xs text-gray-500">Note: {item.reason}</div>}
+                                                            {!creditNote.order_id && item.order_item?.order?.id && (
+                                                                <div className="text-xs font-semibold text-[#C41E3A] mt-1">
+                                                                    Order #{item.order_item.order.id}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </td>

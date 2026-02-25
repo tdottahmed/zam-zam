@@ -10,9 +10,6 @@ import OrderItemsTable from './Components/OrderItemsTable';
 import ReturnSummarySidebar from './Components/ReturnSummarySidebar';
 
 export default function Create() {
-    // Current locked order
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    
     // Search state
     const [productSearch, setProductSearch] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -23,117 +20,97 @@ export default function Create() {
     const [modalProduct, setModalProduct] = useState(null);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        order_id: '',
         reason: 'Damaged / Broken',
         description: '',
         items: [],
     });
 
     // 1. Search Logic
-    const searchProducts = useMemo(() => debounce(async (query, currentOrder, currentFormItems) => {
+    const searchProducts = useMemo(() => debounce(async (query) => {
         if (!query || query.length < 2) {
             setSearchResults([]);
             return;
         }
         setIsSearching(true);
         try {
-            if (!currentOrder) {
-                // Global search across all past orders
-                const response = await axios.get(route('credit-notes.search-items'), { params: { q: query } });
-                setSearchResults(response.data);
-            } else {
-                // Local search restricted to the currently locked order
-                const term = query.toLowerCase();
-                const matches = currentOrder.items.filter(item => {
-                    // Exclude items already added to the return
-                    const formItem = currentFormItems.find(i => i.id === item.id);
-                    if (formItem?.selected) return false;
-                    
-                    const nameMatch = item.product_name.toLowerCase().includes(term);
-                    const skuMatch = item.product?.product_code && item.product.product_code.toLowerCase().includes(term);
-                    return nameMatch || skuMatch;
-                });
-                setSearchResults(matches);
-            }
+            // Always global search across all past orders
+            const response = await axios.get(route('credit-notes.search-items'), { params: { q: query } });
+            
+            // Filter out items already perfectly matching what's selected
+            const matches = response.data.filter(product => {
+                // If every single order of this product is already in the items list, hide it.
+                return !product.orders.every(orderInfo => 
+                    data.items.some(formItem => formItem.id === orderInfo.order_item_id && formItem.selected)
+                );
+            });
+            
+            setSearchResults(matches);
         } catch (error) {
             console.error("Search failed:", error);
         } finally {
             setIsSearching(false);
         }
-    }, 400), []);
+    }, 400), [data.items]);
 
     useEffect(() => {
-        searchProducts(productSearch, selectedOrder, data.items);
+        searchProducts(productSearch);
         return () => searchProducts.cancel();
-    }, [productSearch, selectedOrder, data.items, searchProducts]);
+    }, [productSearch, searchProducts]);
 
     // 2. Selection Logic
-    const handleProductSelect = async (product) => {
-        if (!selectedOrder) {
-            // Global selection
-            if (product.orders.length === 1) {
-                await lockOrder(product.orders[0].order_id, product.product_id);
-            } else {
-                setModalProduct(product);
-                setShowOrderModal(true);
-            }
+    const handleProductSelect = (product) => {
+        // Find which orders of this product are NOT already selected
+        const availableOrders = product.orders.filter(orderInfo => 
+             !data.items.some(formItem => formItem.id === orderInfo.order_item_id && formItem.selected)
+        );
+
+        if (availableOrders.length === 1) {
+            addItem(product, availableOrders[0]);
         } else {
-            // Local selection - adding a product from the locked order
-            const newItems = data.items.map(item => {
-                if (item.id === product.id) {
-                    return { ...item, selected: true, quantity: item.quantity === 0 ? product.quantity : item.quantity };
-                }
-                return item;
-            });
-            setData('items', newItems);
-            setProductSearch('');
-            setSearchResults([]);
+            setModalProduct({ ...product, orders: availableOrders });
+            setShowOrderModal(true);
         }
     };
 
-    const handleModalSelect = async (orderId, productId) => {
+    const handleModalSelect = (orderId, productId) => {
         setShowOrderModal(false);
-        setTimeout(async () => {
-            setModalProduct(null);
-            await lockOrder(orderId, productId);
-        }, 200);
+        const orderInfo = modalProduct.orders.find(o => o.order_id === orderId);
+        if (orderInfo) {
+            addItem(modalProduct, orderInfo);
+        }
+        setTimeout(() => setModalProduct(null), 200);
     };
 
-    const lockOrder = async (orderId, initialProductId) => {
-        try {
-            // Fetch full order details
-            const response = await axios.get(route('credit-notes.order-items', orderId));
-            const fullOrder = response.data;
-            
-            setSelectedOrder(fullOrder);
-            
-            // Set basic structure for all items, but only mark the initial one as `selected: true`
-            setData(data => ({
-                ...data,
-                order_id: fullOrder.id,
-                items: fullOrder.items.map(item => ({
-                    id: item.id,
-                    selected: item.product_id === initialProductId,
-                    quantity: item.product_id === initialProductId ? item.quantity : 0,
-                    reason: '', // specific item reason
-                }))
-            }));
-            
-            setProductSearch('');
-            setSearchResults([]);
-        } catch (error) {
-            console.error("Failed to load order:", error);
-            alert("Failed to load order details. Please try again.");
+    const addItem = (product, orderInfo) => {
+        const existingIndex = data.items.findIndex(i => i.id === orderInfo.order_item_id);
+        
+        let newItems = [...data.items];
+        if (existingIndex >= 0) {
+            newItems[existingIndex].selected = true;
+            newItems[existingIndex].quantity = 1;
+        } else {
+            newItems.push({
+                // Backend expects order_items.id for "id"
+                id: orderInfo.order_item_id, 
+                order_id: orderInfo.order_id,
+                order_date: orderInfo.order_date,
+                product_id: product.product_id,
+                product_name: product.product_name,
+                product_code: product.product_code,
+                image: product.image,
+                unit_price: orderInfo.unit_price,
+                max_quantity: orderInfo.quantity_bought,
+                
+                // Form fields
+                selected: true,
+                quantity: 1, 
+                reason: '',
+            });
         }
-    };
-
-    const unlockOrder = () => {
-        if(confirm("Are you sure you want to change orders? This will clear your current return selections.")) {
-            setSelectedOrder(null);
-            setProductSearch('');
-            setSearchResults([]);
-            reset();
-        }
+        
+        setData('items', newItems);
+        setProductSearch('');
+        setSearchResults([]);
     };
 
     // 3. Form Helpers updating quantity/reason ONLY
@@ -163,9 +140,7 @@ export default function Create() {
 
     const selectedItemsData = data.items.filter(i => i.selected);
     const totalRefundAmount = selectedItemsData.reduce((acc, selectedItem) => {
-        const originalItem = selectedOrder?.items.find(i => i.id === selectedItem.id);
-        if (!originalItem) return acc;
-        return acc + (originalItem.unit_price * selectedItem.quantity);
+        return acc + (selectedItem.unit_price * selectedItem.quantity);
     }, 0);
 
     const submit = (e) => {
@@ -193,12 +168,8 @@ export default function Create() {
                              <span>Create</span>
                         </div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Return Request</h1>
-                        {/* Dynamic subtitle based on state */}
-                        <p className="text-sm border-l-2 pl-3 mt-2 font-medium transition-colors border-[#C41E3A] text-gray-600 dark:text-gray-400">
-                            {!selectedOrder 
-                                ? "Step 1: Search for an item you've previously purchased below." 
-                                : `Step 2: Adjust quantities and provide reasons for the items returning from Order #${selectedOrder.id}.`
-                            }
+                        <p className="text-sm border-l-2 pl-3 mt-2 font-medium border-[#C41E3A] text-gray-600 dark:text-gray-400">
+                            Search and select items from any of your past orders below.
                         </p>
                     </div>
                 </div>
@@ -208,25 +179,19 @@ export default function Create() {
                     {/* Left Column - Product Search & Selected Products Table */}
                     <div className="lg:col-span-8 flex flex-col pt-1">
                         
-                        {/* Always show the autocomplete box */}
                         <ProductSearchPanel 
                             productSearch={productSearch}
                             setProductSearch={setProductSearch}
                             isSearching={isSearching}
                             searchResults={searchResults}
                             onSelectProduct={handleProductSelect}
-                            selectedOrder={selectedOrder}
                         />
 
-                        {/* Rendering the table ONLY if an order is locked. It filters to show only explicitly selected items */}
-                        {selectedOrder && (
-                            <OrderItemsTable 
-                                selectedOrder={selectedOrder}
-                                data={data}
-                                updateItem={updateItem}
-                                removeItem={removeItem}
-                            />
-                        )}
+                        <OrderItemsTable 
+                            data={data}
+                            updateItem={updateItem}
+                            removeItem={removeItem}
+                        />
                         
                         {errors.items && <div className="mt-4 bg-red-50 text-red-600 p-4 text-sm rounded-xl border border-red-100 dark:bg-red-900/20 dark:border-red-900/30 dark:text-red-400 font-medium shadow-sm">{errors.items}</div>}
                     </div>
@@ -234,14 +199,12 @@ export default function Create() {
                     {/* Right Column - Context & Submission */}
                     <div className="lg:col-span-4">
                         <ReturnSummarySidebar 
-                            selectedOrder={selectedOrder}
                             data={data}
                             setData={setData}
                             errors={errors}
                             selectedItemsData={selectedItemsData}
                             totalRefundAmount={totalRefundAmount}
                             processing={processing}
-                            unlockOrder={unlockOrder}
                             isEdit={false}
                         />
                     </div>

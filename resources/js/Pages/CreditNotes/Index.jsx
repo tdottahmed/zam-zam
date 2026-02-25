@@ -43,9 +43,13 @@ export default function Index({ creditNotes }) {
                                             <div className="font-medium text-gray-900 dark:text-white">{cn.credit_note_number}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <Link href={route('orders.show', cn.order_id)} className="text-[#C41E3A] hover:underline">
-                                                Order #{cn.order_id}
-                                            </Link>
+                                            {cn.order_id ? (
+                                                <Link href={route('orders.show', cn.order_id)} className="text-[#C41E3A] hover:underline">
+                                                    Order #{cn.order_id}
+                                                </Link>
+                                            ) : (
+                                                <span className="text-gray-500 italic">Multiple Orders</span>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {format(new Date(cn.created_at), 'MMM dd, yyyy')}
