@@ -6,6 +6,37 @@
 
 @section('content')
     
+    <!-- Filter Toolbar -->
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900">Dashboard Overview</h2>
+            <p class="text-sm text-gray-500">Analytics and data for your selected period.</p>
+        </div>
+        
+        <form id="date-filter-form" method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-center gap-3">
+            <select name="date_filter" id="date_filter" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 shadow-sm transition-colors cursor-pointer outline-none">
+                <option value="today" {{ (isset($dateFilter) && $dateFilter === 'today') ? 'selected' : '' }}>Today</option>
+                <option value="last_3_days" {{ (isset($dateFilter) && $dateFilter === 'last_3_days') ? 'selected' : '' }}>Last 3 Days</option>
+                <option value="week" {{ (isset($dateFilter) && $dateFilter === 'week') ? 'selected' : '' }}>Last 7 Days</option>
+                <option value="month" {{ (isset($dateFilter) && $dateFilter === 'month') ? 'selected' : '' }}>This Month</option>
+                <option value="last_30_days" {{ (!isset($dateFilter) || $dateFilter === 'last_30_days') ? 'selected' : '' }}>Last 30 Days</option>
+                <option value="last_50_days" {{ (isset($dateFilter) && $dateFilter === 'last_50_days') ? 'selected' : '' }}>Last 50 Days</option>
+                <option value="year" {{ (isset($dateFilter) && $dateFilter === 'year') ? 'selected' : '' }}>This Year</option>
+                <option value="all_time" {{ (isset($dateFilter) && $dateFilter === 'all_time') ? 'selected' : '' }}>All Time</option>
+                <option value="custom" {{ (isset($dateFilter) && $dateFilter === 'custom') ? 'selected' : '' }}>Custom Range</option>
+            </select>
+
+            <div id="custom-date-range" class="flex items-center gap-2 transition-all duration-300" style="{{ (isset($dateFilter) && $dateFilter === 'custom') ? '' : 'display: none;' }}">
+                <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 shadow-sm outline-none">
+                <span class="text-gray-500 text-sm font-medium">to</span>
+                <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5 shadow-sm outline-none">
+                <button type="submit" class="text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 py-2.5 focus:outline-none shadow-sm transition-colors">
+                    Apply
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Revenue Card -->
@@ -178,6 +209,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Filter Logic
+            const dateFilterSelect = document.getElementById('date_filter');
+            const customDateRange = document.getElementById('custom-date-range');
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const filterForm = document.getElementById('date-filter-form');
+
+            if (dateFilterSelect) {
+                dateFilterSelect.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        customDateRange.style.display = 'flex';
+                        startDateInput.required = true;
+                        endDateInput.required = true;
+                    } else {
+                        customDateRange.style.display = 'none';
+                        startDateInput.required = false;
+                        endDateInput.required = false;
+                        filterForm.submit();
+                    }
+                });
+            }
+
             const ctx = document.getElementById('salesChart').getContext('2d');
             
             // Gradient
