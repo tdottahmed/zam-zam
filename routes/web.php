@@ -33,9 +33,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/invoice', [\App\Http\Controllers\OrderController::class, 'downloadInvoice'])->name('orders.download-invoice');
     
     // Credit Note Routes
-    Route::get('/orders/{order}/credit-note/create', [\App\Http\Controllers\CreditNoteController::class, 'create'])->name('credit-notes.create');
-    Route::post('/orders/{order}/credit-note', [\App\Http\Controllers\CreditNoteController::class, 'store'])->name('credit-notes.store');
+    Route::get('/credit-notes/search-items', [\App\Http\Controllers\CreditNoteController::class, 'searchOrderedItems'])->name('credit-notes.search-items');
+    Route::get('/credit-notes/order/{order}/items', [\App\Http\Controllers\CreditNoteController::class, 'getOrderItems'])->name('credit-notes.order-items');
+    Route::get('/credit-notes', [\App\Http\Controllers\CreditNoteController::class, 'index'])->name('credit-notes.index');
+    Route::get('/credit-notes/create', [\App\Http\Controllers\CreditNoteController::class, 'create'])->name('credit-notes.create');
+    Route::post('/credit-notes', [\App\Http\Controllers\CreditNoteController::class, 'store'])->name('credit-notes.store');
     Route::get('/credit-notes/{creditNote}', [\App\Http\Controllers\CreditNoteController::class, 'show'])->name('credit-notes.show');
+    Route::get('/credit-notes/{creditNote}/edit', [\App\Http\Controllers\CreditNoteController::class, 'edit'])->name('credit-notes.edit');
+    Route::put('/credit-notes/{creditNote}', [\App\Http\Controllers\CreditNoteController::class, 'update'])->name('credit-notes.update');
+    Route::delete('/credit-notes/{creditNote}', [\App\Http\Controllers\CreditNoteController::class, 'destroy'])->name('credit-notes.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update'); // Kept existing route

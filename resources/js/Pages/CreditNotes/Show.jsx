@@ -30,9 +30,9 @@ export default function CreditNoteDetails({ creditNote }) {
                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
-                            <Link href={route('orders.show', creditNote.order_id)} className="hover:text-[#C41E3A] transition-colors">Order #{creditNote.order_id}</Link>
+                            <Link href={route('credit-notes.index')} className="hover:text-[#C41E3A] transition-colors">Credit Notes</Link>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                            <span>Credit Note</span>
+                            <span>{creditNote.credit_note_number}</span>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                             {creditNote.credit_note_number}
@@ -44,7 +44,20 @@ export default function CreditNoteDetails({ creditNote }) {
                     </div>
                     {creditNote.status === 'draft' && (
                          <div className="flex gap-3">
-                            {/* Actions for draft if needed, e.g. Edit or Delete */}
+                            <Link 
+                                href={route('credit-notes.edit', creditNote.id)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg transition"
+                            >
+                                Edit Request
+                            </Link>
+                            <Link 
+                                href={route('credit-notes.destroy', creditNote.id)}
+                                method="delete"
+                                as="button"
+                                className="px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-lg transition"
+                            >
+                                Delete Request
+                            </Link>
                          </div>
                     )}
                 </div>

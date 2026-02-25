@@ -12,6 +12,7 @@ export default function DashboardSidebar({ className = '' }) {
     const links = [
         { name: 'Dashboard', href: route('dashboard'), route: 'dashboard', icon: 'HomeIcon' },
         { name: 'My Orders', href: route('orders.index'), route: 'orders.*', icon: 'ShoppingBagIcon' },
+        { name:'Credit Notes', href: route('credit-notes.index'), route: 'credit-notes.*', icon: 'CreditNoteIcon' },
         { name: 'Address Book', href: route('addresses.index'), route: 'addresses.*', icon: 'MapPinIcon' }, 
         { name: 'Account Details', href: route('profile.edit'), route: 'profile.*', icon: 'UserIcon' },
         { name: 'Wishlist', href: route('wishlist.index'), route: 'wishlist.*', icon: 'HeartIcon' }, 

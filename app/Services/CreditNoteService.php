@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\CreditNote;
 use App\Repositories\CreditNoteRepository;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -79,6 +80,75 @@ class CreditNoteService
             ]);
 
             return $creditNote;
+        });
+    }
+
+    public function updateDraft(CreditNote $creditNote, array $itemsData, string $reason, ?string $description): mixed
+    {
+        return DB::transaction(function () use ($creditNote, $itemsData, $reason, $description) {
+            
+            // 1. Update Header
+            $this->repository->update($creditNote, [
+                'reason' => $reason,
+                'admin_notes' => $description,
+            ]);
+
+            // 2. Remove old items
+            $this->repository->deleteItems($creditNote);
+
+            $subtotal = 0;
+            $taxAmount = 0;
+
+            // 3. Process New Items
+            foreach ($itemsData as $itemData) {
+                $orderItem = OrderItem::find($itemData['id']);
+                
+                if (!$orderItem) continue;
+
+                $quantity = $itemData['quantity'];
+                
+                if ($quantity > $orderItem->quantity) {
+                    throw new Exception("Credit quantity cannot exceed ordered quantity for {$orderItem->product_name}");
+                }
+
+                $unitPrice = $orderItem->unit_price;
+                $lineTotal = $unitPrice * $quantity;
+                $taxRate = 0; 
+
+                $this->repository->createItem($creditNote, [
+                    'order_item_id' => $orderItem->id,
+                    'product_id' => $orderItem->product_id,
+                    'ordered_quantity' => $orderItem->quantity,
+                    'delivered_quantity' => $orderItem->quantity,
+                    'previously_credited_quantity' => 0,
+                    'credit_quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'tax_rate' => $taxRate,
+                    'line_total' => $lineTotal,
+                    'reason' => $itemData['reason'] ?? null,
+                ]);
+
+                $subtotal += $lineTotal;
+            }
+
+            // 4. Update Totals
+            $grandTotal = $subtotal + $taxAmount; 
+            
+            $this->repository->update($creditNote, [
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxAmount,
+                'grand_total' => $grandTotal,
+            ]);
+
+            return $creditNote;
+        });
+    }
+
+    public function deleteDraft(CreditNote $creditNote): bool
+    {
+        return DB::transaction(function () use ($creditNote) {
+            $this->repository->deleteItems($creditNote);
+            return $this->repository->delete($creditNote);
         });
     }
 }

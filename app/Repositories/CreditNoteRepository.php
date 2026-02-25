@@ -27,4 +27,14 @@ class CreditNoteRepository
     {
         return $creditNote->update($data);
     }
+
+    public function delete(CreditNote $creditNote): bool
+    {
+        return $creditNote->delete();
+    }
+
+    public function deleteItems(CreditNote $creditNote): void
+    {
+        $creditNote->items()->delete();
+    }
 }
