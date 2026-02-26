@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             PageSeeder::class,
             PaymentMethodSeeder::class,
             ShippingMethodSeeder::class,
+            MailTemplateSeeder::class,
         ]);
     }
 }

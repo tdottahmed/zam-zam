@@ -126,6 +126,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Pages
     Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 
+    // Mail Templates
+    Route::resource('mail-templates', \App\Http\Controllers\Admin\MailTemplateController::class);
+
     // Offline Payment Methods
     Route::resource('offline-payment-methods', \App\Http\Controllers\Admin\OfflinePaymentMethodController::class);
 });
