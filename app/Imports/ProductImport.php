@@ -186,20 +186,48 @@ class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
 
     protected function resolveUnit($value, string $name): ?int
     {
+        $hint = null;
         if ($value !== null && $value !== '') {
-            $id = $this->units[strtolower(trim((string) $value))] ?? null;
-            if ($id !== null) {
-                return $id;
+            $hint = trim((string) $value);
+        }
+        if ($hint === null || $hint === '') {
+            // Fallback: try to infer from product name (e.g. 500GM, 250ML)
+            if (preg_match('/(\d+(\.\d+)?)\s*(ML|GM|KG|L|LTR|G|GRAM|POUCH|PCS)/i', $name, $m)) {
+                $hint = $m[3];
             }
         }
-        // Fallback: try to infer from product name (e.g. 500GM, 250ML)
-        if (preg_match('/(\d+(\.\d+)?)\s*(ML|GM|KG|L|LTR|G|GRAM|POUCH|PCS)/i', $name, $m)) {
-            $hint = strtolower($m[3]);
-            $map = ['ml' => 'ml', 'gm' => 'gm', 'g' => 'gm', 'gram' => 'gm', 'kg' => 'kg', 'l' => 'ltr', 'ltr' => 'ltr', 'pcs' => 'pc', 'pc' => 'pc'];
-            $code = $map[$hint] ?? $hint;
-            return $this->units[$code] ?? null;
+        if ($hint === null || $hint === '') {
+            return null;
         }
-        return null;
+
+        $key = strtolower($hint);
+        if (isset($this->units[$key])) {
+            return $this->units[$key];
+        }
+
+        $code = $this->normalizeUnitCode($hint);
+        $unit = Unit::firstOrCreate(
+            ['code' => $code],
+            ['name' => $hint, 'is_active' => true]
+        );
+        $this->units[strtolower($unit->name)] = $unit->id;
+        $this->units[strtolower($unit->code)] = $unit->id;
+        return $unit->id;
+    }
+
+    /** Normalize unit hint (e.g. "Gram", "GM", "G") to a canonical code for firstOrCreate. */
+    protected function normalizeUnitCode(string $hint): string
+    {
+        $map = [
+            'g' => 'gm', 'gram' => 'gm', 'grams' => 'gm', 'gm' => 'gm',
+            'ml' => 'ml', 'milliliter' => 'ml', 'milliliters' => 'ml',
+            'l' => 'ltr', 'ltr' => 'ltr', 'liter' => 'ltr', 'litre' => 'ltr', 'liters' => 'ltr', 'litres' => 'ltr',
+            'kg' => 'kg', 'kilogram' => 'kg', 'kilograms' => 'kg',
+            'pcs' => 'pc', 'pc' => 'pc', 'piece' => 'pc', 'pieces' => 'pc',
+            'pouch' => 'pouch', 'pouches' => 'pouch',
+        ];
+        $key = strtolower(trim($hint));
+        return $map[$key] ?? $key;
     }
 
     protected function resolveTax($value): ?int
