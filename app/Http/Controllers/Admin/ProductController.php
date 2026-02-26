@@ -10,6 +10,7 @@ use App\Models\Tax;
 use App\Models\SystemSetting;
 use App\Models\Unit;
 use App\Imports\ProductImport;
+use App\Exports\ProductImportTemplateExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
@@ -279,6 +280,15 @@ class ProductController extends Controller
     }
 
     /**
+     * Download the Product Import Excel template (with instructions and sample rows).
+     */
+    public function downloadImportTemplate()
+    {
+        $filename = 'product-import-template-' . now()->format('Y-m-d') . '.xlsx';
+        return Excel::download(new ProductImportTemplateExport, $filename, \Maatwebsite\Excel\Excel::XLSX);
+    }
+
+    /**
      * Import products from Excel.
      */
     public function import(Request $request)
@@ -287,14 +297,31 @@ class ProductController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
+        $import = new ProductImport;
+
         try {
-            Excel::import(new ProductImport, $request->file('file'));
-            return redirect()->route('admin.products.index')
-                ->with('success', 'Products imported successfully.');
+            Excel::import($import, $request->file('file'));
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            return redirect()->back()
+                ->with('import_failures', $failures)
+                ->with('error', 'Some rows have validation errors. Please fix them and try again.');
         } catch (\Exception $e) {
             \Log::error('Import Error: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error during import: ' . $e->getMessage());
         }
+
+        $failures = $import->failures();
+        $failureCount = $failures->count();
+
+        if ($failureCount > 0) {
+            return redirect()->route('admin.products.index')
+                ->with('import_failures', $failures)
+                ->with('warning', "Import completed with issues. Some rows could not be imported ({$failureCount} row(s) failed). Check the details below.");
+        }
+
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Products imported successfully.');
     }
 }

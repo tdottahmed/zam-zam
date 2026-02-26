@@ -7,155 +7,263 @@ use App\Models\Unit;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Tax;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 
-class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, WithBatchInserts
 {
     use \Maatwebsite\Excel\Concerns\SkipsFailures;
 
+    /** @var array<string, int> unit code/name (lowercase) => id */
     protected $units;
-    protected $categoryIds;
-    protected $brandIds;
-    protected $taxIds;
+
+    /** @var array<string, int> category name (lowercase) => id */
+    protected $categories;
+
+    /** @var array<string, int> brand name (lowercase) => id */
+    protected $brands;
+
+    /** @var array tax by name (lowercase) or value string => id */
+    protected $taxes;
 
     public function __construct()
     {
-        // Cache units for quick lookup
-        $this->units = Unit::all()->mapWithKeys(function ($unit) {
-            return [strtolower($unit->name) => $unit->id, strtolower($unit->code) => $unit->id];
+        $this->units = Unit::all()->mapWithKeys(function (Unit $unit) {
+            return [
+                strtolower($unit->name) => $unit->id,
+                strtolower($unit->code) => $unit->id,
+            ];
         })->toArray();
 
-        // Cache Category and Brand IDs for random assignment
-        $this->categoryIds = Category::pluck('id')->toArray();
-        $this->brandIds = Brand::pluck('id')->toArray();
-        $this->taxIds = Tax::pluck('id')->toArray();
+        $this->categories = Category::where('status', true)->get()->mapWithKeys(function (Category $cat) {
+            return [strtolower(trim($cat->name)) => $cat->id];
+        })->toArray();
+
+        $this->brands = Brand::where('status', true)->get()->mapWithKeys(function (Brand $brand) {
+            return [strtolower(trim($brand->name)) => $brand->id];
+        })->toArray();
+
+        $this->taxes = Tax::where('is_active', true)->get()->flatMap(function (Tax $tax) {
+            $id = $tax->id;
+            $byName = [strtolower(trim($tax->name)) => $id];
+            $byValue = [(string) $tax->value => $id];
+            return array_merge($byName, $byValue);
+        })->toArray();
     }
 
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @param array $row Keys are slugified headers (e.g. name, product_code, category, brand, ...)
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
-        $name = $row['name_of_the_items'] ?? $row['name'] ?? null;
-
-        if (empty($name)) {
+        // Support canonical 'name' or legacy 'name_of_the_items'
+        $name = $this->trim($row['name'] ?? $row['name_of_the_items'] ?? null);
+        if ($name === null || $name === '') {
             return null;
         }
 
-        // 1. Initial values from Excel columns
-        $unitValue = $row['size_in_gmml'] ?? $row['unit_value'] ?? $row['size'] ?? null;
-        $pcsInCtn = $row['pcsctn'] ?? $row['pcs_in_ctn'] ?? $row['pcs'] ?? null;
-        $productCode = $row['bar_code'] ?? $row['product_code'] ?? $row['barcode'] ?? null;
-        $notes = $row['remarks'] ?? $row['notes'] ?? null;
-        $quantity = $row['quantity'] ?? $row['stock'] ?? $row['qty'] ?? null;
-        $boxPrice = $row['box_price'] ?? $row['price'] ?? null;
-        $buyingPrice = $row['buying_price'] ?? $row['cost'] ?? null;
-        $categoryId = $row['category_id'] ?? $row['category'] ?? null;
-        $brandId = $row['brand_id'] ?? $row['brand'] ?? null;
-        $taxId = $row['tax_id'] ?? $row['tax'] ?? null;
-        $unitId = null;
+        $unitValue = $this->trim($row['unit_value'] ?? null);
+        $pcsInCtn = $this->intOrNull($row['pcs_in_ctn'] ?? $row['pcsctn'] ?? $row['pcs'] ?? null);
 
-        // 2. Advanced Analysis of Title
-        // Regex for Unit Value and Type (e.g., 250ML, 500 GM)
-        if (preg_match('/(\d+(\.\d+)?)\s*(ML|GM|KG|L|LTR|G|GRAM|POUCH|PCS)/i', $name, $matches)) {
-            if (empty($unitValue)) {
-                $unitValue = $matches[1];
+        // Extract unit_value and pcs_in_ctn from product name if not in columns (e.g. "250ML X 24 PCS", "500 GM")
+        if (preg_match('/(\d+(?:\.\d+)?)\s*(ML|GM|KG|L|LTR|G|GRAM|POUCH|PCS)/i', $name, $m)) {
+            if ($unitValue === null || $unitValue === '') {
+                $unitValue = $m[1];
             }
-            $unitHint = strtolower($matches[3]);
-            $unitId = $this->resolveUnitId($unitHint);
         }
-
-        // Regex for PCS hint (e.g., X 24 PCS, 96 PCS PACK)
-        if (preg_match('/(?:X|[*x])\s*(\d+)\s*(PCS|PACK|PKT)/i', $name, $matches)) {
-            if (empty($pcsInCtn)) {
-                $pcsInCtn = $matches[1];
+        if (preg_match('/(?:X|[*x])\s*(\d+)\s*(PCS|PACK|PKT)/i', $name, $m) || preg_match('/(\d+)\s*(PCS|PACK|PKT)/i', $name, $m)) {
+            if ($pcsInCtn === null || $pcsInCtn < 1) {
+                $pcsInCtn = (int) $m[1];
             }
-        } elseif (preg_match('/(\d+)\s*(PCS|PACK|PKT)/i', $name, $matches)) {
-             // Fallback if not already found via PCS column or X hint
-             if (empty($pcsInCtn)) {
-                $pcsInCtn = $matches[1];
-             }
         }
 
-        // 3. Random Assignment and Mandatory Field Defaults
-        if (empty($categoryId) && !empty($this->categoryIds)) {
-            $categoryId = $this->categoryIds[array_rand($this->categoryIds)];
+        if ($pcsInCtn === null || $pcsInCtn < 1) {
+            $pcsInCtn = 1;
         }
 
-        if (empty($brandId) && !empty($this->brandIds)) {
-            $brandId = $this->brandIds[array_rand($this->brandIds)];
+        $boxPrice = $this->floatOrNull($row['box_price'] ?? $row['price'] ?? null);
+        $unitPrice = $this->floatOrNull($row['unit_price'] ?? null);
+        if ($unitPrice === null && $boxPrice !== null && $pcsInCtn > 0) {
+            $unitPrice = round($boxPrice / $pcsInCtn, 2);
         }
 
-        if (empty($taxId) && !empty($this->taxIds)) {
-            // Default to first tax if available, or just random
-            $taxId = $this->taxIds[0]; 
-        }
+        $categoryId = $this->resolveCategory($row['category'] ?? null);
+        $brandId = $this->resolveBrand($row['brand'] ?? null);
+        $unitId = $this->resolveUnit($row['unit'] ?? null, $name);
+        $taxId = $this->resolveTax($row['tax'] ?? null);
 
-        if (empty($quantity) || $quantity == 0) {
-            $quantity = rand(10, 100);
-        }
-
-        if (empty($boxPrice)) {
-            $boxPrice = rand(100, 1000);
-        }
-
-        if (empty($buyingPrice)) {
-            $buyingPrice = $boxPrice * (rand(70, 90) / 100);
-        }
-
-        // Ensure pcs_in_ctn is at least 1 for calculation in controller/model if needed
-        $pcsInCtn = $pcsInCtn ?? 1;
-        $unitPrice = $boxPrice / $pcsInCtn;
+        $stockUnit = $this->normalizeStockUnit($row['stock_unit'] ?? null);
+        $quantity = (int) ($this->intOrNull($row['quantity'] ?? null) ?? 0);
+        $alertQuantity = $this->intOrNull($row['alert_quantity'] ?? null);
+        $isFeatured = $this->boolFromExcel($row['is_featured'] ?? null);
 
         return new Product([
-            'name'         => $name,
-            'unit_value'   => $unitValue,
-            'pcs_in_ctn'   => $pcsInCtn,
-            'product_code' => isset($productCode) ? (string) $productCode : null,
-            'notes'        => $notes,
-            'quantity'     => $quantity,
-            'box_price'    => $boxPrice,
-            'unit_price'   => $unitPrice,
-            'buying_price' => $buyingPrice,
-            'unit_id'      => $unitId,
-            'category_id'  => $categoryId,
-            'brand_id'     => $brandId,
-            'tax_id'       => $taxId,
+            'name' => $name,
+            'slug' => $this->uniqueSlug($name),
+            'product_code' => $this->trim($row['product_code'] ?? null) ?: null,
+            'category_id' => $categoryId,
+            'brand_id' => $brandId,
+            'unit_value' => $unitValue !== null && $unitValue !== '' ? $unitValue : null,
+            'unit_id' => $unitId,
+            'pcs_in_ctn' => $pcsInCtn,
+            'box_price' => $boxPrice,
+            'unit_price' => $unitPrice,
+            'buying_price' => $this->floatOrNull($row['buying_price'] ?? null),
+            'tax_id' => $taxId,
+            'quantity' => $quantity,
+            'stock_unit' => $stockUnit,
+            'alert_quantity' => $alertQuantity ?? 0,
+            'notes' => $this->trim($row['notes'] ?? null) ?: null,
+            'is_featured' => $isFeatured,
         ]);
     }
 
-    /**
-     * Resolve unit ID from string hint.
-     */
-    protected function resolveUnitId($hint)
+    protected function trim($value): ?string
     {
-        $mapping = [
-            'ml' => 'ml',
-            'gm' => 'gm',
-            'g' => 'gm',
-            'gram' => 'gm',
-            'kg' => 'kg',
-            'l' => 'ltr',
-            'ltr' => 'ltr',
-            'pcs' => 'pc',
-            'pc' => 'pc',
-        ];
+        if ($value === null || $value === '') {
+            return null;
+        }
+        $s = trim((string) $value);
+        return $s === '' ? null : $s;
+    }
 
-        $code = $mapping[$hint] ?? $hint;
-        return $this->units[$code] ?? null;
+    protected function intOrNull($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    protected function floatOrNull($value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+    protected function resolveCategory($value): ?int
+    {
+        $name = $value !== null && $value !== '' ? trim((string) $value) : null;
+        if ($name === null || $name === '') {
+            return null;
+        }
+        $key = strtolower($name);
+        if (isset($this->categories[$key])) {
+            return $this->categories[$key];
+        }
+        $category = Category::firstOrCreate(
+            ['slug' => Str::slug($name)],
+            ['name' => $name, 'status' => true]
+        );
+        $this->categories[$key] = $category->id;
+        return $category->id;
+    }
+
+    protected function resolveBrand($value): ?int
+    {
+        $name = $value !== null && $value !== '' ? trim((string) $value) : null;
+        if ($name === null || $name === '') {
+            return null;
+        }
+        $key = strtolower($name);
+        if (isset($this->brands[$key])) {
+            return $this->brands[$key];
+        }
+        $brand = Brand::firstOrCreate(
+            ['slug' => Str::slug($name)],
+            ['name' => $name, 'status' => true]
+        );
+        $this->brands[$key] = $brand->id;
+        return $brand->id;
+    }
+
+    protected function resolveUnit($value, string $name): ?int
+    {
+        if ($value !== null && $value !== '') {
+            $id = $this->units[strtolower(trim((string) $value))] ?? null;
+            if ($id !== null) {
+                return $id;
+            }
+        }
+        // Fallback: try to infer from product name (e.g. 500GM, 250ML)
+        if (preg_match('/(\d+(\.\d+)?)\s*(ML|GM|KG|L|LTR|G|GRAM|POUCH|PCS)/i', $name, $m)) {
+            $hint = strtolower($m[3]);
+            $map = ['ml' => 'ml', 'gm' => 'gm', 'g' => 'gm', 'gram' => 'gm', 'kg' => 'kg', 'l' => 'ltr', 'ltr' => 'ltr', 'pcs' => 'pc', 'pc' => 'pc'];
+            $code = $map[$hint] ?? $hint;
+            return $this->units[$code] ?? null;
+        }
+        return null;
+    }
+
+    protected function resolveTax($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        $v = trim((string) $value);
+        $byName = $this->taxes[strtolower($v)] ?? null;
+        if ($byName !== null) {
+            return $byName;
+        }
+        if (is_numeric($v)) {
+            return $this->taxes[$v] ?? null;
+        }
+        return null;
+    }
+
+    protected function normalizeStockUnit($value): string
+    {
+        $v = $value !== null && $value !== '' ? strtolower(trim((string) $value)) : 'piece';
+        return in_array($v, ['piece', 'dozen', 'box'], true) ? $v : 'piece';
+    }
+
+    protected function boolFromExcel($value): bool
+    {
+        if ($value === null || $value === '') {
+            return false;
+        }
+        $v = is_string($value) ? strtolower(trim($value)) : $value;
+        return in_array($v, [true, 1, '1', 'yes', 'y', 'true'], true);
+    }
+
+    protected function uniqueSlug(string $name): string
+    {
+        $base = Str::slug($name);
+        $slug = $base;
+        $n = 2;
+        while (Product::where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $n;
+            $n++;
+        }
+        return $slug;
     }
 
     public function rules(): array
     {
         return [
-            'name_of_the_items' => 'nullable|string|max:255',
-            'name' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'pcs_in_ctn' => 'nullable|integer|min:1',
         ];
+    }
+
+    public function customValidationMessages(): array
+    {
+        return [
+            'name.required' => 'Product name is required.',
+            'name.max' => 'Product name must not exceed 255 characters.',
+            'pcs_in_ctn.min' => 'Pieces per box must be at least 1.',
+        ];
+    }
+
+    public function batchSize(): int
+    {
+        return 100;
     }
 }

@@ -5,6 +5,32 @@
 @endsection
 
 @section('content')
+    @if(session('success'))
+        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('warning'))
+        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800" role="alert">
+            {{ session('warning') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if(session('import_failures') && count(session('import_failures')) > 0)
+        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3" role="alert">
+            <p class="font-medium text-amber-800">Import issues (row → errors):</p>
+            <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-amber-700">
+                @foreach(session('import_failures') as $failure)
+                    <li><strong>Row {{ $failure->row() }}</strong>: {{ implode(' ', $failure->errors()) }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <x-admin.ui.section-header>
         Product Catalogue
         <x-slot:description>
@@ -233,9 +259,19 @@
             @csrf
             <div class="space-y-4">
                 <p class="text-sm text-gray-600">
-                    Upload an <strong>.xlsx</strong> or <strong>.xls</strong> file to bulk-import products. The file must follow the required column order.
+                    Upload an <strong>.xlsx</strong>, <strong>.xls</strong>, or <strong>.csv</strong> file. Use the template so column headers and format match.
                 </p>
+                <div class="flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    <p class="text-sm font-medium text-gray-700">Step 1: Get the template</p>
+                    <a href="{{ route('admin.products.import.template') }}" download
+                       class="inline-flex w-fit items-center gap-2 rounded-md border border-[#C41E3A] bg-white px-3 py-2 text-sm font-medium text-[#C41E3A] hover:bg-[#C41E3A] hover:text-white transition-colors">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Download product import template (.xlsx)
+                    </a>
+                    <p class="text-xs text-gray-500">Template includes column headers and a second sheet with instructions. Fill the <strong>Products</strong> sheet (first sheet) from row 2.</p>
+                </div>
                 <div>
+                    <p class="text-sm font-medium text-gray-700 mb-1">Step 2: Upload your file</p>
                     <x-admin.form.label for="import_file" value="Select Excel File" />
                     <input type="file" id="import_file" name="file" accept=".xlsx,.xls,.csv"
                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" required />
