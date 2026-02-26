@@ -99,6 +99,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('invoices/{invoice}/print', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'print'])->name('invoices.print');
 
     // Credit Notes
+    Route::get('api/search/ordered-items', [\App\Http\Controllers\Admin\CreditNoteController::class, 'searchOrderedItems'])->name('api.search.ordered-items');
     Route::resource('credit-notes', \App\Http\Controllers\Admin\CreditNoteController::class);
 
     // Settings
