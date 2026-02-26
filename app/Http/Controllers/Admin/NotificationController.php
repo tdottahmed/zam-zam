@@ -25,7 +25,7 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
         
-        if ($request->has('id')) {
+        if ($request->filled('id')) {
             $notification = $user->notifications()->where('id', $request->id)->first();
             if ($notification) {
                 $notification->markAsRead();

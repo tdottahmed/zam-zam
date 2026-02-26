@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@section('header')
+    Orders
+@endsection
+
 @section('title', 'Order #' . $order->id)
 
 @section('content')

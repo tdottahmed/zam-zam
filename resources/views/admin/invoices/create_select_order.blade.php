@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@section('header')
+    Invoices
+@endsection
+
 @section('title', 'Select Order to Invoice')
 
 @section('content')

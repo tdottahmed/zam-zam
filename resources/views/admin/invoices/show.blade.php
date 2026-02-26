@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@section('header')
+    Invoices
+@endsection
+
 @section('title', 'Invoice #' . $invoice->invoice_number)
 
 @section('content')

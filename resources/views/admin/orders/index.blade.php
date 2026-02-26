@@ -1,4 +1,7 @@
 @extends('layouts.admin')
+@section('header')
+    Orders
+@endsection
 
 @section('title', 'Orders')
 
