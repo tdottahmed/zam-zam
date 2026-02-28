@@ -217,10 +217,50 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-4 p-4 bg-white/70 rounded-lg border border-blue-200">
-                        <div>
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Profit margin</span>
-                            <p id="profit_display" class="text-lg font-bold text-green-700 mt-0.5">— Enter buying price (selling will use default margin)</p>
+                    <div class="flex flex-col gap-4 p-4 bg-white/70 rounded-lg border border-blue-200 transition-all duration-300">
+                        <!-- Margin Header -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Profit margin</span>
+                                <p id="profit_display" class="text-lg font-bold text-gray-500 mt-0.5">— Enter buying price</p>
+                            </div>
+                            <div id="profit_badge" class="hidden px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800"></div>
+                        </div>
+
+                        <!-- Dynamic Breakdowns -->
+                        <div id="price_breakdown" style="display: none;" class="grid grid-cols-1 sm:grid-cols-3 gap-5 border-t border-blue-100 pt-4 mt-2">
+                            <!-- Unit Price -->
+                            <div class="bg-white p-3 rounded-md shadow-sm border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                                    Per Unit (Piece)
+                                </span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between items-center text-sm"><span class="text-gray-500">Buy:</span> <strong class="text-gray-900">$<span id="calc_buy_piece">0.00</span></strong></div>
+                                    <div class="flex justify-between items-center text-sm"><span class="text-gray-500">Sell:</span> <strong class="text-green-600">$<span id="calc_sell_piece">0.00</span></strong></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Carton Price -->
+                            <div class="bg-white p-3 rounded-md shadow-sm border border-gray-100">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                                    <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                    Carton (<span id="calc_ctn_pcs">1</span> PCs)
+                                </span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between items-center text-sm"><span class="text-gray-500">Buy:</span> <strong class="text-gray-900">$<span id="calc_buy_ctn">0.00</span></strong></div>
+                                    <div class="flex justify-between items-center text-sm"><span class="text-gray-500">Sell:</span> <strong class="text-green-600">$<span id="calc_sell_ctn">0.00</span></strong></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Net Profit -->
+                            <div class="bg-blue-50/50 p-3 rounded-md border border-blue-50 flex flex-col justify-center">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+                                    <svg class="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Net Profit (per <span id="calc_profit_unit_label" class="lowercase truncate inline-block align-bottom max-w-[50px]">unit</span>)
+                                </span>
+                                <p class="text-xl font-black text-green-600 mt-1">$<span id="calc_profit_amount">0.00</span></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -294,18 +334,29 @@
                 const sellingEl = document.getElementById('selling_price_stock_unit');
                 const priceUnitLabel = document.getElementById('price_unit_label');
                 const sellingUnitLabel = document.getElementById('selling_unit_label');
+                
+                const breakdownEl = document.getElementById('price_breakdown');
+                const calcBuyPiece = document.getElementById('calc_buy_piece');
+                const calcSellPiece = document.getElementById('calc_sell_piece');
+                const calcBuyCtn = document.getElementById('calc_buy_ctn');
+                const calcSellCtn = document.getElementById('calc_sell_ctn');
+                const calcCtnPcs = document.getElementById('calc_ctn_pcs');
+                const calcProfitAmount = document.getElementById('calc_profit_amount');
+                const calcProfitUnitLabel = document.getElementById('calc_profit_unit_label');
+                const profitBadge = document.getElementById('profit_badge');
 
                 function getMultiplier() {
-                    const su = (stockUnitEl && stockUnitEl.value) || 'piece';
+                    let su = (stockUnitEl && stockUnitEl.value) || '';
+                    su = su.toLowerCase();
                     const pcs = parseFloat(els.pcsInCtn?.value) || 1;
-                    if (su === 'dozen') return 12;
-                    if (su === 'box') return pcs;
+                    if (su.includes('dozen')) return 12;
+                    if (su.includes('box') || su.includes('carton') || su.includes('ctn')) return pcs;
                     return 1;
                 }
 
                 function getUnitLabel() {
-                    const su = (stockUnitEl && stockUnitEl.value) || 'piece';
-                    return su;
+                    let su = (stockUnitEl && stockUnitEl.value) || 'piece';
+                    return su.split(' ')[0]; // Extract primary unit name
                 }
 
                 function updatePriceLabels() {
@@ -321,17 +372,47 @@
                     if (buy > 0 && sell > 0) {
                         const profit = sell - buy;
                         const marginPercent = ((profit / buy) * 100).toFixed(1);
-                        els.profitDisplay.textContent = marginPercent + '%';
-                        els.profitDisplay.classList.remove('text-gray-500');
-                        els.profitDisplay.classList.add('text-green-700');
+                        els.profitDisplay.innerHTML = `<span class="${profit >= 0 ? 'text-green-700' : 'text-red-600'}">${marginPercent}%</span> <span class="text-sm font-normal text-gray-500 ml-1">(${profit >= 0 ? 'Profit' : 'Loss'})</span>`;
+                        profitBadge.textContent = marginPercent + '%';
+                        profitBadge.classList.remove('hidden');
+                        profitBadge.className = `px-3 py-1 rounded-full text-sm font-bold ${profit >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
                     } else if (buy > 0) {
-                        els.profitDisplay.textContent = 'Enter selling price or leave to use default margin (' + defaultMargin + '%)';
-                        els.profitDisplay.classList.add('text-gray-500');
-                        els.profitDisplay.classList.remove('text-green-700');
+                        els.profitDisplay.textContent = 'Leave selling empty to use default margin (' + defaultMargin + '%)';
+                        profitBadge.classList.add('hidden');
+                        profitBadge.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
                     } else {
-                        els.profitDisplay.textContent = '— Enter buying price (selling will use default margin)';
-                        els.profitDisplay.classList.add('text-gray-500');
-                        els.profitDisplay.classList.remove('text-green-700');
+                        els.profitDisplay.textContent = '— Enter buying price';
+                        profitBadge.classList.add('hidden');
+                        profitBadge.classList.remove('bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+                    }
+                    
+                    // Show detailed breakdown calculation
+                    if (buy > 0 || sell > 0) {
+                        if(breakdownEl) breakdownEl.style.display = 'grid';
+                        
+                        const multiplier = getMultiplier();
+                        const pcsInCtn = parseFloat(els.pcsInCtn?.value) || 1;
+                        
+                        // Per piece prices
+                        const buyPiece = buy / multiplier;
+                        const sellPiece = sell / multiplier;
+                        
+                        // Per carton prices
+                        const buyCtn = buyPiece * pcsInCtn;
+                        const sellCtn = sellPiece * pcsInCtn;
+                        
+                        if(calcBuyPiece) calcBuyPiece.textContent = buyPiece.toFixed(2);
+                        if(calcSellPiece) calcSellPiece.textContent = sellPiece.toFixed(2);
+                        
+                        if(calcBuyCtn) calcBuyCtn.textContent = buyCtn.toFixed(2);
+                        if(calcSellCtn) calcSellCtn.textContent = sellCtn.toFixed(2);
+                        
+                        if(calcCtnPcs) calcCtnPcs.textContent = pcsInCtn;
+                        
+                        if(calcProfitAmount) calcProfitAmount.textContent = Math.max(0, sell - buy).toFixed(2);
+                        if(calcProfitUnitLabel) calcProfitUnitLabel.textContent = getUnitLabel();
+                    } else {
+                        if(breakdownEl) breakdownEl.style.display = 'none';
                     }
                 }
 
