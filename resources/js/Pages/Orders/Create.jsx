@@ -807,7 +807,7 @@ export default function Create({
                                                             </svg>
                                                         </button>
                                                         <input
-                                                            type="number"
+                                                            type="text"
                                                             min={1}
                                                             value={
                                                                 item.quantity
