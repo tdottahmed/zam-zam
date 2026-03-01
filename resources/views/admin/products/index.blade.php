@@ -38,12 +38,23 @@
         </x-slot:description>
     </x-admin.ui.section-header>
 
-    <x-admin.ui.card>
-        <x-admin.ui.table>
+    <div x-data="{
+        selectedIds: [],
+        allIds: {{ $products->pluck('id')->toJson() }},
+        init() {
+            @if(session('success') && \Illuminate\Support\Str::contains(session('success'), 'deleted successfully'))
+                sessionStorage.removeItem('jamjam_admin_products_selected');
+            @endif
+            this.selectedIds = JSON.parse(sessionStorage.getItem('jamjam_admin_products_selected')) || [];
+            this.$watch('selectedIds', value => sessionStorage.setItem('jamjam_admin_products_selected', JSON.stringify(value)));
+        }
+    }">
+        <x-admin.ui.card>
+            <x-admin.ui.table>
             <x-slot:search>
                 <div class="w-full space-y-3">
                     <!-- Toolbar: Search + Actions -->
-                    <div class="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center">
+                    <div class="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center" x-show="selectedIds.length === 0">
 
                         {{-- Search & Filter --}}
                         <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
@@ -101,6 +112,44 @@
                         </div>
                     </div>
 
+                    <!-- Bulk Actions Toolbar -->
+                    <div class="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center bg-gray-50 border border-gray-200 p-3 rounded-lg shadow-sm" x-show="selectedIds.length > 0" x-cloak>
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#C41E3A] text-xs font-bold text-white shadow-sm" x-text="selectedIds.length"></span>
+                            <span class="text-sm font-medium text-gray-700">products selected</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 w-full lg:w-auto justify-end">
+                            {{-- Bulk Export PDF --}}
+                            <form method="POST" action="{{ route('admin.products.bulk-export-pdf') }}" target="_blank" class="inline">
+                                @csrf
+                                <template x-for="id in selectedIds" :key="id">
+                                    <input type="hidden" name="ids[]" :value="id">
+                                </template>
+                                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm">
+                                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    Export Selected
+                                </button>
+                            </form>
+
+                            {{-- Bulk Delete --}}
+                            <form method="POST" action="{{ route('admin.products.bulk-destroy') }}" x-ref="bulkDeleteForm" class="inline" @submit.prevent="if(confirm('Are you sure you want to delete ' + selectedIds.length + ' selected products? This cannot be undone.')) $refs.bulkDeleteForm.submit()">
+                                @csrf
+                                <template x-for="id in selectedIds" :key="id">
+                                    <input type="hidden" name="ids[]" :value="id">
+                                </template>
+                                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 transition-colors shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    Delete Selected
+                                </button>
+                            </form>
+
+                            {{-- Cancel Selection --}}
+                            <button type="button" @click="selectedIds = []" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
                     {{-- Active filter indicator --}}
                     @if(request('search'))
                         <div class="flex items-center gap-2 text-xs text-gray-500">
@@ -116,6 +165,15 @@
             </x-slot:search>
 
             <x-slot:head>
+                <x-admin.ui.th class="w-10 text-center">
+                    <input type="checkbox" 
+                           :checked="allIds.length > 0 && allIds.every(id => selectedIds.includes(id))"
+                           @change="$event.target.checked 
+                               ? selectedIds = [...new Set([...selectedIds, ...allIds])] 
+                               : selectedIds = selectedIds.filter(id => !allIds.includes(id))"
+                           class="h-4 w-4 rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A] transition-colors cursor-pointer"
+                           title="Select all products on this page">
+                </x-admin.ui.th>
                 <x-admin.ui.th class="w-10">#</x-admin.ui.th>
                 <x-admin.ui.th class="w-12 text-center">Image</x-admin.ui.th>
                 <x-admin.ui.th>Product Name</x-admin.ui.th>
@@ -130,7 +188,15 @@
 
             <x-slot:body>
                 @forelse($products as $product)
-                    <tr class="hover:bg-gray-50/60 transition-colors group">
+                    <tr class="hover:bg-gray-50/60 transition-colors group" :class="{ 'bg-gray-50/80': selectedIds.includes({{ $product->id }}) }">
+                        {{-- Checkbox --}}
+                        <x-admin.ui.td class="text-center">
+                            <input type="checkbox" 
+                                   value="{{ $product->id }}" 
+                                   x-model="selectedIds"
+                                   class="h-4 w-4 rounded border-gray-300 text-[#C41E3A] focus:ring-[#C41E3A] transition-colors cursor-pointer">
+                        </x-admin.ui.td>
+
                         {{-- Row index --}}
                         <x-admin.ui.td class="text-gray-400 text-xs tabular-nums">
                             {{ $products->firstItem() ? ($loop->iteration + $products->firstItem() - 1) : $loop->iteration }}
@@ -233,7 +299,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="px-6 py-12 text-center">
+                        <td colspan="11" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center gap-3 text-gray-400">
                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 <p class="font-medium text-gray-500">No products found</p>
@@ -253,6 +319,7 @@
             {{ $products->links() }}
         </div>
     </x-admin.ui.card>
+    </div>
 
     <x-admin.ui.modal name="import-products" title="Import Products from Excel">
         <form method="POST" action="{{ route('admin.products.import') }}" enctype="multipart/form-data" class="p-6">

@@ -280,6 +280,53 @@ class ProductController extends Controller
     }
 
     /**
+     * Bulk remove the specified resources from storage.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:products,id',
+        ]);
+
+        Product::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', count($request->ids) . ' product(s) deleted successfully.');
+    }
+
+    /**
+     * Bulk export selected products as PDF.
+     */
+    public function bulkExportPdf(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:products,id',
+        ]);
+
+        $products = Product::with(['tax', 'unit', 'category', 'brand'])
+            ->whereIn('id', $request->ids)
+            ->latest()
+            ->get();
+
+        $settings = SystemSetting::where('group', 'general')->pluck('value', 'key');
+        $company = [
+            'name' => $settings['site_name'] ?? 'ZamZam Import and Export Inc.',
+            'address' => nl2br(e($settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada")),
+            'phone' => $settings['contact_phone'] ?? '+1 416-283-4488',
+            'cell' => $settings['contact_cell'] ?? '+1 647-482-1133',
+            'email' => $settings['contact_email'] ?? 'zamzamimport2023@gmail.com',
+            'tax_id' => $settings['tax_id'] ?? '731247144RT0001',
+        ];
+
+        $generatedAt = now()->format('M d, Y g:i A');
+
+        $pdf = PDF::loadView('pdf.products', compact('products', 'company', 'generatedAt'));
+        return $pdf->stream('products-bulk-' . now()->format('Y-m-d') . '.pdf');
+    }
+
+    /**
      * Download the Product Import Excel template (with instructions and sample rows).
      */
     public function downloadImportTemplate()

@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('products/bulk-destroy', [\App\Http\Controllers\Admin\ProductController::class, 'bulkDestroy'])->name('products.bulk-destroy');
+    Route::post('products/bulk-export-pdf', [\App\Http\Controllers\Admin\ProductController::class, 'bulkExportPdf'])->name('products.bulk-export-pdf');
     Route::get('products/next-sku', [\App\Http\Controllers\Admin\ProductController::class, 'nextSku'])->name('products.next-sku');
     Route::get('products/import/template', [\App\Http\Controllers\Admin\ProductController::class, 'downloadImportTemplate'])->name('products.import.template');
     Route::post('products/import', [\App\Http\Controllers\Admin\ProductController::class, 'import'])->name('products.import');
