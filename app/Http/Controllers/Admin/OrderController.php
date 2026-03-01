@@ -59,8 +59,10 @@ class OrderController extends Controller
         $users = User::all(); // Provide users for selection
         // In a real app, you might want to fetch products via AJAX or load a subset
         $products = Product::all();
+        $categories = \App\Models\Category::where('status', true)->get();
+        $brands = \App\Models\Brand::where('status', true)->get();
         
-        return view('admin.orders.create', compact('users', 'products'));
+        return view('admin.orders.create', compact('users', 'products', 'categories', 'brands'));
     }
 
     /**
@@ -132,8 +134,10 @@ class OrderController extends Controller
         $order->load('items', 'user');
         $users = User::all();
         $products = Product::all();
+        $categories = \App\Models\Category::where('status', true)->get();
+        $brands = \App\Models\Brand::where('status', true)->get();
 
-        return view('admin.orders.edit', compact('order', 'users', 'products'));
+        return view('admin.orders.edit', compact('order', 'users', 'products', 'categories', 'brands'));
     }
 
     /**
@@ -276,14 +280,25 @@ class OrderController extends Controller
     public function searchProducts(Request $request)
     {
         $query = $request->get('q');
+        $categoryId = $request->get('category_id');
+        $brandId = $request->get('brand_id');
         
         $products = Product::query()
             ->with(['category:id,name', 'brand:id,name', 'unit:id,name', 'tax']) // Eager load relationships
-            ->where('name', 'like', "%{$query}%")
-            ->orWhere('product_code', 'like', "%{$query}%")
-            ->select(['id', 'name', 'product_code', 'unit_price as price', 'category_id', 'brand_id', 'unit_id', 'tax_id', 'quantity']) 
-            ->limit(20)
-            ->get();
+            ->when($query, function($q) use ($query) {
+                $q->where(function ($q2) use ($query) {
+                    $q2->where('name', 'like', "%{$query}%")
+                       ->orWhere('product_code', 'like', "%{$query}%");
+                });
+            })
+            ->when($categoryId, function($q) use ($categoryId) {
+                $q->where('category_id', $categoryId);
+            })
+            ->when($brandId, function($q) use ($brandId) {
+                $q->where('brand_id', $brandId);
+            })
+            ->select(['id', 'name', 'product_code', 'unit_price as price', 'category_id', 'brand_id', 'unit_id', 'tax_id', 'quantity', 'image']) 
+            ->paginate(12);
 
         return response()->json($products);
     }
