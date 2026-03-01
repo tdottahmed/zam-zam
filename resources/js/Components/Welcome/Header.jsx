@@ -380,15 +380,26 @@ export default function Header() {
                         ))}
                     </div>
 
-                    <div className="p-6 border-t border-gray-100 bg-gray-50">
+                    <div className="p-6 border-t border-gray-100 bg-gray-50 space-y-2">
                         {auth.user ? (
-                            <Link
-                                href={route("dashboard")}
-                                className="flex items-center justify-center w-full bg-[#333] text-white py-3 rounded-lg font-bold uppercase tracking-wide text-sm hover:bg-[#C41E3A] transition"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                Dashboard
-                            </Link>
+                            <>
+                                <Link
+                                    href={route("dashboard")}
+                                    className="flex items-center justify-center w-full bg-[#333] text-white py-3 rounded-lg font-bold uppercase tracking-wide text-sm hover:bg-[#C41E3A] transition"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Dashboard
+                                </Link>
+                                <Link
+                                    href={route("logout")}
+                                    method="post"
+                                    as="button"
+                                    className="flex items-center justify-center w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold uppercase tracking-wide text-sm hover:bg-gray-100 hover:border-[#C41E3A] hover:text-[#C41E3A] transition"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Logout
+                                </Link>
+                            </>
                         ) : (
                             <Link
                                 href={route("login")}

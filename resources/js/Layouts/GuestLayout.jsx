@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/react';
 export default function GuestLayout({ children }) {
     return (
         <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center relative" 
-             style={{ backgroundImage: "url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')" }}>
+             style={{ backgroundImage: "url('/images/login-bg.jpg')" }}>
             
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0"></div>
