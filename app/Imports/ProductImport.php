@@ -30,8 +30,13 @@ class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
     /** @var array tax by name (lowercase) or value string => id */
     protected $taxes;
 
+    protected $nextSkuId;
+
     public function __construct()
     {
+        $lastProduct = Product::latest('id')->first();
+        $this->nextSkuId = $lastProduct ? $lastProduct->id + 1 : 1;
+
         $this->units = Unit::all()->mapWithKeys(function (Unit $unit) {
             return [
                 strtolower($unit->name) => $unit->id,
@@ -86,10 +91,17 @@ class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             $pcsInCtn = 1;
         }
 
+        $buyingPrice = $this->floatOrNull($row['unit_buying_price'] ?? $row['buying_price'] ?? null);
+        $profitMargin = $this->floatOrNull($row['profit_margin'] ?? null);
+
+        $unitPrice = $this->floatOrNull($row['selling_price_unit'] ?? $row['selling_price'] ?? null);
+        if ($unitPrice === null && $profitMargin !== null && $buyingPrice !== null) {
+            $unitPrice = round($buyingPrice + ($buyingPrice * $profitMargin / 100), 2);
+        }
+
         $boxPrice = $this->floatOrNull($row['box_price'] ?? $row['price'] ?? null);
-        $unitPrice = $this->floatOrNull($row['unit_price'] ?? null);
-        if ($unitPrice === null && $boxPrice !== null && $pcsInCtn > 0) {
-            $unitPrice = round($boxPrice / $pcsInCtn, 2);
+        if ($boxPrice === null && $unitPrice !== null && $pcsInCtn > 0) {
+            $boxPrice = round($unitPrice * $pcsInCtn, 2);
         }
 
         $categoryId = $this->resolveCategory($row['category'] ?? null);
@@ -102,10 +114,16 @@ class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
         $alertQuantity = $this->intOrNull($row['alert_quantity'] ?? null);
         $isFeatured = $this->boolFromExcel($row['is_featured'] ?? null);
 
+        $productCode = $this->trim($row['product_code'] ?? null);
+        if (empty($productCode)) {
+            $productCode = 'PCB-' . str_pad($this->nextSkuId, 5, '0', STR_PAD_LEFT);
+            $this->nextSkuId++;
+        }
+
         return new Product([
             'name' => $name,
             'slug' => $this->uniqueSlug($name),
-            'product_code' => $this->trim($row['product_code'] ?? null) ?: null,
+            'product_code' => $productCode,
             'category_id' => $categoryId,
             'brand_id' => $brandId,
             'unit_value' => $unitValue !== null && $unitValue !== '' ? $unitValue : null,
@@ -113,7 +131,7 @@ class ProductImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnF
             'pcs_in_ctn' => $pcsInCtn,
             'box_price' => $boxPrice,
             'unit_price' => $unitPrice,
-            'buying_price' => $this->floatOrNull($row['buying_price'] ?? null),
+            'buying_price' => $buyingPrice,
             'tax_id' => $taxId,
             'quantity' => $quantity,
             'stock_unit' => $stockUnit,
