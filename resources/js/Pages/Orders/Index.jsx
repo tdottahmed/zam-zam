@@ -1,17 +1,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 export default function Index({ orders }) {
+    const { props } = usePage();
+    const canCreateOrder = props.auth?.user?.status === 'approved';
+
     return (
         <AuthenticatedLayout title="My Orders">
             <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Order History</h2>
                         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             Track and manage your recent purchases.
                         </p>
                     </div>
+                    {canCreateOrder && (
+                        <Link
+                            href={route('orders.create')}
+                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white bg-[#C41E3A] hover:bg-[#a01830] shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Create order
+                        </Link>
+                    )}
                 </div>
 
                 {orders.data.length === 0 ? (
