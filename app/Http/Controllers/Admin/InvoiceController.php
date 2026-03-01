@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InvoiceMail;
 use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -166,9 +170,78 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
-        $invoice->items()->delete(); // Delete items first
+        $this->deleteInvoicePdf($invoice);
+        $invoice->items()->delete();
         $invoice->delete();
 
         return redirect()->route('admin.invoices.index')->with('success', 'Invoice deleted successfully.');
+    }
+
+    /**
+     * Bulk delete selected invoices.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:invoices,id',
+        ]);
+
+        $invoices = Invoice::whereIn('id', $request->ids)->get();
+        foreach ($invoices as $invoice) {
+            $this->deleteInvoicePdf($invoice);
+            $invoice->items()->delete();
+            $invoice->delete();
+        }
+
+        $count = count($request->ids);
+        return redirect()->route('admin.invoices.index')
+            ->with('success', "{$count} invoice(s) deleted successfully.");
+    }
+
+    /**
+     * Bulk send invoice emails to customers.
+     */
+    public function bulkSendEmail(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:invoices,id',
+        ]);
+
+        $invoices = Invoice::with(['order.user'])->whereIn('id', $request->ids)->get();
+        $sent = 0;
+        $skipped = [];
+
+        foreach ($invoices as $invoice) {
+            $email = $invoice->order->user->email ?? ($invoice->order->shipping_address['email'] ?? null);
+            if (!$email) {
+                $skipped[] = $invoice->invoice_number;
+                continue;
+            }
+            try {
+                Mail::to($email)->send(new InvoiceMail($invoice));
+                $sent++;
+            } catch (\Throwable $e) {
+                Log::warning('Invoice email failed: ' . $invoice->invoice_number . ' - ' . $e->getMessage());
+                $skipped[] = $invoice->invoice_number;
+            }
+        }
+
+        if (count($skipped) > 0) {
+            return redirect()->route('admin.invoices.index')
+                ->with('warning', "{$sent} invoice(s) sent. Could not send: " . implode(', ', $skipped) . (count($skipped) > 0 ? ' (missing email or send failed).' : ''));
+        }
+
+        return redirect()->route('admin.invoices.index')
+            ->with('success', "{$sent} invoice(s) sent successfully.");
+    }
+
+    private function deleteInvoicePdf(Invoice $invoice): void
+    {
+        $disk = \App\Services\InvoicePdfService::INVOICES_DISK;
+        if ($invoice->pdf_path && Storage::disk($disk)->exists($invoice->pdf_path)) {
+            Storage::disk($disk)->delete($invoice->pdf_path);
+        }
     }
 }

@@ -97,12 +97,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('newsletter-subscribers/{newsletter_subscriber}', [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'destroy'])->name('newsletter-subscribers.destroy');
 
     // Invoices Resource
+    Route::post('invoices/bulk-destroy', [\App\Http\Controllers\Admin\InvoiceController::class, 'bulkDestroy'])->name('invoices.bulk-destroy');
+    Route::post('invoices/bulk-send-email', [\App\Http\Controllers\Admin\InvoiceController::class, 'bulkSendEmail'])->name('invoices.bulk-send-email');
     Route::resource('invoices', \App\Http\Controllers\Admin\InvoiceController::class);
-    
+
     // Invoice specific routes (Legacy/Specific actions)
     Route::get('orders/{order}/invoice/create', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'create'])->name('orders.invoice.create');
     Route::post('orders/{order}/invoice/store', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'store'])->name('orders.invoice.store');
     Route::get('invoices/{invoice}/print', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'print'])->name('invoices.print');
+    Route::get('invoices/{invoice}/download', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'download'])->name('invoices.download');
 
     // Credit Notes
     Route::get('api/search/ordered-items', [\App\Http\Controllers\Admin\CreditNoteController::class, 'searchOrderedItems'])->name('api.search.ordered-items');
