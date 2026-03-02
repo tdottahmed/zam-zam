@@ -7,7 +7,7 @@
     body {
       font-family: 'Helvetica', 'Arial', sans-serif;
       font-size: 12px;
-      
+
       /* Light green background matching screenshot */
       color: #000;
     }
@@ -15,13 +15,14 @@
     @page {
       header: page-header;
       footer: page-footer;
-      margin-top: 100px; /* Adjust for larger header */
+      margin-top: 100px;
+      /* Adjust for larger header */
     }
 
     @page :first {
       header: page-header;
       footer: page-footer;
-      
+
     }
 
 
@@ -32,7 +33,7 @@
     }
 
     .page-number:before {
-      content: "Page " counter(page);      
+      content: "Page " counter(page);
     }
 
     .header-top {
@@ -50,18 +51,21 @@
 
     .logo {
       display: inline-block;
-      height: 80px; /* Increased from 20px */
+      height: 80px;
+      /* Increased from 20px */
       width: auto;
       max-height: none;
-      margin-top:10px;
+      margin-top: 10px;
     }
 
     .flavor-text {
       display: table-cell;
       text-align: right;
       vertical-align: top;
-      font-size: 14px; /* Increased from 12px for better readability */
-      padding-top: 15px; /* Aligned with larger logo */
+      font-size: 14px;
+      /* Increased from 12px for better readability */
+      padding-top: 15px;
+      /* Aligned with larger logo */
       color: #555;
     }
 
@@ -77,7 +81,7 @@
       padding-bottom: 5px;
       margin-bottom: 10px;
       overflow: hidden;
-      
+
     }
 
     .address-separator {
@@ -135,16 +139,20 @@
       font-size: 11px;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
-      padding: 8px 5px; /* Increased padding */
+      padding: 8px 5px;
+      /* Increased padding */
       border-bottom: 1px solid #ccc;
     }
 
     th {
-      font-weight: bold; /* Changed from normal */
+      font-weight: bold;
+      /* Changed from normal */
       color: #333;
-      background-color: #f9f9f9; /* Added background */
+      background-color: #f9f9f9;
+      /* Added background */
     }
 
     .text-right {
@@ -204,51 +212,61 @@
   <!-- Define Footer -->
   <htmlpagefooter name="page-footer">
     <div class="page-footer-content">
-      <div>{{ $data['company']['name'] }} | {!! strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) !!} | Phone: {{ $data['company']['phone'] }} | Cell: {{ $data['company']['cell'] }}</div>
-      <div>Email: {{ $data['company']['email'] }} | Web: http://www.superasia.ca | HST: {{ $data['company']['tax_id'] }}</div>
+      <div>{{ $data['company']['name'] }} | {!! strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) !!} | Phone: {{ $data['company']['phone'] }} | Cell:
+        {{ $data['company']['cell'] }}</div>
+      <div>Email: {{ $data['company']['email'] }} | Web: http://www.superasia.ca | HST: {{ $data['company']['tax_id'] }}
+      </div>
       <div style="margin-top: 5px;">Page: {PAGENO} / {nbpg}</div>
     </div>
   </htmlpagefooter>
 
   <!-- Content Body -->
   <sethtmlpageheader name="page-header" value="on" />
-  
+
   <div class="invoice-title">Invoice {{ $data['invoice_number'] }}</div>
 
   <table style="width: 100%; margin-bottom: 10px; border-spacing: 0;">
     <tr>
-      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
-          <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">Partner Reference</div>
-          <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['partner']['name'] }}</div>
-          <div style="color: #555; line-height: 1.4;">
-              {{ $data['partner']['address_1'] }}<br>
-              @if (!empty($data['partner']['address_2']))
-                {{ $data['partner']['address_2'] }}<br>
-              @endif
-              {{ $data['partner']['country'] }}
-          </div>
-          @if (!empty($data['partner']['phone']))
-            <div style="margin-top: 8px; color: #555;">
-                <span style="font-weight: bold;">Phone:</span> {{ $data['partner']['phone'] }}
-            </div>
+      <td
+          style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+        <div
+             style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
+          Partner Reference</div>
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['partner']['name'] }}
+        </div>
+        <div style="color: #555; line-height: 1.4;">
+          {{ $data['partner']['address_1'] }}<br>
+          @if (!empty($data['partner']['address_2']))
+            {{ $data['partner']['address_2'] }}<br>
           @endif
+          {{ $data['partner']['country'] }}
+        </div>
+        @if (!empty($data['partner']['phone']))
+          <div style="margin-top: 8px; color: #555;">
+            <span style="font-weight: bold;">Phone:</span> {{ $data['partner']['phone'] }}
+          </div>
+        @endif
       </td>
       <td style="width: 4%;">&nbsp;</td>
-      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
-          <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">Delivery Address</div>
-          <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['delivery']['name'] }}</div>
-          <div style="color: #555; line-height: 1.4;">
-              {{ $data['delivery']['address_1'] }}<br>
-              @if (!empty($data['delivery']['address_2']))
-                {{ $data['delivery']['address_2'] }}<br>
-              @endif
-              {{ $data['delivery']['country'] }}
-          </div>
-          @if (!empty($data['delivery']['phone']))
-            <div style="margin-top: 8px; color: #555;">
-                <span style="font-weight: bold;">Phone:</span> {{ $data['delivery']['phone'] }}
-            </div>
+      <td
+          style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+        <div
+             style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
+          Delivery Address</div>
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">
+          {{ $data['delivery']['name'] }}</div>
+        <div style="color: #555; line-height: 1.4;">
+          {{ $data['delivery']['address_1'] }}<br>
+          @if (!empty($data['delivery']['address_2']))
+            {{ $data['delivery']['address_2'] }}<br>
           @endif
+          {{ $data['delivery']['country'] }}
+        </div>
+        @if (!empty($data['delivery']['phone']))
+          <div style="margin-top: 8px; color: #555;">
+            <span style="font-weight: bold;">Phone:</span> {{ $data['delivery']['phone'] }}
+          </div>
+        @endif
       </td>
     </tr>
   </table>
@@ -258,7 +276,8 @@
       <tr>
         <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
           <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Invoice Date</div>
-          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['invoice_date'] }}</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['invoice_date'] }}
+          </div>
         </td>
         <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
           <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Due Date</div>
@@ -269,16 +288,19 @@
           <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['source'] }}</div>
         </td>
         <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
-          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">PO #</div>
-          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['purchase_order'] ?: '-' }}</div>
+          <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">CI</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">
+            {{ $data['ci'] ?? '-' }}</div>
         </td>
         <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
           <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Salesperson</div>
-          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['salesperson'] }}</div>
+          <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['salesperson'] }}
+          </div>
         </td>
         <td style="width: 2%;"></td>
         <td style="background-color: #fff4e5; padding: 10px; border-radius: 5px; border: 1px solid #ffe0b2;">
-          <div style="font-size: 9px; text-transform: uppercase; color: #d35400; font-weight: bold;">Payment Instructions</div>
+          <div style="font-size: 9px; text-transform: uppercase; color: #d35400; font-weight: bold;">Payment
+            Instructions</div>
           <div style="font-size: 10px; color: #555; margin-top: 3px; line-height: 1.3;">
             {!! $data['payment_instructions'] !!}
           </div>
@@ -305,14 +327,15 @@
     </thead>
     <tbody>
       @foreach ($data['items'] as $item)
-        <tr style="{{ isset($item['highlight_color']) ? 'background-color: ' . $item['highlight_color'] . '40;' : '' }}">
+        <tr
+            style="{{ isset($item['highlight_color']) ? 'background-color: ' . $item['highlight_color'] . '40;' : '' }}">
           <td>{{ $item['s_no'] }}</td>
           <td style="text-align: center;">
-              @if(isset($item['image_path']) && file_exists($item['image_path']))
-                  <img src="{{ $item['image_path'] }}" style="width: 40px; height: 40px; object-fit: contain;">
-              @else
-                  -
-              @endif
+            @if (isset($item['image_path']) && file_exists($item['image_path']))
+              <img src="{{ $item['image_path'] }}" style="width: 40px; height: 40px; object-fit: contain;">
+            @else
+              -
+            @endif
           </td>
           <td style="text-align: center;">{{ $item['quantity'] }}</td>
           <td>{{ $item['description'] }}</td>
@@ -321,18 +344,18 @@
           <td>${{ number_format($item['box_price'], 2) }}</td>
           <td>${{ number_format($item['unit_price'], 2) }}</td>
           <td>
-            @if(isset($item['discount']) && $item['discount'] > 0)
-                ${{ number_format($item['discount'], 2) }}
+            @if (isset($item['discount']) && $item['discount'] > 0)
+              ${{ number_format($item['discount'], 2) }}
             @else
-                -
+              -
             @endif
           </td>
           <td class="text-right">${{ number_format($item['amount'], 2) }}</td>
           <td>
-            @if(isset($item['tax']) && $item['tax'] > 0)
-                ${{ number_format($item['tax'], 2) }}
+            @if (isset($item['tax']) && $item['tax'] > 0)
+              ${{ number_format($item['tax'], 2) }}
             @else
-                -
+              -
             @endif
           </td>
         </tr>
@@ -349,9 +372,6 @@
       <div style="margin-top: 20px;">
         Please use the following communication for your payment : {{ $data['invoice_number'] }}
       </div>
-      <div style="margin-top: 10px;">
-        CHQ ILL RCV
-      </div>
     </div>
 
     <div class="amounts">
@@ -363,15 +383,15 @@
           </tr>
         </table>
       </div>
-      @if($data['shipping'] > 0)
-      <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%;">
-          <tr>
-            <td>Shipping {{ $data['shipping_method'] ? '('.$data['shipping_method'].')' : '' }}</td>
-            <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
-          </tr>
-        </table>
-      </div>
+      @if ($data['shipping'] > 0)
+        <div style="padding-bottom: 5px; margin-bottom: 5px;">
+          <table style="width: 100%;">
+            <tr>
+              <td>Shipping {{ $data['shipping_method'] ? '(' . $data['shipping_method'] . ')' : '' }}</td>
+              <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
+            </tr>
+          </table>
+        </div>
       @endif
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">

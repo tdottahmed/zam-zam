@@ -52,6 +52,7 @@ class OrderInvoiceController extends Controller
     {
         $validated = $request->validate([
             'invoice_number' => 'required|unique:invoices,invoice_number',
+            'ci' => 'nullable|string|max:255',
             'invoice_date' => 'required|date',
             'due_date' => 'required|date',
             'notes' => 'nullable|string',
@@ -83,6 +84,7 @@ class OrderInvoiceController extends Controller
         $invoice = Invoice::create([
             'order_id' => $order->id,
             'invoice_number' => $validated['invoice_number'],
+            'ci' => $validated['ci'] ?? null,
             'invoice_date' => $validated['invoice_date'],
             'due_date' => $validated['due_date'],
             'notes' => $validated['notes'] ?? null,

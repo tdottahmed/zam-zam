@@ -220,6 +220,14 @@
                                 </div>
                                 @error('invoice_number') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Commercial Invoice (CI)</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <input type="text" name="ci" value="{{ old('ci') }}" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50" placeholder="Optional CI number">
+                                </div>
+                                @error('ci') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
                             
                             <div class="grid grid-cols-2 gap-4">
                                 <div>

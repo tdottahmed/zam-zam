@@ -22,6 +22,7 @@ class Invoice extends Model
         'status',
         'notes',
         'pdf_path',
+        'ci',
     ];
 
     protected $casts = [

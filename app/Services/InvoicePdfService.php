@@ -43,6 +43,7 @@ class InvoicePdfService
 
         return [
             'invoice_number' => $invoice->invoice_number,
+            'ci' => $invoice->ci,
             'invoice_date' => \Carbon\Carbon::parse($invoice->invoice_date)->format('d-M-Y'),
             'due_date' => \Carbon\Carbon::parse($invoice->due_date)->format('d-M-Y'),
             'source' => 'Web Order',
