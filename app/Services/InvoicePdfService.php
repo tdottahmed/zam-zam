@@ -10,18 +10,15 @@ use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 
 class InvoicePdfService
 {
-    public const INVOICES_DISK = 'invoices';
+    public const INVOICES_DISK = 'public';
 
     /**
      * Sanitized filename and relative path for an invoice PDF.
-     * Format: {year}/{invoice_number}.pdf e.g. 2025/INV-2025-0001.pdf
+     * Format: invoices/{uuid}.pdf
      */
     public static function pdfPathForInvoice(Invoice $invoice): string
     {
-        $year = $invoice->invoice_date->format('Y');
-        $safeNumber = preg_replace('/[^a-zA-Z0-9\-]/', '-', $invoice->invoice_number);
-        $safeNumber = trim($safeNumber, '-');
-        return $year . '/' . $safeNumber . '.pdf';
+        return 'invoices/' . \Illuminate\Support\Str::uuid()->toString() . '.pdf';
     }
     /**
      * Build the data array for the PDF view (shared between stream and save).
@@ -125,7 +122,12 @@ class InvoicePdfService
             $path = self::pdfPathForInvoice($invoice);
             $disk = self::INVOICES_DISK;
 
-            // Ensure directory exists (e.g. storage/app/invoices/2025)
+            // If an old PDF exists, delete it before creating a new one to prevent orphaned files
+            if ($invoice->pdf_path && $invoice->pdf_path !== $path && Storage::disk($disk)->exists($invoice->pdf_path)) {
+                Storage::disk($disk)->delete($invoice->pdf_path);
+            }
+
+            // Ensure directory exists (e.g. storage/app/public/invoices)
             $fullPath = Storage::disk($disk)->path($path);
             $dir = dirname($fullPath);
             if (!is_dir($dir)) {

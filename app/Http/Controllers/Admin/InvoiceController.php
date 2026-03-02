@@ -162,6 +162,10 @@ class InvoiceController extends Controller
             'total' => $grandTotal,
         ]);
 
+        // Delete previous PDF file and create new one
+        $this->deleteInvoicePdf($invoice);
+        dispatch(new \App\Jobs\GenerateInvoicePdf($invoice->fresh()));
+
         return redirect()->route('admin.invoices.index')->with('success', 'Invoice updated successfully.');
     }
 

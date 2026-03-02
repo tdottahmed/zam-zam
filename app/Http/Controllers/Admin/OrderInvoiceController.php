@@ -136,6 +136,9 @@ class OrderInvoiceController extends Controller
             'total' => $grandTotal,
         ]);
 
+        // Generate and save PDF with UUID to storage/app/public/invoices in the background
+        dispatch(new \App\Jobs\GenerateInvoicePdf($invoice));
+
         return redirect()->route('admin.invoices.show', $invoice)->with('success', 'Invoice generated successfully.');
     }
 
@@ -146,12 +149,22 @@ class OrderInvoiceController extends Controller
     }
 
     /**
-     * Stream PDF in browser (generates on-the-fly, does not save).
+     * Stream PDF in browser. Uses stored file if available, otherwise generates on-the-fly.
      */
-    public function print(Invoice $invoice): StreamedResponse
+    public function print(Invoice $invoice)
     {
-        $response = $this->invoicePdf->generate($invoice, false);
-        return $response;
+        $disk = \App\Services\InvoicePdfService::INVOICES_DISK;
+        
+        if ($invoice->pdf_path && \Illuminate\Support\Facades\Storage::disk($disk)->exists($invoice->pdf_path)) {
+            $fullPath = \Illuminate\Support\Facades\Storage::disk($disk)->path($invoice->pdf_path);
+            return response()->file($fullPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="invoice-' . preg_replace('/[^a-zA-Z0-9\-]/', '-', $invoice->invoice_number) . '.pdf"',
+            ]);
+        }
+
+        // Fallback to on-the-fly generation if file doesn't exist
+        return $this->invoicePdf->generate($invoice, false);
     }
 
     /**
