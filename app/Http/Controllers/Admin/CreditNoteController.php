@@ -173,9 +173,18 @@ class CreditNoteController extends Controller
                     $validated['reason'],
                     $validated['admin_notes']
                 );
+                $oldStatus = $creditNote->status;
                 
                 if ($creditNote->status !== $validated['status']) {
                     $creditNote->update(['status' => $validated['status']]);
+                }
+
+                // If status changed to approved or refunded, send email
+                if (in_array($validated['status'], ['approved', 'refunded']) && $oldStatus !== $validated['status']) {
+                    $email = $creditNote->user->email ?? null;
+                    if ($email) {
+                        dispatch(new \App\Jobs\SendCreditNoteEmail($creditNote->fresh(), $email));
+                    }
                 }
 
                 return redirect()->route('admin.credit-notes.show', $creditNote)->with('success', 'Credit note updated successfully.');
@@ -189,10 +198,20 @@ class CreditNoteController extends Controller
             'admin_note' => 'nullable|string'
         ]);
 
+        $oldStatus = $creditNote->status;
+
         $creditNote->update([
             'status' => $validated['status'],
             'admin_notes' => $validated['admin_note'] ?? $creditNote->admin_notes
         ]);
+
+        // If status changed to approved or refunded from quick action list, send email
+        if (in_array($validated['status'], ['approved', 'refunded']) && $oldStatus !== $validated['status']) {
+            $email = $creditNote->user->email ?? null;
+            if ($email) {
+                dispatch(new \App\Jobs\SendCreditNoteEmail($creditNote->fresh(), $email));
+            }
+        }
 
         return back()->with('success', 'Credit note status updated successfully.');
     }
