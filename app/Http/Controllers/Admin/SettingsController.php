@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
@@ -209,5 +210,73 @@ class SettingsController extends Controller
         }
 
         return redirect()->back()->with('success', 'Third party settings updated successfully.');
+    }
+
+    /**
+     * Display system health: overview, failed queue jobs, scheduler setup.
+     */
+    public function health()
+    {
+        $failedJobs = DB::table('failed_jobs')
+            ->orderByDesc('failed_at')
+            ->limit(50)
+            ->get();
+
+        $pendingJobsCount = DB::table('jobs')->count();
+
+        $projectPath = base_path();
+        $phpBinary = PHP_BINARY ?: 'php';
+        $schedulerCommand = "cd " . escapeshellarg($projectPath) . " && {$phpBinary} artisan schedule:run >> /dev/null 2>&1";
+        $fullCronLine = "* * * * * " . $schedulerCommand;
+
+        $storageWritable = is_writable(storage_path());
+
+        $health = [
+            'php_version' => PHP_VERSION,
+            'laravel_version' => \Illuminate\Foundation\Application::VERSION,
+            'env' => config('app.env'),
+            'queue_connection' => config('queue.default'),
+            'cache_driver' => config('cache.default'),
+            'storage_writable' => $storageWritable,
+            'pending_jobs_count' => $pendingJobsCount,
+        ];
+
+        return view('admin.settings.health', compact('health', 'failedJobs', 'fullCronLine', 'schedulerCommand', 'projectPath'));
+    }
+
+    /**
+     * Retry a single failed job by UUID.
+     */
+    public function retryFailedJob(Request $request, string $uuid)
+    {
+        Artisan::call('queue:retry', ['id' => $uuid]);
+        return redirect()->route('admin.settings.health')->with('success', 'Job queued for retry.');
+    }
+
+    /**
+     * Retry all failed jobs.
+     */
+    public function retryAllFailedJobs(Request $request)
+    {
+        Artisan::call('queue:retry', ['id' => 'all']);
+        return redirect()->route('admin.settings.health')->with('success', 'All failed jobs have been queued for retry.');
+    }
+
+    /**
+     * Forget (delete) a single failed job.
+     */
+    public function forgetFailedJob(Request $request, string $uuid)
+    {
+        Artisan::call('queue:forget', ['id' => $uuid]);
+        return redirect()->route('admin.settings.health')->with('success', 'Failed job removed.');
+    }
+
+    /**
+     * Flush all failed jobs.
+     */
+    public function flushFailedJobs(Request $request)
+    {
+        Artisan::call('queue:flush');
+        return redirect()->route('admin.settings.health')->with('success', 'All failed jobs have been removed.');
     }
 }
