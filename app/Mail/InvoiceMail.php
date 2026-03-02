@@ -20,7 +20,6 @@ class InvoiceMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $customerName = $this->invoice->order->user->name ?? $this->invoice->order->shipping_address['name'] ?? 'Customer';
         return new Envelope(
             subject: 'Invoice ' . $this->invoice->invoice_number . ' from ' . (config('app.name') ?: 'Zam Zam'),
             replyTo: [config('mail.from.address')],
@@ -39,18 +38,20 @@ class InvoiceMail extends Mailable
      */
     public function attachments(): array
     {
-        $invoice = $this->invoice;
         $disk = \App\Services\InvoicePdfService::INVOICES_DISK;
-        $path = $invoice->pdf_path;
+        $path = $this->invoice->pdf_path;
+        
+        // Use pdf_path with fallback to generation if it doesn't exist
         if (!$path || !\Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
-            app(\App\Services\InvoicePdfService::class)->ensurePdfExists($invoice);
-            $invoice->refresh();
-            $path = $invoice->pdf_path;
+            $path = app(\App\Services\InvoicePdfService::class)->ensurePdfExists($this->invoice);
+        } else {
+            $path = \Illuminate\Support\Facades\Storage::disk($disk)->path($path);
         }
-        $fullPath = \Illuminate\Support\Facades\Storage::disk($disk)->path($path);
-        $filename = preg_replace('/[^a-zA-Z0-9\-.]/', '-', $invoice->invoice_number) . '.pdf';
+        
+        $filename = preg_replace('/[^a-zA-Z0-9\-.]/', '-', $this->invoice->invoice_number) . '.pdf';
+        
         return [
-            Attachment::fromPath($fullPath)->as($filename)->withMime('application/pdf'),
+            Attachment::fromPath($path)->as($filename)->withMime('application/pdf'),
         ];
     }
 }

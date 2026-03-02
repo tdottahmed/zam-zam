@@ -213,32 +213,40 @@ class InvoiceController extends Controller
             'ids.*' => 'exists:invoices,id',
         ]);
 
-        $invoices = Invoice::with(['order.user'])->whereIn('id', $request->ids)->get();
-        $sent = 0;
+        $queued = 0;
         $skipped = [];
 
-        foreach ($invoices as $invoice) {
-            $email = $invoice->order->user->email ?? ($invoice->order->shipping_address['email'] ?? null);
-            if (!$email) {
-                $skipped[] = $invoice->invoice_number;
-                continue;
+        // Chunking the results in case of a massive bulk action
+        $delayIncrement = 0;
+        Invoice::with(['order.user'])->whereIn('id', $request->ids)->chunk(100, function ($invoices) use (&$queued, &$skipped, &$delayIncrement) {
+            foreach ($invoices as $invoice) {
+                $email = $invoice->order->user->email ?? ($invoice->order->shipping_address['email'] ?? null);
+                
+                if (!$email) {
+                    $skipped[] = $invoice->invoice_number;
+                    continue;
+                }
+                
+                // Dispatch the email sending job with a cascading delay (5 seconds apart) to ensure domain health
+                $job = new \App\Jobs\SendInvoiceEmail($invoice, $email);
+                if ($delayIncrement > 0) {
+                    $job->delay(now()->addSeconds($delayIncrement * 5));
+                }
+                
+                dispatch($job);
+                
+                $queued++;
+                $delayIncrement++;
             }
-            try {
-                Mail::to($email)->send(new InvoiceMail($invoice));
-                $sent++;
-            } catch (\Throwable $e) {
-                Log::warning('Invoice email failed: ' . $invoice->invoice_number . ' - ' . $e->getMessage());
-                $skipped[] = $invoice->invoice_number;
-            }
-        }
+        });
 
         if (count($skipped) > 0) {
             return redirect()->route('admin.invoices.index')
-                ->with('warning', "{$sent} invoice(s) sent. Could not send: " . implode(', ', $skipped) . (count($skipped) > 0 ? ' (missing email or send failed).' : ''));
+                ->with('warning', "{$queued} invoice(s) queued for sending. Could not send: " . implode(', ', $skipped) . " (missing email address).");
         }
 
         return redirect()->route('admin.invoices.index')
-            ->with('success', "{$sent} invoice(s) sent successfully.");
+            ->with('success', "{$queued} invoice(s) queued for sending successfully.");
     }
 
     private function deleteInvoicePdf(Invoice $invoice): void

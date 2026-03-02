@@ -139,6 +139,12 @@ class OrderInvoiceController extends Controller
         // Generate and save PDF with UUID to storage/app/public/invoices in the background
         dispatch(new \App\Jobs\GenerateInvoicePdf($invoice));
 
+        // Optionally send the email right after creation (Add a delay so PDF has time to generate)
+        $email = $order->user->email ?? ($order->shipping_address['email'] ?? null);
+        if ($email) {
+            dispatch(new \App\Jobs\SendInvoiceEmail($invoice, $email))->delay(now()->addSeconds(5));
+        }
+
         return redirect()->route('admin.invoices.show', $invoice)->with('success', 'Invoice generated successfully.');
     }
 
