@@ -111,6 +111,7 @@ class HandleInertiaRequests extends Middleware
                     'contact_cell'     => $settings['contact_cell'] ?? '',
                     'contact_email_alt_1' => $settings['contact_email_alt_1'] ?? '',
                     'contact_email_alt_2' => $settings['contact_email_alt_2'] ?? '',
+                    'map_embed_url'      => $settings['map_embed_url'] ?? '',
                 ];
             },
         ];

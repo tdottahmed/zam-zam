@@ -8,11 +8,16 @@ export default function Contact() {
     const addressAlt = settings.address_alt || '';
     const phone = settings.contact_phone || '';
     const cell = settings.contact_cell || '';
+    const mapEmbedUrl = settings.map_embed_url || '';
     const emails = [
         settings.contact_email,
         settings.contact_email_alt_1,
         settings.contact_email_alt_2,
     ].filter(Boolean);
+
+    // Build "Open in Google Maps" link from first line of address (or generic search)
+    const mapsSearchQuery = address ? address.split('\n')[0].trim() : 'Zam Zam Import Export';
+    const openInMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsSearchQuery)}`;
 
     return (
         <CustomerLayout>
@@ -135,16 +140,44 @@ export default function Contact() {
                 </div>
 
                 {/* Map Section */}
-                <div className="mt-16 bg-gray-100 rounded-3xl h-[400px] w-full overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-500">
-                    <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2878.96678236774!2d-79.664421!3d43.791244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x882b3d1b6b555555%3A0x6b55555555555555!2s8905%20Hwy%2050%2C%20Vaughan%2C%20ON%20L4H%205A1!5e0!3m2!1sen!2sca!4v1620000000000!5m2!1sen!2sca" 
-                        width="100%" 
-                        height="100%" 
-                        style={{border:0}} 
-                        allowFullScreen="" 
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                    ></iframe>
+                <div className="mt-16 rounded-3xl overflow-hidden h-[400px] w-full bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 shadow-inner relative">
+                    {mapEmbedUrl ? (
+                        <iframe
+                            src={mapEmbedUrl}
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Our location on the map"
+                            className="grayscale-[0.2] hover:grayscale-0 transition-all duration-500"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8 text-center">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p className="font-semibold text-slate-700 dark:text-slate-300">View our location</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Open in Google Maps for directions</p>
+                            </div>
+                            <a
+                                href={openInMapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#C41E3A] text-white text-sm font-semibold rounded-xl hover:bg-[#a91930] shadow-lg shadow-red-200/50 transition-all"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                Open in Google Maps
+                            </a>
+                        </div>
+                    )}
                 </div>
             </div>
         </CustomerLayout>

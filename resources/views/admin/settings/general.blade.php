@@ -80,6 +80,33 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Map on Contact Page -->
+                            <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-100">
+                                <h5 class="text-sm font-semibold text-gray-700 mb-1">Map on Contact Page</h5>
+                                <p class="text-xs text-gray-500 mb-3">Show your location on the Contact page. Paste the embed URL from Google Maps.</p>
+                                <div class="space-y-3">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1" for="map_embed_url">Google Maps embed URL</label>
+                                    <textarea name="map_embed_url" id="map_embed_url" rows="3" class="w-full rounded-lg border-gray-300 focus:border-[#C41E3A] focus:ring focus:ring-[#C41E3A] focus:ring-opacity-20 transition shadow-sm font-mono text-sm" placeholder="https://www.google.com/maps/embed?pb=...">{{ $settings['map_embed_url'] ?? '' }}</textarea>
+                                    <p class="text-xs text-gray-500">Paste the full <strong>iframe src</strong> URL (starts with <code class="bg-gray-100 px-1 rounded">https://www.google.com/maps/embed</code>).</p>
+                                    <details class="group/details rounded-lg border border-gray-200 bg-gray-50/50 overflow-hidden">
+                                        <summary class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100/80 transition select-none">
+                                            <svg class="h-4 w-4 text-[#C41E3A] transition group-open/details:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                            How to get the embed URL
+                                        </summary>
+                                        <div class="border-t border-gray-200 px-4 py-3 text-sm text-gray-600 space-y-2 bg-white">
+                                            <p class="font-medium text-gray-800">Steps:</p>
+                                            <ol class="list-decimal list-inside space-y-1.5 text-gray-600">
+                                                <li>Open <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" class="text-[#C41E3A] hover:underline">Google Maps</a> and find your business location.</li>
+                                                <li>Click <strong>Share</strong> → choose <strong>Embed a map</strong>.</li>
+                                                <li>Select size (e.g. Large) and copy the full <strong>src</strong> URL from the iframe code (the part inside <code class="bg-gray-100 px-1 rounded text-xs">src="..."</code>).</li>
+                                                <li>Paste that URL in the field above.</li>
+                                            </ol>
+                                            <p class="text-xs text-gray-500 pt-1">Leave empty to hide the map on the Contact page.</p>
+                                        </div>
+                                    </details>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
