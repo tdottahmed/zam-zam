@@ -401,6 +401,16 @@
           </tr>
         </table>
       </div>
+      @if ($data['total_discount'] > 0)
+        <div style="padding-bottom: 5px; margin-bottom: 5px;">
+          <table style="width: 100%;">
+            <tr>
+              <td>Total Discount</td>
+              <td class="text-right">- ${{ number_format($data['total_discount'], 2) }}</td>
+            </tr>
+          </table>
+        </div>
+      @endif
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>

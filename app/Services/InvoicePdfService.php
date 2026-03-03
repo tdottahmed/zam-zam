@@ -91,7 +91,7 @@ class InvoicePdfService
                     'image_path' => $imagePath,
                     'description' => $item->product_name,
                     'upc' => $item->product->product_code ?? '',
-                    'uom' => $item->product->unit->name ?? 'Unit',
+                    'uom' => $item->product->pcs_in_ctn ? 'BOX ' . $item->product->pcs_in_ctn : 'Unit',
                     'box_price' => $item->product->box_price ?? 0,
                     'unit_price' => $item->unit_price,
                     'amount' => $item->total_price,
@@ -105,6 +105,7 @@ class InvoicePdfService
             'shipping' => $invoice->shipping_amount,
             'shipping_method' => $order->shipping_method_name,
             'hst' => $invoice->tax_total,
+            'total_discount' => $invoice->discount_total,
             'hst_base' => $invoice->subtotal,
             'total' => $invoice->total,
         ];
