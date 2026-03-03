@@ -302,4 +302,12 @@ class OrderController extends Controller
 
         return response()->json($products);
     }
+
+    /**
+     * Export Order as PDF
+     */
+    public function exportPdf(Order $order, \App\Services\OrderPdfService $pdfService)
+    {
+        return $pdfService->generate($order);
+    }
 }

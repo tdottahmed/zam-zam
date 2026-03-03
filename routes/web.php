@@ -86,6 +86,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/notifications/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
 
     // Orders
+    Route::get('orders/{order}/export-pdf', [\App\Http\Controllers\Admin\OrderController::class, 'exportPdf'])->name('orders.export-pdf');
     Route::patch('orders/{order}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
 
