@@ -58,6 +58,7 @@ class OrderInvoiceController extends Controller
             'notes' => 'nullable|string',
             'discount_total' => 'nullable|numeric|min:0',
             'shipping_amount' => 'nullable|numeric|min:0',
+            'freight_charge' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.selected' => 'sometimes|in:on,1,true',
             'items.*.quantity' => 'required_with:items.*.selected|numeric|min:0.01',
@@ -79,8 +80,11 @@ class OrderInvoiceController extends Controller
 
         $subtotal = 0;
         $taxTotal = 0;
+        // Grand total = Subtotal + Tax - Discount + Shipping + Freight Charge
+        // This will be calculated after item processing
         $grandTotal = 0;
 
+        // Create invoice first to get an ID for items
         $invoice = Invoice::create([
             'order_id' => $order->id,
             'invoice_number' => $validated['invoice_number'],
@@ -90,6 +94,7 @@ class OrderInvoiceController extends Controller
             'notes' => $validated['notes'] ?? null,
             'discount_total' => $validated['discount_total'] ?? 0,
             'shipping_amount' => $validated['shipping_amount'] ?? 0,
+            'freight_charge' => $validated['freight_charge'] ?? 0,
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
             'total' => 0,

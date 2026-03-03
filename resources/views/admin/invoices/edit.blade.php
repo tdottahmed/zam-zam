@@ -251,6 +251,19 @@
                                 </div>
                             </div>
                             
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Freight Charge</span>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           x-model.number="freightCharge"
+                                           name="freight_charge"
+                                           min="0" 
+                                           step="0.01"
+                                           class="w-full text-right rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1 px-2"
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                            
                             <div class="border-t border-dashed border-gray-200 dark:border-gray-700 my-2"></div>
 
                             <div class="flex justify-between items-center text-sm">
@@ -302,6 +315,7 @@
         function invoiceItems() {
             return {
                 shippingAmount: {{ $invoice->shipping_amount ?? 0 }},
+                freightCharge: {{ $invoice->freight_charge ?? 0 }},
                 discountTotalValue: {{ $invoice->discount_total ?? 0 }},
                 discountTotalType: 'fixed', // Saved as amount, so load as fixed
                 items: {
@@ -365,7 +379,7 @@
                     const tax = this.calculateTax();
                     const globalDiscount = this.calculateGlobalDiscountAmount();
                     
-                    return Math.max(0, subtotal + tax - globalDiscount + this.shippingAmount);
+                    return Math.max(0, subtotal + tax - globalDiscount + this.shippingAmount + this.freightCharge);
                 },
                 formatMoney(amount) {
                     return '$' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

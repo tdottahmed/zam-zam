@@ -18,6 +18,7 @@ class Invoice extends Model
         'discount_total',
         'tax_total',
         'shipping_amount',
+        'freight_charge',
         'total',
         'status',
         'notes',

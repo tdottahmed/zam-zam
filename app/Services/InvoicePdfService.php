@@ -103,6 +103,7 @@ class InvoicePdfService
             'total_shipped_qty' => $invoice->items->sum('quantity'),
             'subtotal' => $invoice->subtotal,
             'shipping' => $invoice->shipping_amount,
+            'freight_charge' => $invoice->freight_charge,
             'shipping_method' => $order->shipping_method_name,
             'hst' => $invoice->tax_total,
             'total_discount' => $invoice->discount_total,

@@ -360,6 +360,21 @@
           </td>
         </tr>
       @endforeach
+      @if (isset($data['freight_charge']) && $data['freight_charge'] > 0)
+        <tr style="background-color: #e6ffed40;">
+          <td>{{ count($data['items']) + 1 }}</td>
+          <td style="text-align: center;">-</td>
+          <td style="text-align: center;">1</td>
+          <td>-FREIGHT CHARGES</td>
+          <td>-</td>
+          <td>Unit</td>
+          <td>${{ number_format($data['freight_charge'], 2) }}</td>
+          <td>${{ number_format($data['freight_charge'], 2) }}</td>
+          <td>-</td>
+          <td class="text-right">${{ number_format($data['freight_charge'], 2) }}</td>
+          <td>-</td>
+        </tr>
+      @endif
     </tbody>
   </table>
 
@@ -383,16 +398,15 @@
           </tr>
         </table>
       </div>
-      @if ($data['shipping'] > 0)
-        <div style="padding-bottom: 5px; margin-bottom: 5px;">
-          <table style="width: 100%;">
-            <tr>
-              <td>Shipping {{ $data['shipping_method'] ? '(' . $data['shipping_method'] . ')' : '' }}</td>
-              <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
-            </tr>
-          </table>
-        </div>
-      @endif
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
+        <table style="width: 100%;">
+          <tr>
+            <td>Shipping {{ $data['shipping_method'] ? '(' . $data['shipping_method'] . ')' : '' }}</td>
+            <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
+          </tr>
+        </table>
+      </div>
+
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%;">
           <tr>
