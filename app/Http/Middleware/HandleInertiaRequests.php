@@ -112,6 +112,10 @@ class HandleInertiaRequests extends Middleware
                     'contact_email_alt_1' => $settings['contact_email_alt_1'] ?? '',
                     'contact_email_alt_2' => $settings['contact_email_alt_2'] ?? '',
                     'map_embed_url'      => $settings['map_embed_url'] ?? '',
+                    // SEO (defaults for frontend; pages can override via Head)
+                    'meta_title'         => $settings['meta_title'] ?? '',
+                    'meta_description'  => $settings['meta_description'] ?? '',
+                    'meta_keywords'     => $settings['meta_keywords'] ?? '',
                 ];
             },
         ];

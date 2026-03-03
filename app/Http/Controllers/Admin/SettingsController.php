@@ -171,12 +171,13 @@ class SettingsController extends Controller
      */
     public function updateSeo(Request $request)
     {
-        $data = $request->except(['_token', '_method']);
+        $allowed = ['meta_title', 'meta_description', 'meta_keywords', 'google_verification_code'];
+        $data = $request->only($allowed);
 
         foreach ($data as $key => $value) {
             SystemSetting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $value, 'group' => 'seo', 'label' => ucwords(str_replace('_', ' ', $key))]
+                ['value' => $value ?? '', 'group' => 'seo', 'label' => ucwords(str_replace('_', ' ', $key))]
             );
         }
 

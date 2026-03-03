@@ -6,7 +6,16 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="icon" href="{{ $globalSettings['site_favicon'] }}" type="image/x-icon">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ $globalSettings['meta_title'] ?? $globalSettings['site_name'] ?? config('app.name', 'Zam Zam Import export Inc') }}</title>
+        @if(!empty($globalSettings['meta_description']))
+        <meta name="description" content="{{ $globalSettings['meta_description'] }}">
+        @endif
+        @if(!empty($globalSettings['meta_keywords']))
+        <meta name="keywords" content="{{ $globalSettings['meta_keywords'] }}">
+        @endif
+        @if(!empty($globalSettings['google_verification_code']))
+        <meta name="google-site-verification" content="{{ $globalSettings['google_verification_code'] }}">
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

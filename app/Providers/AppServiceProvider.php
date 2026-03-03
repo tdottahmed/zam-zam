@@ -33,6 +33,11 @@ class AppServiceProvider extends ServiceProvider
             'site_name' => $settings['site_name'] ?? config('app.name'),
             'site_logo' => isset($settings['site_logo']) ? asset('storage/' . $settings['site_logo']) : asset('images/Zam_logo-120x99.png'),
             'site_favicon' => isset($settings['site_favicon']) ? asset('storage/' . $settings['site_favicon']) : asset('favicon.ico'),
+            // SEO (used in app.blade.php and frontend)
+            'meta_title' => $settings['meta_title'] ?? null,
+            'meta_description' => $settings['meta_description'] ?? null,
+            'meta_keywords' => $settings['meta_keywords'] ?? null,
+            'google_verification_code' => $settings['google_verification_code'] ?? null,
         ];
         
         \Illuminate\Support\Facades\View::share('globalSettings', $globalSettings);
