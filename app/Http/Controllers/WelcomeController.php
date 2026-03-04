@@ -13,8 +13,8 @@ class WelcomeController extends Controller
 {
     public function index()
     {
-        $brands = Brand::where('status', true)->take(6)->get();
-        $categories = Category::where('status', true)->take(6)->get();
+        $brands = Brand::where('status', true)->get();
+        $categories = Category::where('status', true)->get();
 
         $featuredProducts = Product::with(['category', 'brand', 'unit'])
             ->where('is_featured', true)

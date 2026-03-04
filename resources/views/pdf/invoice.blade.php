@@ -204,7 +204,7 @@
         <div class="logo-container">
           <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="logo">
         </div>
-        <div class="flavor-text">Pure Deshi Taste.</div>
+        <div class="flavor-text" style="font-size: 14px; font-weight: bold; color: #d35400">Pure Deshi Taste</div>
       </div>
     </div>
   </htmlpageheader>
@@ -214,7 +214,7 @@
     <div class="page-footer-content">
       <div>{{ $data['company']['name'] }} | {!! strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) !!} | Phone: {{ $data['company']['phone'] }} | Cell:
         {{ $data['company']['cell'] }}</div>
-      <div>Email: {{ $data['company']['email'] }} | Web: http://www.superasia.ca | HST: {{ $data['company']['tax_id'] }}
+      <div>Email: {{ $data['company']['email'] }} | Web: http://www.zamzamcanada.com | HST: {{ $data['company']['tax_id'] }}
       </div>
       <div style="margin-top: 5px;">Page: {PAGENO} / {nbpg}</div>
     </div>
@@ -226,7 +226,7 @@
   <div class="invoice-title">Invoice {{ $data['invoice_number'] }}</div>
 
   <table style="width: 100%; margin-bottom: 10px; border-spacing: 0;">
-    <tr>
+    <tr style="border: none;">
       <td
           style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
         <div
@@ -273,7 +273,7 @@
 
   <div class="info-bar" style="margin-bottom: 10px;">
     <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
-      <tr>
+      <tr style="border: none;">
         <td style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; width: 14%;">
           <div style="font-size: 9px; text-transform: uppercase; color: #888; font-weight: bold;">Invoice Date</div>
           <div style="font-size: 11px; font-weight: bold; color: #333; margin-top: 3px;">{{ $data['invoice_date'] }}
@@ -391,7 +391,7 @@
 
     <div class="amounts">
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%;">
+        <table style="width: 100%; font-size: 13px; font-weight: bold;">
           <tr>
             <td>Subtotal</td>
             <td class="text-right">${{ number_format($data['subtotal'], 2) }}</td>
@@ -399,7 +399,7 @@
         </table>
       </div>
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%;">
+        <table style="width: 100%; font-size: 13px; font-weight: bold;">
           <tr>
             <td>Shipping {{ $data['shipping_method'] ? '(' . $data['shipping_method'] . ')' : '' }}</td>
             <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
@@ -408,7 +408,7 @@
       </div>
 
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%;">
+        <table style="width: 100%; font-size: 13px; font-weight: bold;">
           <tr>
             <td>Total Taxable Amount on $ {{ number_format($data['hst_base'], 2) }}</td>
             <td class="text-right">${{ number_format($data['hst'], 2) }}</td>
@@ -417,7 +417,7 @@
       </div>
       @if ($data['total_discount'] > 0)
         <div style="padding-bottom: 5px; margin-bottom: 5px;">
-          <table style="width: 100%;">
+          <table style="width: 100%; font-size: 13px; font-weight: bold;">
             <tr>
               <td>Total Discount</td>
               <td class="text-right">- ${{ number_format($data['total_discount'], 2) }}</td>
@@ -426,10 +426,10 @@
         </div>
       @endif
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%;">
+        <table style="width: 100%; font-size: 15px; font-weight: bold;">
           <tr>
-            <td style="font-weight: bold;">Total</td>
-            <td class="text-right" style="font-weight: bold;">${{ number_format($data['total'], 2) }}</td>
+            <td>Total</td>
+            <td class="text-right">${{ number_format($data['total'], 2) }}</td>
           </tr>
         </table>
       </div>
