@@ -54,8 +54,8 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
             'status' => ['required', 'string', 'in:pending,approved'],
 
             // Profile validation
@@ -81,10 +81,22 @@ class UserController extends Controller
             'addresses.*.phone' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $email = $validated['email'] ?? null;
+        if (!$email) {
+            $nextId = User::max('id') + 1;
+            $email = 'user' . $nextId . '@example.com';
+            while (User::where('email', $email)->exists()) {
+                $nextId++;
+                $email = 'user' . $nextId . '@example.com';
+            }
+        }
+
+        $password = $validated['password'] ?? '12345678';
+
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'email' => $email,
+            'password' => Hash::make($password),
             'user_type' => 'user',
             'status' => $validated['status'],
             'email_verified_at' => now(),
