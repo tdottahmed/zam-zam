@@ -87,7 +87,7 @@ class UserController extends Controller
             $email = 'user' . $nextId . '@example.com';
             while (User::where('email', $email)->exists()) {
                 $nextId++;
-                $email = 'user' . $nextId . '@example.com';
+                $email = 'user' . $nextId . '@zamzamcanadacom';
             }
         }
 
