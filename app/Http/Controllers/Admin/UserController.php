@@ -84,10 +84,10 @@ class UserController extends Controller
         $email = $validated['email'] ?? null;
         if (!$email) {
             $nextId = User::max('id') + 1;
-            $email = 'user' . $nextId . '@example.com';
+            $email = 'user' . $nextId . '@zamzamcanada.com';
             while (User::where('email', $email)->exists()) {
                 $nextId++;
-                $email = 'user' . $nextId . '@zamzamcanadacom';
+                $email = 'user' . $nextId . '@zamzamcanada.com';
             }
         }
 
