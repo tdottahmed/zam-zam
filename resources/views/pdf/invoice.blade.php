@@ -199,13 +199,32 @@
 
   <!-- Define Header -->
   <htmlpageheader name="page-header">
-    <div style="width: 100%;">
-      <div class="header-top">
-        <div class="logo-container">
-          <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" class="logo">
-        </div>
-        <div class="flavor-text" style="font-size: 14px; font-weight: bold; color: #d35400">Pure Deshi Taste</div>
-      </div>
+    <div style="padding-bottom: 12px; padding-top: 10px;">
+      <table style="width: 100%; border-collapse: collapse; border: none;">
+        <tr style="border:none;">
+          <!-- Left Side: Logo + Company Name -->
+          <td style="width: 75%; vertical-align: middle; text-align: left; padding: 0;">
+            <table style="border-collapse: collapse; border: none; margin: 0; padding: 0;">
+              <tr style="border:none;">
+                <td style="padding: 0; margin: 0; vertical-align: middle; border:none;">
+                  <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" style="height: 65px; width: auto;">
+                </td>
+                <td style="padding: 0; margin: 0; vertical-align: middle; border:none;">
+                  <h1 style="margin: 0; font-size: 16px; font-weight: 900; color: #1a252f;">
+                    ZamZam Import and Export Inc
+                  </h1>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <!-- Right Side: Motto -->
+          <td style="width: 25%; vertical-align: middle; text-align: right; padding: 0;">
+            <div style="margin: 0; font-size: 15px; font-weight: bold; color: #d35400; letter-spacing: 1px;">
+              PURE DESHI TASTE
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
   </htmlpageheader>
 

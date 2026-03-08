@@ -17,7 +17,7 @@ export default function HeroSection() {
                 <div className="max-w-4xl animate-fade-in-up flex flex-col items-center">
                     {/* Badge */}
                     <div className="inline-block px-4 py-1.5 bg-[#C41E3A]/20 border border-[#C41E3A] backdrop-blur-sm rounded-full mb-6">
-                        <span className="text-[#ff4d6d] font-bold text-base uppercase tracking-wider">ZamZam Export & Import Inc</span>
+                        <span className="text-[#ff4d6d] font-bold text-base uppercase tracking-wider">ZamZam Import & Export Inc</span>
                     </div>
 
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-white tracking-tight drop-shadow-lg">
