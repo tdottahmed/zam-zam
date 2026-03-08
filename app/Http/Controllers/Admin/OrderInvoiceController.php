@@ -57,7 +57,6 @@ class OrderInvoiceController extends Controller
             'due_date' => 'required|date',
             'notes' => 'nullable|string',
             'discount_total' => 'nullable|numeric|min:0',
-            'shipping_amount' => 'nullable|numeric|min:0',
             'freight_charge' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.selected' => 'sometimes|in:on,1,true',
@@ -93,7 +92,6 @@ class OrderInvoiceController extends Controller
             'due_date' => $validated['due_date'],
             'notes' => $validated['notes'] ?? null,
             'discount_total' => $validated['discount_total'] ?? 0,
-            'shipping_amount' => $validated['shipping_amount'] ?? 0,
             'freight_charge' => $validated['freight_charge'] ?? 0,
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
@@ -134,8 +132,8 @@ class OrderInvoiceController extends Controller
             $taxTotal += $lineTax;
         }
 
-        // Grand total = Subtotal + Tax - Discount + Shipping
-        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0) + ($validated['shipping_amount'] ?? 0));
+        // Grand total = Subtotal + Tax - Discount
+        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0));
 
         $invoice->update([
             'subtotal' => $subtotal,

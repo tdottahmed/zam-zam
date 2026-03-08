@@ -417,14 +417,7 @@
           </tr>
         </table>
       </div>
-      <div style="padding-bottom: 5px; margin-bottom: 5px;">
-        <table style="width: 100%; font-size: 13px; font-weight: bold;">
-          <tr>
-            <td>Shipping {{ $data['shipping_method'] ? '(' . $data['shipping_method'] . ')' : '' }}</td>
-            <td class="text-right">${{ number_format($data['shipping'], 2) }}</td>
-          </tr>
-        </table>
-      </div>
+
 
       <div style="padding-bottom: 5px; margin-bottom: 5px;">
         <table style="width: 100%; font-size: 13px; font-weight: bold;">

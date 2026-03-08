@@ -143,12 +143,7 @@
                                                 <span>-${{ number_format($invoice->discount_total, 2) }}</span>
                                             </div>
                                         @endif
-                                         @if($invoice->shipping_amount > 0)
-                                            <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                                                <span>Shipping</span>
-                                                <span class="font-medium text-gray-900 dark:text-white">${{ number_format($invoice->shipping_amount, 2) }}</span>
-                                            </div>
-                                        @endif
+
                                         <div class="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center">
                                             <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
                                             <span class="text-xl font-bold text-primary">${{ number_format($invoice->total, 2) }}</span>
