@@ -97,7 +97,7 @@
                                     ${{ number_format($item->unit_price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 text-center text-gray-900 dark:text-white font-medium">
-                                    {{ $item->ordered_quantity }}
+                                    {{ $item->ordered_quantity ?? '-' }}
                                 </td>
                                 <td class="px-6 py-4 text-center text-gray-900 dark:text-white font-medium">
                                     {{ $item->credit_quantity }}

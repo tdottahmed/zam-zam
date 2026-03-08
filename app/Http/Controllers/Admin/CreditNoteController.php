@@ -100,8 +100,10 @@ class CreditNoteController extends Controller
             'admin_notes' => 'nullable|string',
             'status' => 'required|in:draft,approved,refunded',
             'items' => 'required|array|min:1',
-            'items.*.order_item_id' => 'required|exists:order_items,id',
+            'items.*.order_item_id' => 'nullable|exists:order_items,id',
+            'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.reason' => 'nullable|string',
         ]);
         
@@ -109,8 +111,10 @@ class CreditNoteController extends Controller
         
         $selectedItems = collect($validated['items'])->map(function($item) {
             return [
-                'id' => $item['order_item_id'],
+                'order_item_id' => $item['order_item_id'] ?? null,
+                'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
                 'reason' => $item['reason'] ?? null,
                 'selected' => true
             ];
@@ -154,14 +158,18 @@ class CreditNoteController extends Controller
                 'admin_notes' => 'nullable|string',
                 'status' => 'required|in:draft,pending,approved,rejected,refunded',
                 'items' => 'required|array|min:1',
-                'items.*.order_item_id' => 'required|exists:order_items,id',
+                'items.*.order_item_id' => 'nullable|exists:order_items,id',
+                'items.*.product_id' => 'required|exists:products,id',
                 'items.*.quantity' => 'required|numeric|min:1',
+                'items.*.unit_price' => 'required|numeric|min:0',
                 'items.*.reason' => 'nullable|string',
             ]);
 
             $selectedItems = collect($validated['items'])->map(fn($item) => [
-                'id' => $item['order_item_id'],
+                'order_item_id' => $item['order_item_id'] ?? null,
+                'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
                 'reason' => $item['reason'] ?? null,
                 'selected' => true
             ]);

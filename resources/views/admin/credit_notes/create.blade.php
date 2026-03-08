@@ -46,16 +46,12 @@
                                         @input.debounce.300ms="searchProducts()" 
                                         @keydown.enter.prevent="selectBestMatch()"
                                         @focus="productDropdownOpen = true"
-                                        placeholder="Search previously ordered items..."
+                                        placeholder="Search for internal products to refund..."
                                         class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm disabled:opacity-50"
-                                        :disabled="!selectedUserId"
                                     >
-                                    <div x-show="!selectedUserId" class="absolute right-3 top-2.5 text-xs font-semibold text-red-500">
-                                        Select a customer first
-                                    </div>
                                     
                                     <!-- Dropdown -->
-                                    <div x-show="productDropdownOpen && (productResults.length > 0 || productSearch.length > 0) && selectedUserId" 
+                                    <div x-show="productDropdownOpen && (productResults.length > 0 || productSearch.length > 0)" 
                                          class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-96 overflow-y-auto"
                                          style="display: none;"
                                          x-transition:enter="transition ease-out duration-100"
@@ -71,38 +67,25 @@
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            Searching past orders...
+                                            Searching products...
                                         </div>
 
                                         <ul x-show="!isLoadingProducts">
                                             <template x-for="product in productResults" :key="product.id">
-                                                <li class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0">
-                                                    <div class="flex justify-between items-start mb-2">
+                                                <li class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" @click="selectProduct(product)">
+                                                    <div class="flex justify-between items-start mb-1">
                                                         <div>
                                                             <div class="font-semibold text-gray-900 dark:text-gray-100" x-text="product.name"></div>
-                                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono" x-text="product.code"></div>
+                                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono" x-text="product.product_code"></div>
                                                         </div>
-                                                    </div>
-                                                    <div class="space-y-1">
-                                                        <template x-for="orderInfo in product.orders" :key="orderInfo.order_item_id">
-                                                            <div @click="selectProduct(product, orderInfo)" class="flex justify-between items-center bg-gray-50 dark:bg-gray-700/30 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition-colors text-sm">
-                                                                <div class="flex items-center gap-2">
-                                                                    <span class="text-[#C41E3A] font-semibold" x-text="'Order #' + orderInfo.order_id"></span>
-                                                                    <span class="text-gray-500 text-xs" x-text="orderInfo.order_date"></span>
-                                                                </div>
-                                                                <div class="flex items-center gap-4">
-                                                                    <span class="text-gray-600 dark:text-gray-300">Bought: <span class="font-bold" x-text="orderInfo.quantity_bought"></span></span>
-                                                                    <span class="font-bold text-gray-900 dark:text-white" x-text="formatMoney(orderInfo.unit_price)"></span>
-                                                                </div>
-                                                            </div>
-                                                        </template>
+                                                        <div class="font-bold text-gray-900 dark:text-white" x-text="formatMoney(product.price)"></div>
                                                     </div>
                                                 </li>
                                             </template>
                                             <li x-show="productResults.length === 0 && productSearch.length > 0" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                                 <div class="flex flex-col items-center justify-center">
                                                     <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                                    <p>No past orders found matching "<span x-text="productSearch" class="font-medium"></span>"</p>
+                                                    <p>No products found matching "<span x-text="productSearch" class="font-medium"></span>"</p>
                                                 </div>
                                             </li>
                                         </ul>
@@ -127,10 +110,15 @@
                                     <template x-for="(item, index) in items" :key="item.order_item_id">
                                         <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                             <td class="px-4 py-3 align-top">
-                                                <input type="hidden" :name="'items[' + index + '][order_item_id]'" :value="item.order_item_id">
+                                                <input type="hidden" :name="'items[' + index + '][order_item_id]'" :value="item.order_item_id || ''">
+                                                <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.product_id">
+                                                <input type="hidden" :name="'items[' + index + '][unit_price]'" :value="item.price">
                                                 <div class="font-bold text-gray-900 dark:text-white" x-text="item.name"></div>
-                                                <div class="text-[11px] font-semibold text-[#C41E3A] mt-1 bg-red-50 dark:bg-red-900/20 inline-block px-1.5 py-0.5 rounded">
+                                                <div x-show="item.order_id" class="text-[11px] font-semibold text-[#C41E3A] mt-1 bg-red-50 dark:bg-red-900/20 inline-block px-1.5 py-0.5 rounded">
                                                     Order #<span x-text="item.order_id"></span> (<span x-text="item.order_date"></span>)
+                                                </div>
+                                                <div x-show="!item.order_id" class="text-[11px] font-bold text-primary mt-1 bg-primary/10 inline-block px-1.5 py-0.5 rounded">
+                                                    Independent Return
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3 align-top text-center font-medium text-gray-900 dark:text-white">
@@ -151,7 +139,7 @@
                                                         +
                                                     </button>
                                                 </div>
-                                                <div class="text-[10px] text-center text-gray-500 mt-1">Max: <span x-text="item.max_quantity"></span></div>
+                                                <div class="text-[10px] text-center text-gray-500 mt-1" x-show="item.max_quantity < 9999">Max: <span x-text="item.max_quantity"></span></div>
                                             </td>
                                             <td class="px-4 py-3 align-top">
                                                 <select :name="'items[' + index + '][reason]'" x-model="item.reason" class="w-full text-xs rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 py-1 pl-2 pr-6">
@@ -181,7 +169,7 @@
                                                     <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                                                 </div>
                                                 <p class="font-medium text-gray-900 dark:text-white">No items added</p>
-                                                <p class="text-sm mt-1">Search and select previous ordered items to return.</p>
+                                                <p class="text-sm mt-1">Search and select items to refund.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -232,9 +220,6 @@
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div x-show="selectedUserId" class="mt-2 text-xs text-gray-500">
-                                Changing customer will clear all selected items.
                             </div>
                         </div>
                     </x-admin.ui.card>
@@ -317,14 +302,15 @@
 
                 // Logic
                 async searchProducts() {
-                    if (this.productSearch.length < 2 || !this.selectedUserId) {
+                    if (this.productSearch.length < 2) {
                         this.productResults = [];
                         return;
                     }
                     this.isLoadingProducts = true;
                     try {
-                        const response = await fetch(`{{ route('admin.api.search.ordered-items') }}?q=${this.productSearch}&user_id=${this.selectedUserId}`);
-                        this.productResults = await response.json();
+                        const response = await fetch(`{{ route('admin.api.search.products') }}?q=${this.productSearch}`);
+                        const data = await response.json();
+                        this.productResults = data.data || [];
                     } catch (e) {
                         console.error('Error searching products:', e);
                     } finally {
@@ -332,21 +318,22 @@
                     }
                 },
 
-                selectProduct(product, orderInfo) {
+                selectProduct(product) {
                     // Check if exists
-                    const existingIndex = this.items.findIndex(i => i.order_item_id === orderInfo.order_item_id);
+                    const existingIndex = this.items.findIndex(i => i.product_id === product.id && !i.order_item_id);
                     if (existingIndex >= 0) {
-                        this.items[existingIndex].quantity = 1;
+                        this.items[existingIndex].quantity++;
                     } else {
                         this.items.push({
-                            order_item_id: orderInfo.order_item_id,
-                            order_id: orderInfo.order_id,
-                            order_date: orderInfo.order_date,
+                            order_item_id: null,
+                            order_id: null,
+                            order_date: null,
+                            product_id: product.id,
                             name: product.name,
-                            code: product.code,
-                            price: parseFloat(orderInfo.unit_price), 
+                            code: product.product_code,
+                            price: parseFloat(product.price), 
                             quantity: 1,
-                            max_quantity: parseInt(orderInfo.quantity_bought),
+                            max_quantity: 9999, // Allow any quantity for independent items
                             reason: ''
                         });
                     }
@@ -358,8 +345,7 @@
                 
                 async selectBestMatch() {
                     if (this.productResults.length > 0) {
-                        // Just open dropdown, too complex to auto select when multiple orders exist
-                        this.productDropdownOpen = true;
+                        this.selectProduct(this.productResults[0]);
                     }
                 },
 
@@ -384,12 +370,6 @@
                 },
 
                 selectCustomer(user) {
-                    if (this.selectedUserId && this.selectedUserId !== user.id) {
-                        // clear items if user changed
-                        this.items = [];
-                        this.productSearch = '';
-                        this.productResults = [];
-                    }
                     this.selectedUserId = user.id;
                     this.customerSearch = user.name;
                     this.customerDropdownOpen = false;
