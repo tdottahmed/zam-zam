@@ -137,8 +137,7 @@
 
     {{-- Shipping address --}}
     <x-admin.ui.card class="shrink-0">
-      <div
-           class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div class="flex flex-col gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <h2 class="flex items-center gap-2 text-base font-semibold text-gray-900">
             <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -151,30 +150,47 @@
             </span>
             Shipping address
           </h2>
-          <p class="mt-1 text-xs text-gray-500">Select a customer in the panel on the right to load saved addresses.
+          <p class="mt-1 text-xs text-gray-500" x-show="!selectedUserId">Select a customer in the panel on the right to load saved addresses.
           </p>
         </div>
-        <div x-show="userAddresses.length > 0" class="relative shrink-0">
-          <button type="button" @click="addressDropdownOpen = !addressDropdownOpen"
-                  class="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-            Use saved address
-            <svg class="h-4 w-4 transition-transform" :class="addressDropdownOpen && 'rotate-180'" fill="none"
-                 stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <div x-show="addressDropdownOpen" x-transition @click.outside="addressDropdownOpen = false"
-               class="absolute right-0 z-20 mt-2 max-h-48 w-72 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
-               style="display: none;">
-            <template x-for="address in userAddresses" :key="address.id">
-              <button type="button" @click="fillAddress(address)"
-                      class="block w-full border-b border-gray-100 px-4 py-2.5 text-left text-sm transition-colors last:border-0 hover:bg-gray-50">
-                <span class="font-medium text-gray-900" x-text="address.type || 'Address'"></span>
-                <span class="mt-0.5 block truncate text-xs text-gray-500"
-                      x-text="(address.address_line_1 || '') + ', ' + (address.city || '')"></span>
-              </button>
-            </template>
-          </div>
+      </div>
+
+      <!-- Saved Addresses Horizontal List -->
+      <div x-show="userAddresses.length > 0" class="border-b border-gray-200 bg-gray-50/50 px-4 py-4 sm:px-6" style="display: none;">
+        <div class="mb-3 flex items-center justify-between">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Saved Addresses</p>
+          <span class="text-[10px] text-gray-400" x-text="userAddresses.length + ' address(es) available'"></span>
+        </div>
+        <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300">
+          <template x-for="address in userAddresses" :key="address.id">
+            <button type="button" @click="fillAddress(address)"
+                    class="relative flex w-64 shrink-0 flex-col rounded-xl border bg-white p-4 text-left shadow-sm transition-all focus:outline-none hover:shadow-md hover:-translate-y-0.5"
+                    :class="isCurrentAddress(address) ? 'border-primary ring-1 ring-primary focus:ring-primary bg-primary/5' : 'border-gray-200 hover:border-primary/50'">
+              
+              <!-- Selected Checkmark -->
+              <div x-show="isCurrentAddress(address)" class="absolute right-3 top-3 text-primary" style="display: none;">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+
+              <!-- Address Type & Default Badge -->
+              <div class="mb-2 flex items-center gap-2 pr-6">
+                <span class="font-semibold text-gray-900 text-sm truncate" x-text="address.type || (address.is_default ? 'Default Address' : 'Address')"></span>
+                <span x-show="address.is_default" class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">Default</span>
+              </div>
+              
+              <!-- Address Details -->
+              <div class="mt-auto space-y-1">
+                <div class="truncate text-xs text-gray-600" x-text="address.address_line_1"></div>
+                <div class="truncate text-xs text-gray-600" x-text="(address.city || '') + (address.postal_code ? ', ' + address.postal_code : '') + (address.country ? ' - ' + address.country : '')"></div>
+                <div class="mt-2 flex items-center gap-1.5 text-xs text-gray-500" x-show="address.phone">
+                  <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  <span x-text="address.phone"></span>
+                </div>
+              </div>
+            </button>
+          </template>
         </div>
       </div>
       <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 sm:p-6">

@@ -205,6 +205,11 @@
           this.addressDropdownOpen = false;
         },
 
+        isCurrentAddress(address) {
+          const addrLine = (address.address_line_1 || '') + (address.address_line_2 ? ', ' + address.address_line_2 : '');
+          return this.shipping.address === addrLine && this.shipping.city === (address.city || '');
+        },
+
         closeDropdowns() {
           this.customerDropdownOpen = false;
           this.addressDropdownOpen = false;
