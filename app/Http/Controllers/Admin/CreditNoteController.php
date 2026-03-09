@@ -144,6 +144,50 @@ class CreditNoteController extends Controller
         return view('admin.credit_notes.show', compact('creditNote'));
     }
 
+    public function exportPdf(CreditNote $creditNote)
+    {
+        $creditNote->load(['items.product', 'items.orderItem.order', 'user']);
+        
+        $settings = \App\Models\SystemSetting::where('group', 'general')->pluck('value', 'key');
+        $company = [
+            'name' => $settings['site_name'] ?? 'ZamZam Import and Export Inc.',
+            'address' => nl2br(e($settings['address'] ?? "1-283 Morningside Ave\nScarborough, Ontario, M1E 3G1\nCanada")),
+            'phone' => $settings['contact_phone'] ?? '+1 416-283-4488',
+            'cell' => $settings['contact_cell'] ?? '+1 647-482-1133',
+            'email' => $settings['contact_email'] ?? 'zamzamimport2023@gmail.com',
+            'tax_id' => $settings['tax_id'] ?? '731247144RT0001',
+        ];
+
+        $data = [
+            'company' => $company,
+            'credit_note_number' => $creditNote->credit_note_number,
+            'date' => $creditNote->created_at->format('M d, Y'),
+            'status' => $creditNote->status,
+            'reason' => $creditNote->reason,
+            'admin_notes' => $creditNote->admin_notes,
+            'customer' => [
+                'name' => $creditNote->user->name ?? 'Unknown',
+                'email' => $creditNote->user->email ?? 'N/A',
+                'phone' => $creditNote->user->phone ?? 'N/A',
+            ],
+            'items' => $creditNote->items->map(function ($item) {
+                return [
+                    'product_name' => $item->product->name ?? 'Unknown Product',
+                    'product_code' => $item->product->product_code ?? 'N/A',
+                    'order_id' => $item->orderItem->order_id ?? null,
+                    'reason' => $item->reason,
+                    'quantity' => $item->credit_quantity,
+                    'unit_price' => $item->unit_price,
+                    'amount' => $item->line_total,
+                ];
+            })->toArray(),
+            'total_items' => $creditNote->items->sum('credit_quantity'),
+            'total_amount' => $creditNote->items->sum('line_total'),
+        ];
+
+        $pdf = \Mccarlosen\LaravelMpdf\Facades\LaravelMpdf::loadView('pdf.credit_note', compact('data'));
+        return $pdf->stream('credit-note-' . $creditNote->credit_note_number . '.pdf');
+    }
     public function edit(CreditNote $creditNote)
     {
         $creditNote->load(['items.product', 'items.orderItem.order:id,created_at', 'user']);

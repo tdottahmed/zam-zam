@@ -110,6 +110,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Credit Notes
     Route::get('api/search/ordered-items', [\App\Http\Controllers\Admin\CreditNoteController::class, 'searchOrderedItems'])->name('api.search.ordered-items');
+    Route::get('credit-notes/{creditNote}/export-pdf', [\App\Http\Controllers\Admin\CreditNoteController::class, 'exportPdf'])->name('credit-notes.export-pdf');
     Route::resource('credit-notes', \App\Http\Controllers\Admin\CreditNoteController::class);
 
     // Settings
