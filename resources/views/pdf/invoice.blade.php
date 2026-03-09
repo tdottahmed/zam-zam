@@ -202,25 +202,17 @@
     <div style="padding-bottom: 12px; padding-top: 10px;">
       <table style="width: 100%; border-collapse: collapse; border: none;">
         <tr style="border:none;">
-          <!-- Left Side: Logo + Company Name -->
-          <td style="width: 75%; vertical-align: middle; text-align: left; padding: 0;">
-            <table style="border-collapse: collapse; border: none; margin: 0; padding: 0;">
-              <tr style="border:none;">
-                <td style="padding: 0; margin: 0; vertical-align: middle; border:none;">
-                  <img src="{{ public_path('images/Zam_logo-120x99.png') }}" alt="Zam Zam Logo" style="height: 65px; width: auto;">
-                </td>
-                <td style="padding: 0; margin: 0; vertical-align: middle; border:none;">
-                  <h1 style="margin: 0; font-size: 16px; font-weight: 900; color: #1a252f;">
-                    ZamZam Import and Export Inc
-                  </h1>
-                </td>
-              </tr>
-            </table>
+          <!-- Left Side: Logo -->
+          <td style="width: 60%; vertical-align: middle; text-align: left; padding: 0;">
+            <img src="{{ public_path('images/zamzam-new-logo.png') }}" alt="Zamzam Logo" style="height: 105px; width: auto;">
           </td>
           <!-- Right Side: Motto -->
-          <td style="width: 25%; vertical-align: middle; text-align: right; padding: 0;">
-            <div style="margin: 0; font-size: 15px; font-weight: bold; color: #d35400; letter-spacing: 1px;">
-              PURE DESHI TASTE
+          <td style="width: 40%; vertical-align: middle; text-align: right; padding: 0;">
+            <div style="display: inline-block; text-align: right;">
+              <div style="margin: 0; font-size: 20px; font-weight: 900; color: #cc0000; letter-spacing: 2px; text-transform: uppercase;">
+                PURE DESHI TASTE
+              </div>
+              <div style="border-bottom: 3px solid #d35400; margin-top: 4px;"></div>
             </div>
           </td>
         </tr>
