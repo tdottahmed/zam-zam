@@ -204,12 +204,12 @@
         <tr style="border:none;">
           <!-- Left Side: Logo -->
           <td style="width: 60%; vertical-align: middle; text-align: left; padding: 0;">
-            <img src="{{ public_path('images/zamzam-new-logo.png') }}" alt="Zamzam Logo" style="height: 105px; width: auto;">
+            <img src="{{ public_path('images/zamzam-new-logo.png') }}" alt="Zamzam Logo" style="height: 120px; width: auto;">
           </td>
           <!-- Right Side: Motto -->
           <td style="width: 40%; vertical-align: middle; text-align: right; padding: 0;">
             <div style="display: inline-block; text-align: right;">
-              <div style="margin: 0; font-size: 12px; font-weight: 900; color: #cc0000; letter-spacing: 2px; text-transform: uppercase;">
+              <div style="margin: 0; font-size: 10px; font-style: italic; font-weight: 900; color: #cc0000; letter-spacing: 2px; text-transform: uppercase;">
                 PURE DESHI TASTE
               </div>
               <div style="border-bottom: 3px solid #d35400; margin-top: 4px;"></div>
