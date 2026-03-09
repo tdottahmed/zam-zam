@@ -40,20 +40,31 @@
                             <div class="flex gap-4 relative">
                                 <!-- Product Search -->
                                 <div class="flex-1 relative">
-                                    <input 
-                                        type="text" 
-                                        x-model="productSearch" 
-                                        @input.debounce.300ms="searchProducts()" 
-                                        @keydown.enter.prevent="selectBestMatch()"
-                                        @focus="productDropdownOpen = true"
-                                        placeholder="Search for internal products to refund..."
-                                        class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm disabled:opacity-50"
-                                    >
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                        <input 
+                                            x-ref="productSearchInput"
+                                            type="text" 
+                                            x-model="productSearch" 
+                                            @input.debounce.300ms="searchProducts()" 
+                                            @keydown.enter.prevent="selectBestMatch()"
+                                            @focus="productDropdownOpen = true"
+                                            placeholder="Search and select multiple products..."
+                                            class="w-full pl-10 pr-10 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm disabled:opacity-50"
+                                        >
+                                        <button type="button" x-show="productSearch.length > 0" @click="clearProductSearch()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
                                     
                                     <!-- Dropdown -->
                                     <div x-show="productDropdownOpen && (productResults.length > 0 || productSearch.length > 0)" 
-                                         class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg max-h-96 overflow-y-auto"
-                                         style="display: none;"
+                                         class="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg overflow-hidden flex flex-col"
+                                         style="display: none; max-height: 24rem;"
                                          x-transition:enter="transition ease-out duration-100"
                                          x-transition:enter-start="transform opacity-0 scale-95"
                                          x-transition:enter-end="transform opacity-100 scale-100"
@@ -62,23 +73,36 @@
                                          x-transition:leave-end="transform opacity-0 scale-95">
                                         
                                         <!-- Loading State -->
-                                        <div x-show="isLoadingProducts" class="px-4 py-3 text-sm text-gray-500 flex items-center justify-center">
-                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <div x-show="isLoadingProducts" class="px-4 py-8 text-sm text-gray-500 flex flex-col items-center justify-center">
+                                            <svg class="animate-spin mb-3 h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                             Searching products...
                                         </div>
 
-                                        <ul x-show="!isLoadingProducts">
+                                        <ul x-show="!isLoadingProducts" class="overflow-y-auto flex-1">
                                             <template x-for="product in productResults" :key="product.id">
-                                                <li class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors" @click="selectProduct(product)">
-                                                    <div class="flex justify-between items-start mb-1">
+                                                <li class="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors flex items-center gap-3" 
+                                                    :class="{'bg-primary/5 dark:bg-primary/10': isProductAdded(product.id)}"
+                                                    @click="toggleProduct(product)">
+                                                    
+                                                    <!-- Checkbox for visual multi-select feedback -->
+                                                    <div class="flex-shrink-0">
+                                                        <div class="w-5 h-5 rounded border flex items-center justify-center transition-colors"
+                                                             :class="isProductAdded(product.id) ? 'bg-primary border-primary text-white' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'">
+                                                            <svg x-show="isProductAdded(product.id)" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex-1 flex justify-between items-start">
                                                         <div>
                                                             <div class="font-semibold text-gray-900 dark:text-gray-100" x-text="product.name"></div>
                                                             <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-mono" x-text="product.product_code"></div>
                                                         </div>
-                                                        <div class="font-bold text-gray-900 dark:text-white" x-text="formatMoney(product.price)"></div>
+                                                        <div class="text-right">
+                                                            <div class="font-bold text-gray-900 dark:text-white" x-text="formatMoney(product.price)"></div>
+                                                        </div>
                                                     </div>
                                                 </li>
                                             </template>
@@ -89,6 +113,14 @@
                                                 </div>
                                             </li>
                                         </ul>
+                                        
+                                        <!-- Footer / Done Button -->
+                                        <div x-show="!isLoadingProducts && productResults.length > 0" class="p-3 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center shrink-0">
+                                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400"><span x-text="items.filter(i => !i.order_item_id).length"></span> items selected</span>
+                                            <button type="button" @click="productDropdownOpen = false" class="px-4 py-1.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold rounded shadow hover:bg-gray-800 dark:hover:bg-white transition-colors">
+                                                Done
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -107,7 +139,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    <template x-for="(item, index) in items" :key="item.order_item_id">
+                                    <template x-for="(item, index) in items" :key="item.order_item_id ? 'oi-'+item.order_item_id : 'p-'+item.product_id+'-'+index">
                                         <tr class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                             <td class="px-4 py-3 align-top">
                                                 <input type="hidden" :name="'items[' + index + '][order_item_id]'" :value="item.order_item_id || ''">
@@ -318,11 +350,17 @@
                     }
                 },
 
-                selectProduct(product) {
+                clearProductSearch() {
+                    this.productSearch = '';
+                    this.productResults = [];
+                    this.$refs.productSearchInput?.focus();
+                },
+
+                toggleProduct(product) {
                     // Check if exists
                     const existingIndex = this.items.findIndex(i => i.product_id === product.id && !i.order_item_id);
                     if (existingIndex >= 0) {
-                        this.items[existingIndex].quantity++;
+                        this.items.splice(existingIndex, 1);
                     } else {
                         this.items.push({
                             order_item_id: null,
@@ -337,15 +375,15 @@
                             reason: ''
                         });
                     }
-                    
-                    this.productSearch = '';
-                    this.productResults = [];
-                    this.productDropdownOpen = false;
+                },
+                
+                isProductAdded(id) {
+                    return this.items.some(i => i.product_id === id && !i.order_item_id);
                 },
                 
                 async selectBestMatch() {
                     if (this.productResults.length > 0) {
-                        this.selectProduct(this.productResults[0]);
+                        this.toggleProduct(this.productResults[0]);
                     }
                 },
 
