@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Breadcrumb from '@/Components/Breadcrumb';
 
-export default function About() {
+export default function About({ aboutSettings }) {
     return (
         <CustomerLayout>
             <Head title="About Us" />
@@ -21,39 +21,35 @@ export default function About() {
                         <div className="relative">
                             <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#C41E3A]/10 rounded-full blur-3xl"></div>
                             <img 
-                                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2574&auto=format&fit=crop" 
+                                src={aboutSettings?.about_us_image ? `/storage/${aboutSettings.about_us_image}` : "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2574&auto=format&fit=crop"} 
                                 alt="Warehouse Operations" 
                                 className="rounded-3xl shadow-2xl relative z-10 w-full object-cover h-[500px]"
                             />
-                            <div className="absolute -bottom-6 -right-6 bg-white p-8 rounded-2xl shadow-xl z-20 max-w-xs hidden md:block">
-                                <p className="text-[#C41E3A] font-black text-4xl mb-1">15+</p>
-                                <p className="text-gray-600 font-bold uppercase tracking-wide text-xs">Years of Excellence</p>
-                            </div>
+                            {aboutSettings?.about_us_badge_text && (
+                                <div className="absolute -bottom-6 -right-6 bg-white p-8 rounded-2xl shadow-xl z-20 max-w-xs hidden md:block">
+                                    <p className="text-[#C41E3A] font-black text-4xl mb-1">{aboutSettings.about_us_badge_text}</p>
+                                    <p className="text-gray-600 font-bold uppercase tracking-wide text-xs">{aboutSettings.about_us_badge_subtext}</p>
+                                </div>
+                            )}
                         </div>
                         <div className="space-y-8">
                             <div>
-                                <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6">Our Story</h2>
+                                <h2 className="text-3xl lg:text-4xl font-black text-gray-900 mb-6">{aboutSettings?.about_us_heading || 'Our Story'}</h2>
                                 <div className="space-y-4 text-gray-600 text-lg leading-relaxed">
-                                    <p>
-                                        Established with a vision to bridge the gap between South Asian manufacturers and Canadian consumers, Zam Zam Import Export Inc. has grown into a cornerstone of the ethnic food distribution industry.
-                                    </p>
-                                    <p>
-                                        We started as a small operation with a single truck and a passion for quality. Today, we operate a state-of-the-art distribution network that serves hundreds of retailers across the country.
-                                    </p>
-                                    <p>
-                                        Our success is built on trust, reliability, and an unwavering commitment to quality. We partner directly with top brands to ensure that every product we deliver meets the highest standards.
-                                    </p>
+                                    {aboutSettings?.about_us_description_1 && <p>{aboutSettings.about_us_description_1}</p>}
+                                    {aboutSettings?.about_us_description_2 && <p>{aboutSettings.about_us_description_2}</p>}
+                                    {aboutSettings?.about_us_description_3 && <p>{aboutSettings.about_us_description_3}</p>}
                                 </div>
                             </div>
                             
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <h3 className="font-bold text-gray-900 text-lg mb-2">Authenticity</h3>
-                                    <p className="text-gray-500 text-sm">100% genuine products sourced directly from manufacturers.</p>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-2">{aboutSettings?.about_us_feature_1_title || 'Authenticity'}</h3>
+                                    <p className="text-gray-500 text-sm">{aboutSettings?.about_us_feature_1_desc || '100% genuine products sourced directly from manufacturers.'}</p>
                                 </div>
                                 <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <h3 className="font-bold text-gray-900 text-lg mb-2">Reliability</h3>
-                                    <p className="text-gray-500 text-sm">Consistent supply chain and timely deliveries you can count on.</p>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-2">{aboutSettings?.about_us_feature_2_title || 'Reliability'}</h3>
+                                    <p className="text-gray-500 text-sm">{aboutSettings?.about_us_feature_2_desc || 'Consistent supply chain and timely deliveries you can count on.'}</p>
                                 </div>
                             </div>
                         </div>

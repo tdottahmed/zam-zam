@@ -127,6 +127,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('third-party', 'thirdParty')->name('third-party');
         Route::put('third-party', 'updateThirdParty')->name('third-party.update');
 
+        Route::get('about-us', 'aboutUs')->name('about-us');
+        Route::put('about-us', 'updateAboutUs')->name('about-us.update');
+
         Route::get('health', 'health')->name('health');
         Route::post('health/retry/{uuid}', 'retryFailedJob')->name('health.retry');
         Route::post('health/retry-all', 'retryAllFailedJobs')->name('health.retry-all');

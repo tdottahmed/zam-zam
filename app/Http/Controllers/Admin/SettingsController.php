@@ -214,6 +214,40 @@ class SettingsController extends Controller
     }
 
     /**
+     * Display About Us settings.
+     */
+    public function aboutUs()
+    {
+        $settings = SystemSetting::get()->mapWithKeys(function ($item) {
+            return [$item->key => $item->value];
+        });
+
+        return view('admin.settings.about-us', compact('settings'));
+    }
+
+    /**
+     * Update About Us settings.
+     */
+    public function updateAboutUs(Request $request)
+    {
+        $data = $request->except(['_token', '_method']);
+
+        // Handle File Upload
+        if ($request->hasFile('about_us_image')) {
+            $data['about_us_image'] = $request->file('about_us_image')->store('settings', 'public');
+        }
+
+        foreach ($data as $key => $value) {
+            SystemSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => $value ?? '', 'group' => 'about_us', 'label' => ucwords(str_replace('_', ' ', $key))]
+            );
+        }
+
+        return redirect()->back()->with('success', 'About Us settings updated successfully.');
+    }
+
+    /**
      * Display system health: overview, failed queue jobs, scheduler setup.
      */
     public function health()

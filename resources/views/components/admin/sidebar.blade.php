@@ -118,6 +118,11 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.general') ? 'bg-[#C41E3A]' : '' }}"></span>
                         General
                     </a>
+                    <a href="{{ route('admin.settings.about-us') }}" 
+                        class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.about-us') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.about-us') ? 'bg-[#C41E3A]' : '' }}"></span>
+                        About Us
+                    </a>
                     <a href="{{ route('admin.settings.smtp') }}" 
                         class="flex items-center py-2 pl-14 pr-4 text-sm transition-colors {{ request()->routeIs('admin.settings.smtp') ? 'text-white bg-gray-800' : 'text-gray-400 hover:text-white hover:bg-gray-800' }}">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-600 mr-2 {{ request()->routeIs('admin.settings.smtp') ? 'bg-[#C41E3A]' : '' }}"></span>

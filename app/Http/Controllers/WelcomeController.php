@@ -34,7 +34,15 @@ class WelcomeController extends Controller
 
     public function about()
     {
-        return Inertia::render('About');
+        $aboutSettings = \App\Models\SystemSetting::where('group', 'about_us')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->key => $item->value];
+            });
+
+        return Inertia::render('About', [
+            'aboutSettings' => $aboutSettings
+        ]);
     }
 
     public function contact()
