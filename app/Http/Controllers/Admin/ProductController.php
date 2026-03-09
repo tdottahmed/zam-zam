@@ -154,15 +154,15 @@ class ProductController extends Controller
         $stockUnit = $validated['stock_unit'] ?? 'piece';
         $multiplier = $stockUnit === 'piece' ? 1 : ($stockUnit === 'dozen' ? 12 : $pcs);
 
-        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '' && $multiplier > 0) {
-            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'] / $multiplier;
+        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '') {
+            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'];
         } else {
             $validated['buying_price'] = null;
         }
         unset($validated['buying_price_stock_unit']);
 
-        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '' && $multiplier > 0) {
-            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'] / $multiplier;
+        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '') {
+            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'];
             $validated['box_price'] = $validated['unit_price'] * $pcs;
         } else {
             $validated['unit_price'] = null;
@@ -235,15 +235,15 @@ class ProductController extends Controller
         $stockUnit = $validated['stock_unit'] ?? 'piece';
         $multiplier = $stockUnit === 'piece' ? 1 : ($stockUnit === 'dozen' ? 12 : $pcs);
 
-        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '' && $multiplier > 0) {
-            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'] / $multiplier;
+        if (isset($validated['buying_price_stock_unit']) && $validated['buying_price_stock_unit'] !== '') {
+            $validated['buying_price'] = (float) $validated['buying_price_stock_unit'];
         } else {
             $validated['buying_price'] = null;
         }
         unset($validated['buying_price_stock_unit']);
 
-        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '' && $multiplier > 0) {
-            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'] / $multiplier;
+        if (isset($validated['selling_price_stock_unit']) && $validated['selling_price_stock_unit'] !== '') {
+            $validated['unit_price'] = (float) $validated['selling_price_stock_unit'];
             $validated['box_price'] = $validated['unit_price'] * $pcs;
         } else {
             $validated['unit_price'] = null;
