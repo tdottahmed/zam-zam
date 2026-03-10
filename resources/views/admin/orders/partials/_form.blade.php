@@ -406,7 +406,7 @@
       </div>
 
       {{-- Summary & submit --}}
-      <div class="shrink-0 space-y-2 border-t border-gray-200 bg-white px-4 py-3 sticky bottom-0 z-10 shadow-[0_-12px_24px_-20px_rgba(0,0,0,0.35)]">
+      <div class="mt-auto shrink-0 space-y-2 border-t border-gray-200 bg-white px-4 py-3 shadow-[0_-12px_24px_-20px_rgba(0,0,0,0.35)]">
         <div class="flex justify-between text-sm text-gray-600">
           <span>Subtotal</span>
           <span class="font-semibold text-gray-900" x-text="formatMoney(calculateSubtotal())">$0.00</span>

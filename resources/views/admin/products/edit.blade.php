@@ -202,14 +202,13 @@
                     @php
                         $su = old('stock_unit', $product->stock_unit ?? 'piece');
                         $pcs = (int) old('pcs_in_ctn', $product->pcs_in_ctn) ?: 1;
-                        $mult = $su === 'piece' ? 1 : ($su === 'dozen' ? 12 : $pcs);
                         $buyingStockUnit = old('buying_price_stock_unit');
                         if ($buyingStockUnit === null && $product->buying_price !== null) {
-                            $buyingStockUnit = round($product->buying_price * $mult, 2);
+                            $buyingStockUnit = round($product->buying_price, 2);
                         }
                         $sellingStockUnit = old('selling_price_stock_unit');
                         if ($sellingStockUnit === null && $product->unit_price !== null) {
-                            $sellingStockUnit = round($product->unit_price * $mult, 2);
+                            $sellingStockUnit = round($product->unit_price, 2);
                         }
                     @endphp
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
