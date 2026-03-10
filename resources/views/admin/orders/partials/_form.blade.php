@@ -305,7 +305,7 @@
               x-text="items.length + ' item(s)'"></span>
         </div>
 
-        <div class="min-h-[150px] space-y-3 p-4">
+        <div class="min-h-[150px] max-h-[calc(100vh-100px)] space-y-1 px-4 py-2">
         <template x-for="(item, index) in items" :key="index">
           <div class="relative flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
             <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.product_id">
@@ -406,12 +406,12 @@
       </div>
 
       {{-- Summary & submit --}}
-      <div class="shrink-0 space-y-3 border-t border-gray-200 bg-white p-4 md:sticky md:bottom-0 md:z-10 md:shadow-[0_-12px_24px_-20px_rgba(0,0,0,0.35)]">
+      <div class="shrink-0 space-y-2 border-t border-gray-200 bg-white px-4 py-3 sticky bottom-0 z-10 shadow-[0_-12px_24px_-20px_rgba(0,0,0,0.35)]">
         <div class="flex justify-between text-sm text-gray-600">
           <span>Subtotal</span>
           <span class="font-semibold text-gray-900" x-text="formatMoney(calculateSubtotal())">$0.00</span>
         </div>
-        <div class="flex items-center justify-between border-t border-gray-200 pt-3 text-base font-bold">
+        <div class="flex items-center justify-between border-t border-gray-200 pt-1 text-base font-bold">
           <span class="text-gray-900">Total</span>
           <span class="text-primary" x-text="formatMoney(calculateSubtotal())">$0.00</span>
         </div>
