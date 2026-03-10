@@ -233,11 +233,13 @@
   </div>
 
   {{-- Right column: Customer, Order details, Cart, Summary (sticky sidebar) --}}
-  <div class="flex flex-col lg:sticky lg:top-6 lg:col-span-5 lg:max-h-[calc(100vh-8rem)] lg:self-start">
+  <div class="flex flex-col md:sticky md:top-6 md:max-h-[calc(100vh-8rem)] lg:col-span-5 lg:self-start">
     <div
-         class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:flex-initial">
-      {{-- Customer --}}
-      <div class="shrink-0 border-b border-gray-200 px-4 py-3">
+         class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      {{-- Scroll area (md): Customer + Cart + Order details --}}
+      <div class="min-h-0 flex-1 overflow-y-auto">
+        {{-- Customer --}}
+        <div class="shrink-0 border-b border-gray-200 px-4 py-3">
         <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900">
           <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -288,9 +290,9 @@
           <div class="mt-0.5 text-sm font-semibold text-gray-900" x-text="customerSearch"></div>
           <div class="mt-0.5 text-xs text-gray-500" x-text="selectedUserEmail"></div>
         </div>
-      </div>
-      {{-- Cart --}}
-      <div class="flex shrink-0 items-center justify-between border-b border-gray-200 bg-gray-50/50 px-4 py-3">
+        </div>
+        {{-- Cart --}}
+        <div class="flex shrink-0 items-center justify-between border-b border-gray-200 bg-gray-50/50 px-4 py-3">
         <h2 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
           <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -301,9 +303,9 @@
         </h2>
         <span class="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-700"
               x-text="items.length + ' item(s)'"></span>
-      </div>
+        </div>
 
-      <div class="min-h-[150px] flex-1 space-y-3 overflow-y-auto p-4">
+        <div class="min-h-[150px] space-y-3 p-4">
         <template x-for="(item, index) in items" :key="index">
           <div class="relative flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
             <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.product_id">
@@ -364,15 +366,15 @@
           <p class="text-sm font-medium text-gray-500">Cart is empty</p>
           <p class="mt-0.5 text-xs">Click products on the left to add them.</p>
         </div>
-      </div>
-
-      @error('items')
-        <div class="shrink-0 border-t border-red-100 bg-red-50 px-4 py-2 text-xs text-red-600">
-          {{ $message }}
         </div>
-      @enderror
-      {{-- Order details: Status, payment, notes --}}
-      <div class="shrink-0 border-b border-gray-200 px-4 py-3">
+
+        @error('items')
+          <div class="shrink-0 border-t border-red-100 bg-red-50 px-4 py-2 text-xs text-red-600">
+            {{ $message }}
+          </div>
+        @enderror
+        {{-- Order details: Status, payment, notes --}}
+        <div class="shrink-0 border-b border-gray-200 px-4 py-3">
         <h2 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900">
           <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -400,10 +402,11 @@
                                    placeholder="Internal or customer notes…">{{ old('notes', $isEdit ? $order->notes : '') }}</x-admin.form.textarea>
           </div>
         </div>
+        </div>
       </div>
 
       {{-- Summary & submit --}}
-      <div class="shrink-0 space-y-3 border-t border-gray-200 bg-white p-4">
+      <div class="shrink-0 space-y-3 border-t border-gray-200 bg-white p-4 md:sticky md:bottom-0 md:z-10 md:shadow-[0_-12px_24px_-20px_rgba(0,0,0,0.35)]">
         <div class="flex justify-between text-sm text-gray-600">
           <span>Subtotal</span>
           <span class="font-semibold text-gray-900" x-text="formatMoney(calculateSubtotal())">$0.00</span>
