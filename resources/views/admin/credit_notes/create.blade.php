@@ -201,6 +201,7 @@
                                                 <select :name="'items[' + index + '][reason]'" x-model="item.reason" class="w-full text-xs rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 py-1 pl-2 pr-6">
                                                     <option value="">Same as general...</option>
                                                     <option value="Damaged / Broken">Damaged / Broken</option>
+                                                    <option value="Item Expired">Item Expired</option>
                                                     <option value="Wrong Item Received">Wrong Item Received</option>
                                                     <option value="Defective">Defective</option>
                                                     <option value="Not as Described">Not as Described</option>
@@ -315,6 +316,7 @@
                                 <select name="reason" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 shadow-sm focus:border-[#C41E3A]">
                                     <option value="Damaged / Broken">Damaged / Broken</option>
                                     <option value="Wrong Item Received">Wrong Item Received</option>
+                                    <option value="Item Expired">Item Expired</option>
                                     <option value="Defective">Defective</option>
                                     <option value="Not as Described">Not as Described</option>
                                     <option value="Other">Other</option>
