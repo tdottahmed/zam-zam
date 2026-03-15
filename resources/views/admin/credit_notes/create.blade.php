@@ -144,7 +144,7 @@
                                             <td class="px-4 py-3 align-top">
                                                 <input type="hidden" :name="'items[' + index + '][order_item_id]'" :value="item.order_item_id || ''">
                                                 <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.product_id">
-                                                <input type="hidden" :name="'items[' + index + '][unit_price]'" :value="item.price">
+                                                <input type="hidden" :name="'items[' + index + '][unit_price]'" :value="typeof item.price === 'number' ? item.price : (parseFloat(item.price) || 0)">
                                                 <div class="font-bold text-gray-900 dark:text-white" x-text="item.name"></div>
                                                 <div x-show="item.order_id" class="text-[11px] font-semibold text-[#C41E3A] mt-1 bg-red-50 dark:bg-red-900/20 inline-block px-1.5 py-0.5 rounded">
                                                     Order #<span x-text="item.order_id"></span> (<span x-text="item.order_date"></span>)
@@ -153,8 +153,32 @@
                                                     Independent Return
                                                 </div>
                                             </td>
-                                            <td class="px-4 py-3 align-top text-center font-medium text-gray-900 dark:text-white">
-                                                <span x-text="formatMoney(item.price)"></span>
+                                            <td class="px-4 py-3 align-top">
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <template x-if="!item.price_editing">
+                                                        <div class="flex items-center justify-center gap-1.5">
+                                                            <span class="font-medium text-gray-900 dark:text-white" x-text="formatMoney(typeof item.price === 'number' ? item.price : (parseFloat(item.price) || 0))"></span>
+                                                            <button type="button" @click="item.price_editing = true; $nextTick(() => { const r = $refs['price-input-'+index]; if (r) r.focus(); })" class="p-1 rounded text-gray-400 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20" title="Edit price">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                            </button>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!!item.price_editing">
+                                                        <div class="flex items-center justify-center gap-1">
+                                                            <span class="text-gray-500 dark:text-gray-400 text-xs">$</span>
+                                                            <input type="number" step="0.01" min="0"
+                                                                :ref="'price-input-'+index"
+                                                                x-model="item.price"
+                                                                @input="item.price = (parseFloat(item.price) || 0) >= 0 ? (parseFloat(item.price) || 0) : 0"
+                                                                @blur="item.price = Math.max(0, parseFloat(item.price) || 0); item.price_editing = false"
+                                                                @keydown.enter="$event.target.blur()"
+                                                                class="w-20 text-center text-sm font-medium rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-900 py-1 no-spinners">
+                                                            <button type="button" @click="item.price = Math.max(0, parseFloat(item.price) || 0); item.price_editing = false" class="p-1 rounded text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20" title="Apply">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                            </button>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3 align-top">
                                                 <div class="flex items-center justify-center">
@@ -183,8 +207,32 @@
                                                     <option value="Other">Other</option>
                                                 </select>
                                             </td>
-                                            <td class="px-4 py-3 align-top text-right font-bold text-gray-900 dark:text-white">
-                                                <span x-text="formatMoney(item.price * item.quantity)"></span>
+                                            <td class="px-4 py-3 align-top text-right">
+                                                <div class="flex items-center justify-end gap-1">
+                                                    <template x-if="!item.total_editing">
+                                                        <div class="flex items-center justify-end gap-1.5">
+                                                            <span class="font-bold text-gray-900 dark:text-white" x-text="formatMoney(getLineTotal(item))"></span>
+                                                            <button type="button" @click="item.total_editing = true; $nextTick(() => { const r = $refs['total-input-'+index]; if (r) r.focus(); })" class="p-1 rounded text-gray-400 hover:text-primary hover:bg-primary/10 dark:hover:bg-primary/20" title="Edit total">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                            </button>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="!!item.total_editing">
+                                                        <div class="flex items-center justify-end gap-1">
+                                                            <span class="text-gray-500 dark:text-gray-400 text-xs">$</span>
+                                                            <input type="number" step="0.01" min="0"
+                                                                :ref="'total-input-'+index"
+                                                                :value="getLineTotal(item)"
+                                                                @input="applyTotalFromInput(item, $event.target.value)"
+                                                                @blur="applyTotalFromInput(item, $event.target.value); item.total_editing = false"
+                                                                @keydown.enter="$event.target.blur()"
+                                                                class="w-20 text-right text-sm font-bold rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-900 py-1 no-spinners">
+                                                            <button type="button" @click="const el = $refs['total-input-'+index]; if (el) { applyTotalFromInput(item, el.value); } item.total_editing = false" class="p-1 rounded text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20" title="Apply">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                            </button>
+                                                        </div>
+                                                    </template>
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3 align-top text-center">
                                                 <button type="button" @click="removeItem(index)" class="text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20">
@@ -369,7 +417,9 @@
                             product_id: product.id,
                             name: product.name,
                             code: product.product_code,
-                            price: parseFloat(product.price), 
+                            price: parseFloat(product.price),
+                            price_editing: false,
+                            total_editing: false,
                             quantity: 1,
                             max_quantity: 9999, // Allow any quantity for independent items
                             reason: ''
@@ -418,8 +468,19 @@
                     this.customerDropdownOpen = false;
                 },
 
+                getLineTotal(item) {
+                    const p = typeof item.price === 'number' ? item.price : (parseFloat(item.price) || 0);
+                    return p * item.quantity;
+                },
+
+                applyTotalFromInput(item, value) {
+                    const total = Math.max(0, parseFloat(value) || 0);
+                    const qty = Math.max(1, item.quantity);
+                    item.price = Math.round((total / qty) * 100) / 100;
+                },
+
                 calculateSubtotal() {
-                    return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    return this.items.reduce((sum, item) => sum + this.getLineTotal(item), 0);
                 },
                 
                 formatMoney(amount) {

@@ -106,7 +106,7 @@ export default function Header() {
                                     <img
                                         src={
                                             settings?.site_logo ||
-                                            "/images/Zam_logo-120x99.png"
+                                            "/images/zamzam-new-logo.png"
                                         }
                                         alt={settings?.site_name || "Zam Zam"}
                                         className="h-14 lg:h-16 w-auto object-contain"
