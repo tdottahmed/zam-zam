@@ -264,18 +264,24 @@ class ProductController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('admin.products.index')
+        $indexParams = $request->only('page', 'search', 'filter_by');
+        $indexParams = array_filter($indexParams, fn ($v) => $v !== null && $v !== '');
+
+        return redirect()->route('admin.products.index', $indexParams)
             ->with('success', 'Product updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Request $request, Product $product)
     {
         $product->delete();
 
-        return redirect()->route('admin.products.index')
+        $indexParams = $request->only('page', 'search', 'filter_by');
+        $indexParams = array_filter($indexParams, fn ($v) => $v !== null && $v !== '');
+
+        return redirect()->route('admin.products.index', $indexParams)
             ->with('success', 'Product deleted successfully.');
     }
 

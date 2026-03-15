@@ -5,31 +5,7 @@
 @endsection
 
 @section('content')
-    @if(session('success'))
-        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('warning'))
-        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800" role="alert">
-            {{ session('warning') }}
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
-            {{ session('error') }}
-        </div>
-    @endif
-    @if(session('import_failures') && count(session('import_failures')) > 0)
-        <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3" role="alert">
-            <p class="font-medium text-amber-800">Import issues (row → errors):</p>
-            <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-amber-700">
-                @foreach(session('import_failures') as $failure)
-                    <li><strong>Row {{ $failure->row() }}</strong>: {{ implode(' ', $failure->errors()) }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    @include('admin.products.partials.alerts')
 
     <x-admin.ui.section-header>
         Product Catalogue
@@ -219,7 +195,7 @@
 
                         {{-- Product name & meta --}}
                         <x-admin.ui.td>
-                            <a href="{{ route('admin.products.edit', $product) }}" class="font-medium text-gray-900 hover:text-[#C41E3A] transition-colors">
+                            <a href="{{ route('admin.products.edit', array_merge([$product], request()->only('page', 'search', 'filter_by'))) }}" class="font-medium text-gray-900 hover:text-[#C41E3A] transition-colors">
                                 {{ $product->name }}
                             </a>
                             <div class="flex flex-wrap items-center gap-2 mt-0.5">
@@ -277,7 +253,7 @@
                         {{-- Actions --}}
                         <x-admin.ui.td class="text-right">
                             <div class="flex items-center justify-end gap-1.5">
-                                <a href="{{ route('admin.products.edit', $product) }}"
+                                <a href="{{ route('admin.products.edit', array_merge([$product], request()->only('page', 'search', 'filter_by'))) }}"
                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-sm"
                                    title="Edit product">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -287,6 +263,11 @@
                                       onsubmit="return confirm('Delete {{ addslashes($product->name) }}? This cannot be undone.')">
                                     @csrf
                                     @method('DELETE')
+                                    @foreach(request()->only('page', 'search', 'filter_by') as $key => $value)
+                                        @if($value !== null && $value !== '')
+                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                        @endif
+                                    @endforeach
                                     <button type="submit"
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm"
                                             title="Delete product">

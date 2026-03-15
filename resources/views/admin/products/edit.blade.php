@@ -6,7 +6,7 @@
 
 @section('content')        
     <div class="mb-6">
-        <x-admin.actions.button href="{{ route('admin.products.index') }}" variant="secondary" size="sm">
+        <x-admin.actions.button href="{{ route('admin.products.index', request()->only('page', 'search', 'filter_by')) }}" variant="secondary" size="sm">
             &larr; Back to Products
         </x-admin.actions.button>
     </div>
@@ -14,6 +14,11 @@
         <form method="POST" action="{{ route('admin.products.update', $product) }}" id="product-form" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            @foreach(request()->only('page', 'search', 'filter_by') as $key => $value)
+                @if($value !== null && $value !== '')
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endif
+            @endforeach
 
             <div class="space-y-8">
                 <!-- Section 1: Basic Information -->
