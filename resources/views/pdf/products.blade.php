@@ -166,7 +166,6 @@
           <th style="width: 55px;">Weight</th>
           <th style="width: 55px;" class="text-center">PCs/BAG</th>
           <th style="width: 50px;" class="text-center">Image</th>
-          <th style="width: 50px;" class="text-center">Featured</th>
         </tr>
       </thead>
       <tbody>
@@ -180,7 +179,7 @@
               @endif
             </td>
             <td class="text-center">${{ number_format($product->box_price ?? 0, 2) }}</td>
-            <td class="text-center">${{ number_format($product->buying_price ?? 0, 2) }}</td>
+            <td class="text-center">${{ number_format($product->unit_price ?? 0, 2) }}</td>
             <td>{{ $product->weight_display ?? '—' }}</td>
             <td class="text-center">{{ $product->pcs_in_ctn ?? '-' }}</td>
             <td class="text-center">
@@ -193,7 +192,6 @@
                 —
               @endif
             </td>
-            <td class="text-center">{{ $product->is_featured ?? false ? 'Yes' : 'No' }}</td>
           </tr>
         @empty
           <tr>
