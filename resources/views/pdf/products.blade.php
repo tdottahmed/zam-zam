@@ -179,7 +179,8 @@
               @endif
             </td>
             <td class="text-center">${{ number_format($product->box_price ?? 0, 2) }}</td>
-            <td class="text-center">${{ number_format($product->unit_price ?? 0, 2) }}</td>
+            <td class="text-center">
+              ${{ number_format($product->unit_price > 0 ? $product->unit_price : $product->buying_price, 2) }}</td>
             <td>{{ $product->weight_display ?? '—' }}</td>
             <td class="text-center">{{ $product->pcs_in_ctn ?? '-' }}</td>
             <td class="text-center">
