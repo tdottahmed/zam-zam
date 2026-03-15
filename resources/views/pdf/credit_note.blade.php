@@ -67,7 +67,8 @@
       font-size: 11px;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
       padding: 8px 5px;
       border-bottom: 1px solid #ccc;
@@ -132,12 +133,14 @@
         <tr style="border:none;">
           <!-- Left Side: Logo -->
           <td style="width: 60%; vertical-align: middle; text-align: left; padding: 0;">
-            <img src="{{ public_path('images/zamzam-new-logo.png') }}" alt="Zamzam Logo" style="height: 80px; width: auto;">
+            <img src="{{ public_path('images/zamzam-new-logo.png') }}" alt="Zamzam Logo"
+                 style="height: 80px; width: auto;">
           </td>
           <!-- Right Side: Motto -->
           <td style="width: 40%; vertical-align: middle; text-align: right; padding: 0;">
             <div style="display: inline-block; text-align: right;">
-              <div style="margin: 0; font-size: 10px; font-style: italic; font-weight: 900; color: #cc0000; letter-spacing: 2px; text-transform: uppercase;">
+              <div
+                   style="margin: 0; font-size: 10px; font-style: italic; font-weight: 900; color: #cc0000; letter-spacing: 2px; text-transform: uppercase;">
                 PURE DESHI TASTE
               </div>
               <div style="border-bottom: 3px solid #d35400; margin-top: 4px;"></div>
@@ -151,9 +154,10 @@
   <!-- Define Footer -->
   <htmlpagefooter name="page-footer">
     <div class="page-footer-content">
-      <div>{{ $data['company']['name'] }} | {antigravity . strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) antigravity .} | Phone: {{ $data['company']['phone'] }} | Cell:
+      <div>{{ $data['company']['name'] }} | {!! strip_tags(str_replace(['<br />', '<br>', '<br/>'], ', ', $data['company']['address'])) !!} | Phone: {{ $data['company']['phone'] }} | Cell:
         {{ $data['company']['cell'] }}</div>
-      <div>Email: {{ $data['company']['email'] }} | Web: http://www.zamzamcanada.com | HST: {{ $data['company']['tax_id'] }}
+      <div>Email: {{ $data['company']['email'] }} | Web: http://www.zamzamcanada.com | HST:
+        {{ $data['company']['tax_id'] }}
       </div>
       <div style="margin-top: 5px;">Page: {PAGENO} / {nbpg}</div>
     </div>
@@ -166,10 +170,13 @@
 
   <table style="width: 100%; margin-bottom: 10px; border-spacing: 0;">
     <tr style="border: none;">
-      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
-        <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
+      <td
+          style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+        <div
+             style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
           Customer Details</div>
-        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">{{ $data['customer']['name'] }}</div>
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px; color: #333;">
+          {{ $data['customer']['name'] }}</div>
         <div style="color: #555; line-height: 1.4;">
           {{ $data['customer']['email'] }}
         </div>
@@ -180,17 +187,21 @@
         @endif
       </td>
       <td style="width: 4%;">&nbsp;</td>
-      <td style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
-        <div style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
+      <td
+          style="width: 48%; vertical-align: top; background-color: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee;">
+        <div
+             style="font-size: 10px; text-transform: uppercase; color: #888; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
           Credit Note Information</div>
         <div style="margin-bottom: 5px; color: #333;">
-            <span style="font-weight: bold; display: inline-block; width: 100px;">Date Generated:</span> {{ $data['date'] }}
+          <span style="font-weight: bold; display: inline-block; width: 100px;">Date Generated:</span>
+          {{ $data['date'] }}
         </div>
         <div style="margin-bottom: 5px; color: #333;">
-            <span style="font-weight: bold; display: inline-block; width: 100px;">Status:</span> {{ ucfirst($data['status']) }}
+          <span style="font-weight: bold; display: inline-block; width: 100px;">Status:</span>
+          {{ ucfirst($data['status']) }}
         </div>
         <div style="margin-bottom: 5px; color: #333;">
-            <span style="font-weight: bold; display: inline-block; width: 100px;">Reason:</span> {{ $data['reason'] }}
+          <span style="font-weight: bold; display: inline-block; width: 100px;">Reason:</span> {{ $data['reason'] }}
         </div>
       </td>
     </tr>
@@ -215,15 +226,15 @@
         <tr>
           <td>{{ $loop->iteration }}</td>
           <td>
-              <div style="font-weight: bold;">{{ $item['product_name'] }}</div>
-              <div style="font-size: 9px; color: #666; margin-top: 2px;">Code: {{ $item['product_code'] }}</div>
+            <div style="font-weight: bold;">{{ $item['product_name'] }}</div>
+            <div style="font-size: 9px; color: #666; margin-top: 2px;">Code: {{ $item['product_code'] }}</div>
           </td>
           <td class="text-center">
-              @if($item['order_id'])
-                  #{{ $item['order_id'] }}
-              @else
-                  Independent
-              @endif
+            @if ($item['order_id'])
+              #{{ $item['order_id'] }}
+            @else
+              Independent
+            @endif
           </td>
           <td class="text-center">{{ $item['reason'] ?? 'Standard' }}</td>
           <td class="text-center">{{ $item['quantity'] }}</td>
@@ -239,7 +250,7 @@
 
     <div style="float: left; width: 50%;">
       <div>Total Items Refunded: {{ $data['total_items'] }}</div>
-      @if(!empty($data['admin_notes']))
+      @if (!empty($data['admin_notes']))
         <div style="margin-top: 20px;">
           <strong>Admin Notes:</strong><br>
           {{ $data['admin_notes'] }}
@@ -261,4 +272,5 @@
   </div>
 
 </body>
+
 </html>
