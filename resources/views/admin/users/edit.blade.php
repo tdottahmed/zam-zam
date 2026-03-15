@@ -240,8 +240,8 @@
                                         <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][city]'" x-model="address.city" class="mt-1" x-bind:id="'city_' + index" required />
                                     </div>
                                     <div>
-                                        <x-admin.form.label x-bind:for="'state_' + index" value="State" />
-                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][state]'" x-model="address.state" class="mt-1" x-bind:id="'state_' + index" />
+                                        <x-admin.form.label x-bind:for="'province_' + index" value="Province" />
+                                        <x-admin.form.input type="text" x-bind:name="'addresses[' + (address.id || address.tempId) + '][state]'" x-model="address.state" class="mt-1" x-bind:id="'province_' + index" />
                                     </div>
                                     <div>
                                         <x-admin.form.label x-bind:for="'postal_code_' + index" value="Postal Code" />
