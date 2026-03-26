@@ -297,7 +297,7 @@ class OrderController extends Controller
             ->when($brandId, function($q) use ($brandId) {
                 $q->where('brand_id', $brandId);
             })
-            ->select(['id', 'name', 'product_code', 'unit_price as price', 'category_id', 'brand_id', 'unit_id', 'tax_id', 'quantity', 'image']) 
+            ->select(['id', 'name', 'product_code', 'unit_price as price', 'box_price', 'category_id', 'brand_id', 'unit_id', 'tax_id', 'quantity', 'image', 'pcs_in_ctn']) 
             ->paginate(12);
 
         return response()->json($products);
