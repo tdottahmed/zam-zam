@@ -348,11 +348,25 @@
               -
             @endif
           </td>
-          <td style="text-align: center;">{{ $item['quantity'] }}</td>
+          <td style="text-align: center;">
+            @php
+              $pcs = $item['pcs_in_ctn'] ?? 1;
+              $isBox = $pcs > 1 && $item['quantity'] >= $pcs;
+              $qty = $isBox ? ($item['quantity'] / $pcs) : $item['quantity'];
+              $type = $isBox ? 'Box' : 'Unit';
+            @endphp
+            {{ is_float($qty) || fmod($qty, 1) !== 0.0 ? number_format($qty, 2) : $qty }} {{ $type }}
+          </td>
           <td>{{ $item['description'] }}</td>
           <td>{{ $item['upc'] }}</td>
           <td>{{ $item['uom'] }}</td>
-          <td>${{ number_format($item['box_price'], 2) }}</td>
+          <td>
+            @if ($isBox)
+              ${{ number_format($item['box_price'], 2) }}
+            @else
+              -
+            @endif
+          </td>
           <td>${{ number_format($item['unit_price'], 2) }}</td>
           <td>
             @if (isset($item['discount']) && $item['discount'] > 0)

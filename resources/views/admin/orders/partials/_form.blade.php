@@ -394,7 +394,7 @@
                     <div class="flex flex-col">
                       <span class="ml-1 text-[9px] font-bold uppercase text-gray-400">Boxes</span>
                       <input type="number" x-model="item.boxes" min="1" 
-                             class="h-8 w-12 rounded-lg border border-gray-300 text-center text-sm font-semibold focus:border-primary focus:ring-primary">
+                             class="no-spinners h-8 w-16 rounded-lg border border-gray-300 text-center text-sm font-semibold focus:border-primary focus:ring-primary">
                     </div>
                     <span class="mt-4 text-gray-400">×</span>
                     <div class="flex flex-col">

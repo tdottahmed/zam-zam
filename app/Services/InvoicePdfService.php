@@ -88,6 +88,7 @@ class InvoicePdfService
                 return [
                     's_no' => $index + 1,
                     'quantity' => $item->quantity,
+                    'pcs_in_ctn' => $item->product ? ($item->product->pcs_in_ctn ?: 1) : 1,
                     'image_path' => $imagePath,
                     'description' => $item->product_name,
                     'upc' => $item->product->product_code ?? '',
