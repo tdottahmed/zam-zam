@@ -100,10 +100,19 @@
                       x-text="product.product_code"></span>
                 <span class="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-gray-900"
                       x-text="product.name"></span>
-                <div class="mt-auto flex items-baseline justify-between gap-1">
-                  <span class="text-base font-bold text-primary" x-text="formatMoney(product.price)"></span>
-                  <span class="text-[10px] text-gray-500" x-show="product.unit"
-                        x-text="'/ ' + (product.unit?.name || '')"></span>
+                <div class="mt-auto flex flex-col gap-1">
+                  <div class="flex items-baseline justify-between gap-1">
+                    <span class="text-base font-bold text-primary" x-text="formatMoney(product.price)"></span>
+                    <span class="text-[10px] text-gray-500" x-show="product.unit"
+                          x-text="'/ ' + (product.unit?.name || '')"></span>
+                  </div>
+                  <div class="flex items-center gap-1 text-[10px] text-gray-400" x-show="product.pcs_in_ctn">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span>Box: <span class="font-bold text-gray-600" x-text="product.pcs_in_ctn"></span> Pcs</span>
+                  </div>
                 </div>
               </div>
             </button>
@@ -325,33 +334,84 @@
               </button>
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="relative w-20">
+              <div class="relative w-24">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-xs text-gray-500">$</span>
-                <input type="number" :name="'items[' + index + '][unit_price]'" x-model="item.price" min="0"
-                       step="0.01"
+                
+                <!-- Unit Price Input -->
+                <input x-show="item.calc_type === 'quantity'" type="number" x-model="item.unit_price" min="0" step="0.01"
                        class="no-spinners w-full rounded-lg border border-gray-300 py-1.5 pl-5 pr-1.5 text-right font-mono text-xs focus:border-primary focus:ring-primary">
+                
+                <!-- Box Price Input -->
+                <input x-show="item.calc_type === 'box'" type="number" x-model="item.box_price" min="0" step="0.01"
+                       class="no-spinners w-full rounded-lg border border-gray-300 py-1.5 pl-5 pr-1.5 text-right font-mono text-xs focus:border-primary focus:ring-primary">
+                
+                <!-- Hidden Input for backend (Unit Price) -->
+                <input type="hidden" :name="'items[' + index + '][unit_price]'"
+                       :value="item.calc_type === 'box' ? (item.qty_per_box > 0 ? (item.box_price / item.qty_per_box).toFixed(4) : 0) : item.unit_price">
               </div>
               <span class="text-xs text-gray-400">×</span>
-              <div class="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white">
-                <button type="button" @click="if(item.quantity > 1) item.quantity--"
-                        class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                  </svg>
-                </button>
-                <input type="number" :name="'items[' + index + '][quantity]'" x-model="item.quantity"
-                       min="1"
-                       class="no-spinners h-8 w-11 border-0 bg-transparent text-center text-sm font-semibold focus:ring-0">
-                <button type="button" @click="item.quantity++"
-                        class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                </button>
+              <div class="flex flex-col gap-2">
+                <!-- Calc Type Radio Buttons -->
+                <div class="flex items-center gap-3">
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="radio" x-model="item.calc_type" value="quantity" 
+                           class="h-3.5 w-3.5 border-gray-300 text-primary focus:ring-primary">
+                    <span class="text-[11px] font-semibold text-gray-700">Quantity</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <input type="radio" x-model="item.calc_type" value="box" 
+                           class="h-3.5 w-3.5 border-gray-300 text-primary focus:ring-primary">
+                    <span class="text-[11px] font-semibold text-gray-700">Box</span>
+                  </label>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <!-- Hidden input to send the final quantity to the server -->
+                  <input type="hidden" :name="'items[' + index + '][quantity]'" 
+                         :value="item.calc_type === 'box' ? (item.boxes * item.qty_per_box) : item.quantity">
+
+                  <!-- Standard Quantity Control -->
+                  <div x-show="item.calc_type === 'quantity'" class="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white">
+                    <button type="button" @click="if(item.quantity > 1) item.quantity--"
+                            class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                      </svg>
+                    </button>
+                    <input type="number" x-model="item.quantity" min="1"
+                           class="no-spinners h-8 w-11 border-0 bg-transparent text-center text-sm font-semibold focus:ring-0">
+                    <button type="button" @click="item.quantity++"
+                            class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Box Calculation Control -->
+                  <div x-show="item.calc_type === 'box'" class="flex items-center gap-2">
+                    <div class="flex flex-col">
+                      <span class="ml-1 text-[9px] font-bold uppercase text-gray-400">Boxes</span>
+                      <input type="number" x-model="item.boxes" min="1" 
+                             class="h-8 w-12 rounded-lg border border-gray-300 text-center text-sm font-semibold focus:border-primary focus:ring-primary">
+                    </div>
+                    <span class="mt-4 text-gray-400">×</span>
+                    <div class="flex flex-col">
+                      <span class="ml-1 text-[9px] font-bold uppercase text-gray-400">PC's In</span>
+                      <div class="flex h-8 w-14 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-sm font-semibold text-gray-500"
+                           x-text="item.qty_per_box"></div>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="ml-1 text-[9px] font-bold uppercase text-gray-400">Total Qty</span>
+                      <div class="flex h-8 items-center rounded-lg border border-primary/20 bg-primary/5 px-2 text-sm font-bold text-primary"
+                           x-text="item.boxes * item.qty_per_box"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="w-16 text-right text-sm font-bold text-gray-900"
-                   x-text="formatMoney(item.price * item.quantity)"></div>
+                   x-text="formatMoney(item.calc_type === 'box' ? (item.boxes * item.box_price) : (item.quantity * item.unit_price))"></div>
             </div>
           </div>
         </template>

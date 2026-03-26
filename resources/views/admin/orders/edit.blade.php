@@ -14,8 +14,12 @@
                 'product_id' => $i->product_id,
                 'name' => $i->product_name,
                 'code' => $i->product?->product_code ?? '',
-                'price' => (float) $i->unit_price,
+                'unit_price' => (float) $i->unit_price,
+                'box_price' => (float) ($i->product?->box_price ?? ($i->unit_price * ($i->product?->pcs_in_ctn ?? 1))),
                 'quantity' => (int) $i->quantity,
+                'calc_type' => 'quantity',
+                'boxes' => 1,
+                'qty_per_box' => (float) ($i->product?->pcs_in_ctn ?? 1),
             ];
         })
         ->values();
@@ -143,8 +147,12 @@
             product_id: product.id,
             name: product.name,
             code: product.product_code,
-            price: parseFloat(product.price),
-            quantity: 1
+            unit_price: parseFloat(product.price) || 0,
+            box_price: parseFloat(product.box_price) || 0,
+            quantity: 1,
+            calc_type: 'quantity',
+            boxes: 1,
+            qty_per_box: parseFloat(product.pcs_in_ctn) || 1
           });
         },
 
@@ -216,7 +224,10 @@
         },
 
         calculateSubtotal() {
-          return this.items.reduce((s, i) => s + (i.price * i.quantity), 0);
+          return this.items.reduce((s, i) => {
+            let total = i.calc_type === 'box' ? (i.boxes * i.box_price) : (i.quantity * i.unit_price);
+            return s + total;
+          }, 0);
         },
         formatMoney(amount) {
           return '$' + Number(amount).toLocaleString('en-US', {

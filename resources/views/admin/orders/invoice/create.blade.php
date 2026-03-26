@@ -79,11 +79,22 @@
                                                         <span class="text-[10px] text-red-600 bg-red-100 px-2 py-0.5 rounded-full font-bold">Insufficient</span>
                                                     @endif
                                                 </div>
+                                                <!-- Mode Toggle -->
+                                                <div class="mt-2 flex items-center gap-4" x-show="items['{{ $itemId }}'].selected">
+                                                  <label class="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" x-model="items['{{ $itemId }}'].calc_type" value="quantity" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Quantity</span>
+                                                  </label>
+                                                  <label class="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" x-model="items['{{ $itemId }}'].calc_type" value="box" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Box</span>
+                                                  </label>
+                                                </div>
                                                 <!-- Hidden inputs for form submission -->
                                                 <template x-if="items['{{ $itemId }}'].selected">
                                                     <div>
-                                                        <input type="hidden" name="items[{{ $itemId }}][quantity]" :value="items['{{ $itemId }}'].quantity">
-                                                        <input type="hidden" name="items[{{ $itemId }}][price]" :value="items['{{ $itemId }}'].price">
+                                                        <input type="hidden" name="items[{{ $itemId }}][quantity]" :value="items['{{ $itemId }}'].calc_type === 'box' ? (items['{{ $itemId }}'].boxes * items['{{ $itemId }}'].qty_per_box) : items['{{ $itemId }}'].quantity">
+                                                        <input type="hidden" name="items[{{ $itemId }}][price]" :value="items['{{ $itemId }}'].calc_type === 'box' ? (items['{{ $itemId }}'].qty_per_box > 0 ? (items['{{ $itemId }}'].box_price / items['{{ $itemId }}'].qty_per_box).toFixed(4) : 0) : items['{{ $itemId }}'].unit_price">
                                                         <input type="hidden" name="items[{{ $itemId }}][discount]" :value="calculateItemDiscount(items['{{ $itemId }}'])">
                                                     </div>
                                                 </template>
@@ -112,20 +123,36 @@
                                             <td class="px-4 py-4 align-top text-center" x-data="{ editing: false }">
                                                 <div class="relative group" @click.away="editing = false">
                                                     <!-- View Mode -->
-                                                    <div x-show="!editing" class="flex items-center justify-center gap-2 cursor-pointer py-1" @click="if(items['{{ $itemId }}'].selected) editing = true">
-                                                        <span class="font-medium text-gray-900 dark:text-white" x-text="items['{{ $itemId }}'].quantity"></span>
-                                                        <svg class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                    <div x-show="!editing" class="flex flex-col items-center justify-center gap-1 cursor-pointer py-1" @click="if(items['{{ $itemId }}'].selected) editing = true">
+                                                        <div class="flex items-center gap-1">
+                                                          <span class="font-medium text-gray-900 dark:text-white" x-text="items['{{ $itemId }}'].calc_type === 'box' ? items['{{ $itemId }}'].boxes : items['{{ $itemId }}'].quantity"></span>
+                                                          <span class="text-xs text-gray-400" x-show="items['{{ $itemId }}'].calc_type === 'box'">BX</span>
+                                                          <svg class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                        </div>
+                                                        <div x-show="items['{{ $itemId }}'].calc_type === 'box'" class="text-[10px] text-gray-500 font-semibold cursor-help" title="Calculated Total Piece Quantity">
+                                                          <span x-text="items['{{ $itemId }}'].boxes * items['{{ $itemId }}'].qty_per_box"></span> pcs total
+                                                        </div>
                                                     </div>
                                                     <!-- Edit Mode -->
-                                                    <div x-show="editing" class="flex items-center justify-center">
-                                                        <input type="number" 
-                                                            x-model.number="items['{{ $itemId }}'].quantity"
-                                                            min="0.01" 
-                                                            step="0.01"
-                                                            class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
-                                                            x-effect="if(editing) $el.focus()"
-                                                            @keydown.enter="editing = false"
-                                                        >
+                                                    <div x-show="editing" class="flex flex-col items-center justify-center gap-1">
+                                                        <div class="flex items-center gap-1">
+                                                          <input x-show="items['{{ $itemId }}'].calc_type === 'quantity'" type="number" 
+                                                              x-model.number="items['{{ $itemId }}'].quantity"
+                                                              min="0.01" step="0.01"
+                                                              class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
+                                                              x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'quantity') $el.focus()"
+                                                              @keydown.enter="editing = false">
+                                                          <input x-show="items['{{ $itemId }}'].calc_type === 'box'" type="number" 
+                                                              x-model.number="items['{{ $itemId }}'].boxes"
+                                                              min="0.01" step="0.01"
+                                                              class="w-16 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
+                                                              x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'box') $el.focus()"
+                                                              @keydown.enter="editing = false">
+                                                          <span x-show="items['{{ $itemId }}'].calc_type === 'box'" class="text-xs font-semibold text-gray-500">Bxs</span>
+                                                        </div>
+                                                        <div x-show="items['{{ $itemId }}'].calc_type === 'box'" class="text-[9px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md mt-1 border border-gray-200">
+                                                          PC's In: <span class="font-bold" x-text="items['{{ $itemId }}'].qty_per_box"></span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -135,19 +162,23 @@
                                                 <div class="relative group" @click.away="editing = false">
                                                     <!-- View Mode -->
                                                     <div x-show="!editing" class="flex items-center justify-end gap-2 cursor-pointer py-1" @click="if(items['{{ $itemId }}'].selected) editing = true">
-                                                        <span class="font-medium text-gray-900 dark:text-white" x-text="formatMoney(items['{{ $itemId }}'].price)"></span>
+                                                        <span class="font-medium text-gray-900 dark:text-white" x-text="formatMoney(items['{{ $itemId }}'].calc_type === 'box' ? items['{{ $itemId }}'].box_price : items['{{ $itemId }}'].unit_price)"></span>
                                                         <svg class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                     </div>
                                                     <!-- Edit Mode -->
-                                                    <div x-show="editing" class="flex items-center justify-end">
-                                                        <input type="number" 
-                                                            x-model.number="items['{{ $itemId }}'].price"
-                                                            min="0" 
-                                                            step="0.01"
+                                                    <div x-show="editing" class="flex flex-col items-end gap-1">
+                                                        <input x-show="items['{{ $itemId }}'].calc_type === 'quantity'" type="number" 
+                                                            x-model.number="items['{{ $itemId }}'].unit_price"
+                                                            min="0" step="0.01"
                                                             class="w-24 text-right rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
-                                                            x-effect="if(editing) $el.focus()"
-                                                            @keydown.enter="editing = false"
-                                                        >
+                                                            x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'quantity') $el.focus()"
+                                                            @keydown.enter="editing = false">
+                                                        <input x-show="items['{{ $itemId }}'].calc_type === 'box'" type="number" 
+                                                            x-model.number="items['{{ $itemId }}'].box_price"
+                                                            min="0" step="0.01"
+                                                            class="w-24 text-right rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
+                                                            x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'box') $el.focus()"
+                                                            @keydown.enter="editing = false">
                                                     </div>
                                                 </div>
                                             </td>
@@ -337,8 +368,12 @@
                     @foreach($items as $itemData)
                         '{{ $itemData['item']->id }}': {
                             selected: true,
-                            quantity: {{ $itemData['item']->quantity }},
-                            price: {{ $itemData['item']->unit_price }},
+                            calc_type: 'quantity',
+                            boxes: 1,
+                            qty_per_box: parseFloat('{{ $itemData['item']->product?->pcs_in_ctn ?: 1 }}'),
+                            quantity: parseFloat('{{ $itemData['item']->quantity }}'),
+                            unit_price: parseFloat('{{ $itemData['item']->unit_price }}'),
+                            box_price: parseFloat('{{ $itemData['item']->product?->box_price ?? ($itemData['item']->unit_price * ($itemData['item']->product?->pcs_in_ctn ?: 1)) }}'),
                             discountValue: 0,
                             discountType: 'fixed',
                             tax_rate: {{ $itemData['item']->product && $itemData['item']->product->tax ? $itemData['item']->product->tax->value : 0 }},
@@ -357,15 +392,17 @@
                     return Object.values(this.items).filter(i => i.selected).length;
                 },
                 calculateItemDiscount(item) {
+                     let subtotal = item.calc_type === 'box' ? (item.boxes * item.box_price) : (item.quantity * item.unit_price);
                      if (item.discountType === 'percent') {
-                         return (item.quantity * item.price) * (item.discountValue / 100);
+                         return subtotal * (item.discountValue / 100);
                      }
                      return item.discountValue;
                 },
                 calculateLineTotal(item) {
                      if (!item.selected) return 0;
                      const discount = this.calculateItemDiscount(item);
-                     const total = (item.quantity * item.price) - (discount || 0);
+                     const subtotal = item.calc_type === 'box' ? (item.boxes * item.box_price) : (item.quantity * item.unit_price);
+                     const total = subtotal - (discount || 0);
                      return Math.max(0, total);
                 },
                 calculateSubtotal() {
