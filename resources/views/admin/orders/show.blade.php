@@ -102,8 +102,14 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 text-center">
+                                        @php
+                                            $pcs = $item->product ? ($item->product->pcs_in_ctn ?: 1) : 1;
+                                            $isBox = $pcs > 1 && $item->quantity >= $pcs;
+                                            $qty = $isBox ? ($item->quantity / $pcs) : $item->quantity;
+                                            $type = $isBox ? 'Box' : 'Unit';
+                                        @endphp
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                            x{{ $item->quantity }}
+                                            {{ is_float($qty) || fmod($qty, 1) !== 0.0 ? number_format($qty, 2) : $qty }} {{ $type }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-right">${{ number_format($item->unit_price, 2) }}</td>

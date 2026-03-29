@@ -103,20 +103,28 @@
                                                         </div>
                                                     </div>
                                                     <!-- Edit Mode -->
-                                                    <div x-show="editing" class="flex flex-col items-center justify-center gap-1">
+                                                    <div x-show="editing" class="flex flex-col items-center justify-center gap-1 mt-1">
                                                         <div class="flex items-center gap-1">
-                                                          <input x-show="items['{{ $itemId }}'].calc_type === 'quantity'" type="number" 
-                                                              x-model.number="items['{{ $itemId }}'].quantity"
-                                                              min="0.01" step="0.01"
-                                                              class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
-                                                              x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'quantity') $el.focus()"
-                                                              @keydown.enter="editing = false">
-                                                          <input x-show="items['{{ $itemId }}'].calc_type === 'box'" type="number" 
-                                                              x-model.number="items['{{ $itemId }}'].boxes"
-                                                              min="0.01" step="0.01"
-                                                              class="w-16 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1"
-                                                              x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'box') $el.focus()"
-                                                              @keydown.enter="editing = false">
+                                                          <div x-show="items['{{ $itemId }}'].calc_type === 'quantity'" class="flex items-center overflow-hidden rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm w-[110px]">
+                                                            <button type="button" @click="if(items['{{ $itemId }}'].quantity > 0.01) items['{{ $itemId }}'].quantity--" class="flex h-8 w-8 items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
+                                                            <input type="number" 
+                                                                x-model.number="items['{{ $itemId }}'].quantity"
+                                                                min="0.01" step="0.01"
+                                                                class="w-full border-0 bg-transparent text-center text-sm font-semibold focus:ring-0 p-0 h-8"
+                                                                x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'quantity') $el.focus()"
+                                                                @keydown.enter="editing = false">
+                                                            <button type="button" @click="items['{{ $itemId }}'].quantity++" class="flex h-8 w-8 items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg></button>
+                                                          </div>
+                                                          <div x-show="items['{{ $itemId }}'].calc_type === 'box'" class="flex items-center overflow-hidden rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm w-[110px]">
+                                                            <button type="button" @click="if(items['{{ $itemId }}'].boxes > 0.01) items['{{ $itemId }}'].boxes--" class="flex h-8 w-8 items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
+                                                            <input type="number" 
+                                                                x-model.number="items['{{ $itemId }}'].boxes"
+                                                                min="0.01" step="0.01"
+                                                                class="w-full border-0 bg-transparent text-center text-sm font-semibold focus:ring-0 p-0 h-8"
+                                                                x-effect="if(editing && items['{{ $itemId }}'].calc_type === 'box') $el.focus()"
+                                                                @keydown.enter="editing = false">
+                                                            <button type="button" @click="items['{{ $itemId }}'].boxes++" class="flex h-8 w-8 items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg></button>
+                                                          </div>
                                                           <span x-show="items['{{ $itemId }}'].calc_type === 'box'" class="text-xs font-semibold text-gray-500">Bxs</span>
                                                         </div>
                                                         <div x-show="items['{{ $itemId }}'].calc_type === 'box'" class="text-[9px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md mt-1 border border-gray-200">

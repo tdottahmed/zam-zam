@@ -109,7 +109,15 @@
                                                     <div class="text-xs text-red-500">Discount: -${{ number_format($item->discount_amount, 2) }}</div>
                                                 @endif
                                             </td>
-                                            <td class="px-4 py-3 text-center">{{ $item->quantity }}</td>
+                                            <td class="px-4 py-3 text-center">
+                                                @php
+                                                    $pcs = $item->product ? ($item->product->pcs_in_ctn ?: 1) : 1;
+                                                    $isBox = $pcs > 1 && $item->quantity >= $pcs;
+                                                    $qty = $isBox ? ($item->quantity / $pcs) : $item->quantity;
+                                                    $type = $isBox ? 'Box' : 'Unit';
+                                                @endphp
+                                                {{ is_float($qty) || fmod($qty, 1) !== 0.0 ? number_format($qty, 2) : $qty }} {{ $type }}
+                                            </td>
                                             <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
                                                 @if($item->tax_amount > 0)
                                                     ${{ number_format($item->tax_amount, 2) }}
