@@ -354,12 +354,12 @@
                 <!-- Calc Type Radio Buttons -->
                 <div class="flex items-center gap-3">
                   <label class="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" x-model="item.calc_type" value="quantity" 
+                    <input type="radio" :name="'calc_type_' + index" x-model="item.calc_type" value="quantity" 
                            class="h-3.5 w-3.5 border-gray-300 text-primary focus:ring-primary">
                     <span class="text-[11px] font-semibold text-gray-700">Quantity</span>
                   </label>
                   <label class="flex items-center gap-1.5 cursor-pointer">
-                    <input type="radio" x-model="item.calc_type" value="box" 
+                    <input type="radio" :name="'calc_type_' + index" x-model="item.calc_type" value="box" 
                            class="h-3.5 w-3.5 border-gray-300 text-primary focus:ring-primary">
                     <span class="text-[11px] font-semibold text-gray-700">Box</span>
                   </label>
@@ -393,8 +393,22 @@
                   <div x-show="item.calc_type === 'box'" class="flex items-center gap-2">
                     <div class="flex flex-col">
                       <span class="ml-1 text-[9px] font-bold uppercase text-gray-400">Boxes</span>
-                      <input type="number" x-model="item.boxes" min="1" 
-                             class="no-spinners h-8 w-16 rounded-lg border border-gray-300 text-center text-sm font-semibold focus:border-primary focus:ring-primary">
+                      <div class="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white">
+                        <button type="button" @click="if(item.boxes > 1) item.boxes--"
+                                class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                          </svg>
+                        </button>
+                        <input type="number" x-model="item.boxes" min="1"
+                               class="no-spinners h-8 w-11 border-0 bg-transparent p-0 text-center text-sm font-semibold focus:ring-0">
+                        <button type="button" @click="item.boxes++"
+                                class="flex h-8 w-8 items-center justify-center text-gray-500 transition-colors hover:bg-gray-100">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <span class="mt-4 text-gray-400">×</span>
                     <div class="flex flex-col">

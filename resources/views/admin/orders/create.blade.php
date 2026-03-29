@@ -131,7 +131,7 @@
             unit_price: parseFloat(product.price) || 0,
             box_price: parseFloat(product.box_price) || 0,
             quantity: 1,
-            calc_type: 'quantity',
+            calc_type: 'box',
             boxes: 1,
             qty_per_box: parseFloat(product.pcs_in_ctn) || 1
           });

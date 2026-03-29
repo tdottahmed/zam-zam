@@ -10,16 +10,20 @@
   @php
     $orderItemsForJs = $order->items
         ->map(function ($i) {
+            $pcs = (float) ($i->product?->pcs_in_ctn ?? 1);
+            $qty = (int) $i->quantity;
+            $boxes = $pcs > 0 ? $qty / $pcs : 1;
+            
             return [
                 'product_id' => $i->product_id,
                 'name' => $i->product_name,
                 'code' => $i->product?->product_code ?? '',
                 'unit_price' => (float) $i->unit_price,
-                'box_price' => (float) ($i->product?->box_price ?? ($i->unit_price * ($i->product?->pcs_in_ctn ?? 1))),
-                'quantity' => (int) $i->quantity,
-                'calc_type' => 'quantity',
-                'boxes' => 1,
-                'qty_per_box' => (float) ($i->product?->pcs_in_ctn ?? 1),
+                'box_price' => (float) ($i->product?->box_price ?? ($i->unit_price * $pcs)),
+                'quantity' => $qty,
+                'calc_type' => (fmod($qty, $pcs) == 0) ? 'box' : 'quantity',
+                'boxes' => (fmod($qty, $pcs) == 0) ? $boxes : 1,
+                'qty_per_box' => $pcs,
             ];
         })
         ->values();
@@ -150,7 +154,7 @@
             unit_price: parseFloat(product.price) || 0,
             box_price: parseFloat(product.box_price) || 0,
             quantity: 1,
-            calc_type: 'quantity',
+            calc_type: 'box',
             boxes: 1,
             qty_per_box: parseFloat(product.pcs_in_ctn) || 1
           });

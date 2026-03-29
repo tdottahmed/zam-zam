@@ -82,11 +82,11 @@
                                                 <!-- Mode Toggle -->
                                                 <div class="mt-2 flex items-center gap-4" x-show="items['{{ $itemId }}'].selected">
                                                   <label class="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" x-model="items['{{ $itemId }}'].calc_type" value="quantity" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    <input type="radio" name="calc_type_{{ $itemId }}" x-model="items['{{ $itemId }}'].calc_type" value="quantity" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                                     <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Quantity</span>
                                                   </label>
                                                   <label class="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" x-model="items['{{ $itemId }}'].calc_type" value="box" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    <input type="radio" name="calc_type_{{ $itemId }}" x-model="items['{{ $itemId }}'].calc_type" value="box" class="h-3 w-3 border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                                     <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Box</span>
                                                   </label>
                                                 </div>
