@@ -163,7 +163,7 @@ export default function Create({
     };
 
     const updateCartQuantity = (index, val) => {
-        const v = Math.max(0.01, parseFloat(val) || 0.01);
+        const v = Math.max(1, parseInt(val, 10) || 1);
         setCart((prev) =>
             prev.map((item, i) => {
                 if (i !== index) return item;
@@ -187,10 +187,10 @@ export default function Create({
                 
                 if (type === 'box') {
                     // switching to box
-                    newBoxes = Math.max(0.01, newQty / item.qty_per_box);
+                    newBoxes = Math.max(1, Math.round(newQty / item.qty_per_box));
                 } else {
                     // switching to quantity
-                    newQty = Math.max(0.01, newBoxes * item.qty_per_box);
+                    newQty = Math.max(1, Math.round(newBoxes * item.qty_per_box));
                 }
                 
                 return { ...item, calc_type: type, boxes: newBoxes, quantity: newQty };
@@ -879,7 +879,7 @@ export default function Create({
                                                         </button>
                                                         <input
                                                             type="text"
-                                                            min={0.01}
+                                                            min={1}
                                                             value={
                                                                 item.calc_type === 'box' ? item.boxes : item.quantity
                                                             }
