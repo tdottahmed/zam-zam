@@ -121,16 +121,25 @@ export default function Create({
 
     const addToCart = (product, quantity = 1) => {
         const qty = Math.max(1, parseInt(quantity, 10) || 1);
-        const price = parseFloat(product.price) || 0;
-        if (price <= 0) return;
+        const unit_price = parseFloat(product.price) || 0;
+        const qty_per_box = parseFloat(product.pcs_in_ctn) || 1;
+        const box_price = parseFloat(product.box_price) || (unit_price * qty_per_box);
+
+        if (unit_price <= 0) return;
         setCart((prev) => {
             const existing = prev.find((i) => i.product_id === product.id);
             if (existing) {
-                return prev.map((i) =>
-                    i.product_id === product.id
-                        ? { ...i, quantity: i.quantity + qty }
-                        : i,
-                );
+                return prev.map((i) => {
+                    if (i.product_id === product.id) {
+                        if (i.calc_type === 'box') {
+                            const newBoxes = i.boxes + qty;
+                            return { ...i, boxes: newBoxes, quantity: newBoxes * i.qty_per_box };
+                        } else {
+                            return { ...i, quantity: i.quantity + qty };
+                        }
+                    }
+                    return i;
+                });
             }
             return [
                 ...prev,
@@ -138,8 +147,12 @@ export default function Create({
                     product_id: product.id,
                     name: product.name,
                     code: product.product_code,
-                    price,
-                    quantity: qty,
+                    unit_price,
+                    box_price,
+                    qty_per_box,
+                    calc_type: 'box',
+                    boxes: qty,
+                    quantity: qty * qty_per_box,
                 },
             ];
         });
@@ -149,12 +162,39 @@ export default function Create({
         setCart((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const updateCartQuantity = (index, quantity) => {
-        const qty = Math.max(1, parseInt(quantity, 10) || 1);
+    const updateCartQuantity = (index, val) => {
+        const v = Math.max(0.01, parseFloat(val) || 0.01);
         setCart((prev) =>
-            prev.map((item, i) =>
-                i === index ? { ...item, quantity: qty } : item,
-            ),
+            prev.map((item, i) => {
+                if (i !== index) return item;
+                if (item.calc_type === 'box') {
+                    return { ...item, boxes: v, quantity: v * item.qty_per_box };
+                } else {
+                    return { ...item, quantity: v };
+                }
+            })
+        );
+    };
+
+    const updateCalcType = (index, type) => {
+        setCart((prev) =>
+            prev.map((item, i) => {
+                if (i !== index) return item;
+                if (type === item.calc_type) return item;
+                
+                let newBoxes = item.boxes;
+                let newQty = item.quantity;
+                
+                if (type === 'box') {
+                    // switching to box
+                    newBoxes = Math.max(0.01, newQty / item.qty_per_box);
+                } else {
+                    // switching to quantity
+                    newQty = Math.max(0.01, newBoxes * item.qty_per_box);
+                }
+                
+                return { ...item, calc_type: type, boxes: newBoxes, quantity: newQty };
+            })
         );
     };
 
@@ -162,7 +202,11 @@ export default function Create({
         setShipping(mapAddressToShipping(address));
     };
 
-    const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const subtotal = cart.reduce((sum, i) => {
+        const price = i.calc_type === 'box' ? parseFloat(i.box_price) : parseFloat(i.unit_price);
+        const qty = i.calc_type === 'box' ? parseFloat(i.boxes) : parseFloat(i.quantity);
+        return sum + price * qty;
+    }, 0);
 
     const { data, setData, post, processing, errors } = useForm({
         items: [],
@@ -174,8 +218,8 @@ export default function Create({
         setData({
             items: cart.map((i) => ({
                 product_id: i.product_id,
-                quantity: i.quantity,
-                unit_price: i.price,
+                quantity: Math.max(1, Math.round(i.calc_type === 'box' ? i.boxes * i.qty_per_box : i.quantity)),
+                unit_price: i.calc_type === 'box' ? Number(i.box_price / (i.qty_per_box || 1)).toFixed(4) : Number(i.unit_price).toFixed(4),
             })),
             shipping_address: shipping,
             notes: data.notes,
@@ -188,8 +232,8 @@ export default function Create({
             transform: () => ({
                 items: cart.map((i) => ({
                     product_id: i.product_id,
-                    quantity: i.quantity,
-                    unit_price: i.price,
+                    quantity: Math.max(1, Math.round(i.calc_type === 'box' ? i.boxes * i.qty_per_box : i.quantity)),
+                    unit_price: i.calc_type === 'box' ? Number(i.box_price / (i.qty_per_box || 1)).toFixed(4) : Number(i.unit_price).toFixed(4),
                 })),
                 shipping_address: shipping,
                 notes: data.notes,
@@ -777,6 +821,33 @@ export default function Create({
                                                         </svg>
                                                     </button>
                                                 </div>
+                                                <div className="flex items-center gap-4 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg text-xs font-semibold mt-1 mb-1">
+                                                    <label className="flex items-center gap-1.5 cursor-pointer">
+                                                        <input 
+                                                            type="radio" 
+                                                            name={`calc_type_${index}`}
+                                                            checked={item.calc_type === 'box'}
+                                                            onChange={() => updateCalcType(index, 'box')}
+                                                            className="text-[#C41E3A] focus:ring-[#C41E3A]" 
+                                                        />
+                                                        Box
+                                                    </label>
+                                                    <label className="flex items-center gap-1.5 cursor-pointer">
+                                                        <input 
+                                                            type="radio" 
+                                                            name={`calc_type_${index}`}
+                                                            checked={item.calc_type === 'quantity'}
+                                                            onChange={() => updateCalcType(index, 'quantity')}
+                                                            className="text-[#C41E3A] focus:ring-[#C41E3A]" 
+                                                        />
+                                                        Quantity
+                                                    </label>
+                                                    {item.calc_type === 'box' && (
+                                                        <span className="ml-auto text-[10px] text-gray-400 font-mono bg-white dark:bg-gray-900 px-1.5 py-0.5 rounded shadow-sm border border-gray-200 dark:border-gray-700">
+                                                            PC's In: {item.qty_per_box}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <div className="flex items-center justify-between gap-2 flex-wrap">
                                                     <div className="flex items-center rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden bg-white dark:bg-[#1E1E1E]">
                                                         <button
@@ -784,7 +855,7 @@ export default function Create({
                                                             onClick={() =>
                                                                 updateCartQuantity(
                                                                     index,
-                                                                    item.quantity -
+                                                                    (item.calc_type === 'box' ? item.boxes : item.quantity) -
                                                                         1,
                                                                 )
                                                             }
@@ -808,9 +879,9 @@ export default function Create({
                                                         </button>
                                                         <input
                                                             type="text"
-                                                            min={1}
+                                                            min={0.01}
                                                             value={
-                                                                item.quantity
+                                                                item.calc_type === 'box' ? item.boxes : item.quantity
                                                             }
                                                             onChange={(e) =>
                                                                 updateCartQuantity(
@@ -819,14 +890,14 @@ export default function Create({
                                                                         .value,
                                                                 )
                                                             }
-                                                            className="w-12 h-8 text-center border-0 bg-transparent text-sm font-semibold text-gray-900 dark:text-white focus:ring-0"
+                                                            className="w-12 h-8 text-center border-0 bg-transparent text-sm font-semibold text-gray-900 dark:text-white focus:ring-0 px-0"
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={() =>
                                                                 updateCartQuantity(
                                                                     index,
-                                                                    item.quantity +
+                                                                    (item.calc_type === 'box' ? item.boxes : item.quantity) +
                                                                         1,
                                                                 )
                                                             }
@@ -852,14 +923,14 @@ export default function Create({
                                                     <span className="text-sm font-bold text-gray-900 dark:text-white">
                                                         $
                                                         {(
-                                                            item.price *
-                                                            item.quantity
+                                                            (item.calc_type === 'box' ? item.box_price : item.unit_price) *
+                                                            (item.calc_type === 'box' ? item.boxes : item.quantity)
                                                         ).toFixed(2)}
                                                     </span>
                                                 </div>
                                                 <p className="text-xs text-gray-500">
-                                                    ${item.price.toFixed(2)} ×{" "}
-                                                    {item.quantity}
+                                                    ${(item.calc_type === 'box' ? item.box_price : item.unit_price).toFixed(2)} ×{" "}
+                                                    {item.calc_type === 'box' ? item.boxes : item.quantity} {item.calc_type === 'box' ? 'Bxs' : 'Units'}
                                                 </p>
                                             </div>
                                         ))

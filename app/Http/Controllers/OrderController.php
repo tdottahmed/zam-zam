@@ -128,7 +128,7 @@ class OrderController extends Controller
             })
             ->when($categoryId, fn ($q) => $q->where('category_id', $categoryId))
             ->when($brandId, fn ($q) => $q->where('brand_id', $brandId))
-            ->select(['id', 'name', 'product_code', 'unit_price as price', 'category_id', 'brand_id', 'unit_id', 'quantity', 'image'])
+            ->select(['id', 'name', 'product_code', 'unit_price as price', 'box_price', 'pcs_in_ctn', 'category_id', 'brand_id', 'unit_id', 'quantity', 'image'])
             ->orderBy('name')
             ->paginate(12, ['*'], 'page', $page);
 
