@@ -12,6 +12,7 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
         cart: storeCart,
         setCart,
         updateQuantity,
+        updateCalcType,
         removeItem: storeRemoveItem,
     } = useCartStore();
 
@@ -641,7 +642,7 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
                                                                         null &&
                                                                     item.stock_unit_label
                                                                         ? `$${Number(item.price_per_stock_unit).toFixed(2)} per ${item.stock_unit_label.toLowerCase()}`
-                                                                        : `$${Number(item.unit_price).toFixed(2)} / ${item.unit}`}
+                                                                        : `$${Number(item.calc_type === 'box' ? (item.box_price || (item.unit_price * (item.qty_per_box || 1))) : item.unit_price).toFixed(2)} / ${item.calc_type === 'box' ? 'Box' : item.unit}`}
                                                                 </p>
                                                             ) : null}
                                                         </div>
@@ -653,8 +654,17 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
                                                         </p>
                                                     </div>
 
-                                                    <div className="flex items-center justify-between mt-3">
-                                                        <div className="flex items-center border border-gray-200 rounded-md bg-white h-7 shadow-sm">
+                                                    <div className="mt-3 flex flex-col gap-2">
+                                                        <div className="flex items-center gap-3 bg-gray-100/50 rounded-lg text-xs p-1.5 w-max border border-gray-100/50">
+                                                            <label className="flex items-center gap-1.5 cursor-pointer text-gray-600 hover:text-gray-900 font-medium whitespace-nowrap">
+                                                                <input type="radio" checked={item.calc_type === 'box'} onChange={() => updateCalcType(item.id, 'box')} className="text-[#C41E3A] focus:ring-[#C41E3A] border-gray-300" /> Box
+                                                            </label>
+                                                            <label className="flex items-center gap-1.5 cursor-pointer text-gray-600 hover:text-gray-900 font-medium whitespace-nowrap">
+                                                                <input type="radio" checked={item.calc_type === 'quantity' || !item.calc_type} onChange={() => updateCalcType(item.id, 'quantity')} className="text-[#C41E3A] focus:ring-[#C41E3A] border-gray-300" /> Quantity
+                                                            </label>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center border border-gray-200 rounded-md bg-white h-7 shadow-sm">
                                                             <button
                                                                 onClick={(
                                                                     e,
@@ -715,6 +725,7 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
                                                             </svg>
                                                         </button>
                                                     </div>
+                                                    </div>
                                                 </div>
                                             </li>
                                         ))}
@@ -727,7 +738,7 @@ export default function Checkout({ addresses = [], shippingMethods = [], offline
                                             cart.summary?.subtotal ??
                                             (cart.items?.reduce(
                                                 (s, i) =>
-                                                    s + (i.quantity * (i.unit_price ?? 0)),
+                                                    s + (i.quantity * (i.calc_type === 'box' ? (i.box_price || (i.unit_price * (i.qty_per_box || 1))) : (i.unit_price ?? 0))),
                                                 0,
                                             ) ?? 0);
                                         const method = shippingMethods.find(

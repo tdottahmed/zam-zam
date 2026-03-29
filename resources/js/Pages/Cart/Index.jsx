@@ -12,6 +12,7 @@ export default function Index() {
         cart: storeCart, 
         setCart, 
         updateQuantity, 
+        updateCalcType,
         removeItem 
     } = useCartStore();
 
@@ -67,7 +68,7 @@ export default function Index() {
                                                             </h3>
                                                             {item.unit && (
                                                                 <p className="mt-1 text-sm text-gray-500 font-medium bg-gray-100 inline-block px-2 py-0.5 rounded">
-                                                                    {item.unit_price} / {item.unit}
+                                                                    ${Number(item.calc_type === 'box' ? (item.box_price || (item.unit_price * (item.qty_per_box || 1))) : item.unit_price).toFixed(2)} / {item.calc_type === 'box' ? 'Box' : item.unit}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -77,25 +78,35 @@ export default function Index() {
                                                     </div>
 
                                                     <div className="mt-4 flex items-end justify-between">
-                                                        {/* Quantity Control */}
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
-                                                                <button 
-                                                                    onClick={() => updateQuantity(item.id, parseInt(item.quantity) - 1)}
-                                                                    disabled={item.quantity <= 1}
-                                                                    className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-50 transition border-r border-gray-100"
-                                                                >
-                                                                    -
-                                                                </button>
-                                                                <span className="w-12 text-center text-gray-900 font-semibold px-2">
-                                                                    {item.quantity}
-                                                                </span>
-                                                                <button 
-                                                                    onClick={() => updateQuantity(item.id, parseInt(item.quantity) + 1)}
-                                                                    className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 border-l border-gray-100 transition"
-                                                                >
-                                                                    +
-                                                                </button>
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex items-center gap-3 bg-gray-100/50 rounded-lg text-xs p-1.5 w-max border border-gray-100/50">
+                                                                <label className="flex items-center gap-1.5 cursor-pointer text-gray-600 hover:text-gray-900 font-medium">
+                                                                    <input type="radio" checked={item.calc_type === 'box'} onChange={() => updateCalcType(item.id, 'box')} className="text-[#C41E3A] focus:ring-[#C41E3A] border-gray-300" /> Box
+                                                                </label>
+                                                                <label className="flex items-center gap-1.5 cursor-pointer text-gray-600 hover:text-gray-900 font-medium">
+                                                                    <input type="radio" checked={item.calc_type === 'quantity' || !item.calc_type} onChange={() => updateCalcType(item.id, 'quantity')} className="text-[#C41E3A] focus:ring-[#C41E3A] border-gray-300" /> Quantity
+                                                                </label>
+                                                            </div>
+                                                            {/* Quantity Control */}
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-sm overflow-hidden">
+                                                                    <button 
+                                                                        onClick={() => updateQuantity(item.id, parseInt(item.quantity) - 1)}
+                                                                        disabled={item.quantity <= 1}
+                                                                        className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 disabled:opacity-50 transition border-r border-gray-100"
+                                                                    >
+                                                                        -
+                                                                    </button>
+                                                                    <span className="w-12 text-center text-gray-900 font-semibold px-2">
+                                                                        {item.quantity}
+                                                                    </span>
+                                                                    <button 
+                                                                        onClick={() => updateQuantity(item.id, parseInt(item.quantity) + 1)}
+                                                                        className="px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 border-l border-gray-100 transition"
+                                                                    >
+                                                                        +
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
 

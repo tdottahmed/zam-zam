@@ -93,7 +93,11 @@ class CheckoutController extends Controller
             $shippingCost = $shippingMethod->cost ?? 0; // Handle nullable cost
 
             // Calculate totals
-            $subtotal = $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price);
+            $subtotal = $cart->items->sum(function($item) {
+                $isBox = $item->calc_type === 'box';
+                $price = $isBox ? ($item->product->box_price ?: ($item->product->unit_price * ($item->product->pcs_in_ctn ?: 1))) : $item->product->unit_price;
+                return $item->quantity * $price;
+            });
             $shipping = $shippingCost; 
             
             // Tax Calculation (Get active tax rate)
@@ -120,13 +124,21 @@ class CheckoutController extends Controller
 
             // Create Order Items
             foreach ($cart->items as $item) {
+                $isBox = $item->calc_type === 'box';
+                $pcsInCtn = $item->product->pcs_in_ctn ?: 1;
+                $boxPrice = $item->product->box_price ?: ($item->product->unit_price * $pcsInCtn);
+                
+                $orderQty = $isBox ? ($item->quantity * $pcsInCtn) : $item->quantity;
+                $orderUnitPrice = $isBox ? ($boxPrice / $pcsInCtn) : $item->product->unit_price;
+                $totalPrice = $isBox ? ($item->quantity * $boxPrice) : ($item->quantity * $item->product->unit_price);
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'product_name' => $item->product->name,
-                    'quantity' => $item->quantity,
-                    'unit_price' => $item->product->unit_price,
-                    'total_price' => $item->quantity * $item->product->unit_price,
+                    'quantity' => $orderQty,
+                    'unit_price' => $orderUnitPrice,
+                    'total_price' => $totalPrice,
                     'attributes' => null, // Add attributes if needed
                 ]);
             }

@@ -16,6 +16,7 @@ class CartController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
+            'calc_type' => 'nullable|string|in:box,quantity',
         ]);
 
         $user = Auth::user();
@@ -28,11 +29,15 @@ class CartController extends Controller
 
         if ($cartItem) {
             $cartItem->quantity += $validated['quantity'];
+            if (isset($validated['calc_type'])) {
+                $cartItem->calc_type = $validated['calc_type'];
+            }
             $cartItem->save();
         } else {
             $cart->items()->create([
                 'product_id' => $validated['product_id'],
                 'quantity' => $validated['quantity'],
+                'calc_type' => $validated['calc_type'] ?? 'quantity',
             ]);
         }
 
@@ -59,7 +64,9 @@ class CartController extends Controller
                 // Ensure product exists
                 if (!$item->product) continue;
 
-                $itemTotal = $item->product->unit_price * $item->quantity;
+                $isBox = $item->calc_type === 'box';
+                $price = $isBox ? ($item->product->box_price ?: ($item->product->unit_price * ($item->product->pcs_in_ctn ?: 1))) : $item->product->unit_price;
+                $itemTotal = $price * $item->quantity;
                 $subtotal += $itemTotal;
 
                 $items[] = [
@@ -69,7 +76,10 @@ class CartController extends Controller
                     'slug' => $item->product->slug ?? 'product',
                     'image' => $item->product->image,
                     'quantity' => $item->quantity,
+                    'calc_type' => $item->calc_type,
                     'unit_price' => $item->product->unit_price,
+                    'box_price' => $item->product->box_price,
+                    'qty_per_box' => $item->product->pcs_in_ctn ?: 1,
                     // Use unit name (code) or fallback to unit_value + ' Units' or just 'unit'
                     'unit' => $item->product->unit ? $item->product->unit->code : ($item->product->unit_value ? $item->product->unit_value : 'unit'), 
                     'total' => $itemTotal,
@@ -109,9 +119,13 @@ class CartController extends Controller
 
         $request->validate([
             'quantity' => 'required|integer|min:1',
+            'calc_type' => 'nullable|string|in:box,quantity',
         ]);
 
-        $item->update(['quantity' => $request->quantity]);
+        $item->update([
+            'quantity' => $request->quantity,
+            'calc_type' => $request->calc_type ?? $item->calc_type,
+        ]);
 
         return back();
     }

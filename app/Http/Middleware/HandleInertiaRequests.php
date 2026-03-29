@@ -58,7 +58,11 @@ class HandleInertiaRequests extends Middleware
                     ];
                 }
 
-                $subtotal = $cart->items->sum(fn($item) => $item->quantity * $item->product->unit_price);
+                $subtotal = $cart->items->sum(function($item) {
+                    $isBox = $item->calc_type === 'box';
+                    $price = $isBox ? ($item->product->box_price ?: ($item->product->unit_price * ($item->product->pcs_in_ctn ?: 1))) : $item->product->unit_price;
+                    return $item->quantity * $price;
+                });
 
                 return [
                     'count' => $cart->items->sum('quantity'),
@@ -77,8 +81,11 @@ class HandleInertiaRequests extends Middleware
                             'slug' => $item->product->slug,
                             'image' => $item->product->image,
                             'unit_price' => $item->product->unit_price,
+                            'box_price' => $item->product->box_price,
+                            'qty_per_box' => $item->product->pcs_in_ctn ?: 1,
+                            'calc_type' => $item->calc_type,
                             'quantity' => (int) $item->quantity,
-                            'total' => $item->quantity * $item->product->unit_price,
+                            'total' => $item->quantity * ($item->calc_type === 'box' ? ($item->product->box_price ?: ($item->product->unit_price * ($item->product->pcs_in_ctn ?: 1))) : $item->product->unit_price),
                             'unit' => $item->product->unit ? $item->product->unit->code : ($item->product->unit_value ? $item->product->unit_value : 'unit'),
                             'price_per_stock_unit' => $item->product->price_per_stock_unit,
                             'stock_unit_label' => $item->product->stock_unit_label,

@@ -40,15 +40,23 @@ const useCartStore = create((set, get) => ({
         const item = { ...newItems[itemIndex] };
         
         // Optimistic update
-        item.quantity = parseInt(quantity);
-        item.total = item.quantity * item.unit_price;
+        item.quantity = Math.max(1, parseInt(quantity, 10) || 1);
+        
+        const isBox = item.calc_type === 'box';
+        const price = isBox ? (item.box_price || (item.unit_price * (item.qty_per_box || 1))) : item.unit_price;
+        item.total = item.quantity * price;
+        
         newItems[itemIndex] = item;
 
         // Recalculate totals
-        const newSubtotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const newSubtotal = newItems.reduce((sum, i) => {
+            const iIsBox = i.calc_type === 'box';
+            const iPrice = iIsBox ? (i.box_price || (i.unit_price * (i.qty_per_box || 1))) : i.unit_price;
+            return sum + (i.quantity * iPrice);
+        }, 0);
+        
         const taxRate = cart.summary?.tax_rate || 0;
         const newTax = newSubtotal * (taxRate / 100);
-        // Assuming shipping is handled by backend or is free/flat. Logic: Free > 100 else 15
         const newShipping = newSubtotal > 100 ? 0 : 15.00;
         const newTotal = newSubtotal + newTax + newShipping;
         
@@ -70,7 +78,54 @@ const useCartStore = create((set, get) => ({
         });
 
         // Debounced Server Sync
-        debouncedUpdate(itemId, quantity);
+        debouncedUpdate(itemId, { quantity: item.quantity, calc_type: item.calc_type });
+    },
+
+    updateCalcType: (itemId, calcType) => {
+        const { cart } = get();
+        const itemIndex = cart.items.findIndex(i => i.id === itemId);
+        if (itemIndex === -1) return;
+
+        const newItems = [...cart.items];
+        const item = { ...newItems[itemIndex] };
+        if (item.calc_type === calcType) return;
+        
+        item.calc_type = calcType;
+
+        const isBox = item.calc_type === 'box';
+        const price = isBox ? (item.box_price || (item.unit_price * (item.qty_per_box || 1))) : item.unit_price;
+        item.total = item.quantity * price;
+        newItems[itemIndex] = item;
+
+        const newSubtotal = newItems.reduce((sum, i) => {
+            const iIsBox = i.calc_type === 'box';
+            const iPrice = iIsBox ? (i.box_price || (i.unit_price * (i.qty_per_box || 1))) : i.unit_price;
+            return sum + (i.quantity * iPrice);
+        }, 0);
+        
+        const taxRate = cart.summary?.tax_rate || 0;
+        const newTax = newSubtotal * (taxRate / 100);
+        const newShipping = newSubtotal > 100 ? 0 : 15.00;
+        const newTotal = newSubtotal + newTax + newShipping;
+        
+        const newCount = newItems.reduce((sum, i) => sum + i.quantity, 0);
+
+        set({
+            cart: {
+                ...cart,
+                items: newItems,
+                summary: {
+                    ...cart.summary,
+                    subtotal: newSubtotal,
+                    tax: newTax,
+                    shipping: newShipping,
+                    total: newTotal
+                },
+                count: newCount
+            }
+        });
+
+        debouncedUpdate(itemId, { quantity: item.quantity, calc_type: item.calc_type });
     },
 
     removeItem: (itemId) => {
@@ -78,7 +133,11 @@ const useCartStore = create((set, get) => ({
         const { cart } = get();
         const newItems = cart.items.filter(i => i.id !== itemId);
         
-        const newSubtotal = newItems.reduce((sum, i) => sum + (i.quantity * i.unit_price), 0);
+        const newSubtotal = newItems.reduce((sum, i) => {
+            const iIsBox = i.calc_type === 'box';
+            const iPrice = iIsBox ? (i.box_price || (i.unit_price * (i.qty_per_box || 1))) : i.unit_price;
+            return sum + (i.quantity * iPrice);
+        }, 0);
         const taxRate = cart.summary?.tax_rate || 0;
         const newTax = newSubtotal * (taxRate / 100);
         const newShipping = newSubtotal > 100 ? 0 : 15.00;
@@ -114,7 +173,7 @@ const useCartStore = create((set, get) => ({
 // Map to store timeouts for each item
 const updateTimeouts = {};
 
-const debouncedUpdate = (itemId, quantity) => {
+const debouncedUpdate = (itemId, payload) => {
     // Clear existing timeout for this item
     if (updateTimeouts[itemId]) {
         clearTimeout(updateTimeouts[itemId]);
@@ -128,9 +187,9 @@ const debouncedUpdate = (itemId, quantity) => {
         }
 
         const url = route('cart.update', itemId);
-        console.log(`Updating cart item ${itemId} via PATCH ${url}`, { quantity });
+        console.log(`Updating cart item ${itemId} via PATCH ${url}`, payload);
 
-        axios.patch(url, { quantity })
+        axios.patch(url, payload)
             .catch(err => {
                 console.error('Failed to update cart', err);
             })
