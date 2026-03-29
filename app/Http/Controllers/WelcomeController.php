@@ -18,6 +18,7 @@ class WelcomeController extends Controller
 
         $featuredProducts = Product::with(['category', 'brand', 'unit'])
             ->where('is_featured', true)
+            ->where('quantity', '>', 0)
             ->latest()
             ->take(16)
             ->get();
