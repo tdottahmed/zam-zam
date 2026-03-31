@@ -12,6 +12,20 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderInvoiceController extends Controller
 {
+    public function generateNumber()
+    {
+        $lastInvoice = Invoice::latest('id')->first();
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        $nextInvoiceNumber = 'INV-' . date('Y') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        
+        // Ensure uniqueness by checking if it exists
+        while (Invoice::where('invoice_number', $nextInvoiceNumber)->exists()) {
+            $nextId++;
+            $nextInvoiceNumber = 'INV-' . date('Y') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+        }
+
+        return response()->json(['invoice_number' => $nextInvoiceNumber]);
+    }
     public function __construct(
         protected InvoicePdfService $invoicePdf
     ) {}
@@ -40,8 +54,6 @@ class OrderInvoiceController extends Controller
             ];
         });
 
-        // Generate a potential invoice number (User can override or we strictly enforce?)
-        // Let's suggest one
         $nextInvoiceNumber = 'INV-' . date('Y') . '-' . str_pad(Invoice::count() + 1, 4, '0', STR_PAD_LEFT);
 
         return view('admin.orders.invoice.create', compact('order', 'items', 'nextInvoiceNumber'));
@@ -96,7 +108,7 @@ class OrderInvoiceController extends Controller
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
             'total' => 0,
-            'status' => 'draft',
+            'status' => 'completed',
         ]);
 
         foreach ($selectedItems as $orderItemId => $data) {

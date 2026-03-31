@@ -251,11 +251,17 @@
                         <div class="p-6 space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Invoice Number</label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <span class="text-gray-500 sm:text-sm">#</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative rounded-md shadow-sm flex-1">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">#</span>
+                                        </div>
+                                        <input type="text" name="invoice_number" x-model="invoiceNumber" class="pl-7 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
                                     </div>
-                                    <input type="text" name="invoice_number" value="{{ old('invoice_number', $nextInvoiceNumber) }}" class="pl-7 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50">
+                                    <button type="button" @click="regenerateInvoiceNumber" :disabled="isRegenerating" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-50" title="Regenerate Invoice Number">
+                                        <svg x-show="!isRegenerating" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                        <svg x-show="isRegenerating" class="w-5 h-5 animate-spin" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    </button>
                                 </div>
                                 @error('invoice_number') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             </div>
@@ -372,6 +378,8 @@
                 freightCharge: 0,
                 discountTotalValue: 0,
                 discountTotalType: 'fixed', // 'fixed' or 'percent'
+                invoiceNumber: '{!! addslashes(old('invoice_number', $nextInvoiceNumber)) !!}',
+                isRegenerating: false,
                 items: {
                     @foreach($items as $itemData)
                         '{{ $itemData['item']->id }}': {
@@ -450,6 +458,24 @@
                 },
                 formatMoney(amount) {
                     return '$' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                },
+                async regenerateInvoiceNumber() {
+                    if (this.isRegenerating) return;
+                    this.isRegenerating = true;
+                    try {
+                        const response = await fetch('{{ route('admin.api.invoice.generate-number') }}');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.invoiceNumber = data.invoice_number;
+                        } else {
+                            alert('Failed to regenerate invoice number');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred while regenerating the invoice number.');
+                    } finally {
+                        this.isRegenerating = false;
+                    }
                 }
             }
         }

@@ -80,6 +80,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Search APIs
     Route::get('api/search/users', [\App\Http\Controllers\Admin\OrderController::class, 'searchUsers'])->name('api.search.users');
     Route::get('api/search/products', [\App\Http\Controllers\Admin\OrderController::class, 'searchProducts'])->name('api.search.products');
+    Route::get('api/invoice/generate-number', [\App\Http\Controllers\Admin\OrderInvoiceController::class, 'generateNumber'])->name('api.invoice.generate-number');
 
     // Notifications
     Route::get('/notifications/poll', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.poll');
