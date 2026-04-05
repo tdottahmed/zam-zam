@@ -407,7 +407,15 @@
     <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;"></div>
 
     <div style="float: left; width: 50%;">
-      <div>Total Shipped Quantity: {{ $data['total_shipped_qty'] }}</div>
+      @php
+        $total_boxes = 0;
+        foreach ($data['items'] as $item) {
+            $pcs = $item['pcs_in_ctn'] ?? 1;
+            $pcs = $pcs > 0 ? $pcs : 1;
+            $total_boxes += ceil($item['quantity'] / $pcs);
+        }
+      @endphp
+      <div>Total Shipped Quantity: {{ $total_boxes }} Box(es)</div>
 
       <div style="margin-top: 20px;">
         Please use the following communication for your payment : {{ $data['invoice_number'] }}
