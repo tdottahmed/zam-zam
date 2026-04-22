@@ -441,6 +441,14 @@
           </tr>
         </table>
       </div>
+      <div style="padding-bottom: 5px; margin-bottom: 5px;">
+        <table style="width: 100%; font-size: 13px; font-weight: bold;">
+          <tr>
+            <td>Freight Charges</td>
+            <td class="text-right">${{ number_format($data['freight_charge'] ?? 0, 2) }}</td>
+          </tr>
+        </table>
+      </div>
       @if ($data['total_discount'] > 0)
         <div style="padding-bottom: 5px; margin-bottom: 5px;">
           <table style="width: 100%; font-size: 13px; font-weight: bold;">
