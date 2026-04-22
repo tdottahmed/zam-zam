@@ -314,7 +314,7 @@
               x-text="items.length + ' item(s)'"></span>
         </div>
 
-        <div class="min-h-[150px] max-h-[calc(100vh-100px)] space-y-1 px-4 py-2">
+        <div class="min-h-[120px] max-h-[min(20rem,45vh)] overflow-y-auto space-y-1 px-4 py-2">
         <template x-for="(item, index) in items" :key="index">
           <div class="relative flex flex-col gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
             <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.product_id">
