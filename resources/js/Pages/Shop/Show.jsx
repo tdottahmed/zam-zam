@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import CustomerLayout from "../../Layouts/CustomerLayout";
-import { Head, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import StorageImage from "../../Components/StorageImage";
 import useCartStore from "../../Stores/useCartStore";
 import Breadcrumb from "../../Components/Breadcrumb";
 
 export default function Show({ product }) {
-    const { cart: propsCart } = usePage().props;
+    const { cart: propsCart, auth } = usePage().props;
+    const isAuthenticated = !!auth?.user;
     const {
         openCart,
         cart: storeCart,
@@ -58,7 +59,6 @@ export default function Show({ product }) {
     // Price per stock unit (piece/dozen/box) for display; fallback to unit_price
     const pricePerStockUnit =
         product.price_per_stock_unit ?? product.unit_price;
-    const stockUnitLabel = product.stock_unit_label?.toLowerCase() ?? "piece";
     const totalPrice = (pricePerStockUnit * displayQty).toFixed(2);
 
     return (
@@ -106,18 +106,32 @@ export default function Show({ product }) {
                             </h1>
 
                             <div className="flex items-center gap-4 mb-6">
-                                <span className="text-3xl font-extrabold text-[#C41E3A]">
-                                    $
-                                    {Number(
-                                        product.price_per_stock_unit ??
-                                            product.unit_price,
-                                    ).toFixed(2)}
-                                </span>
-                                <span className="text-gray-500 text-lg">
-                                    / per{" "}
-                                    {product.stock_unit_label?.toLowerCase() ??
-                                        "piece"}
-                                </span>
+                                {isAuthenticated ? (
+                                    <>
+                                        <span className="text-3xl font-extrabold text-[#C41E3A]">
+                                            $
+                                            {Number(
+                                                product.price_per_stock_unit ??
+                                                    product.unit_price,
+                                            ).toFixed(2)}
+                                        </span>
+                                        <span className="text-gray-500 text-lg">
+                                            / per{" "}
+                                            {product.stock_unit_label?.toLowerCase() ??
+                                                "piece"}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <Link
+                                        href={route("login")}
+                                        className="text-lg font-semibold text-[#C41E3A] hover:text-[#a01830] transition-colors inline-flex items-center gap-2"
+                                    >
+                                        Sign in to see price
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </Link>
+                                )}
                             </div>
 
                             <div className="prose prose-sm text-gray-600 mb-8 border-t border-b border-gray-100 py-6">
@@ -139,8 +153,19 @@ export default function Show({ product }) {
                             </div>
 
                             <div className="mt-auto">
+                                {!isAuthenticated && (
+                                    <Link
+                                        href={route("login")}
+                                        className="w-full bg-[#C41E3A] text-white px-8 py-3 rounded-md font-bold text-lg hover:bg-[#a01830] transition duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        Sign in to add to cart
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </Link>
+                                )}
                                 <div className="flex flex-col gap-4">
-                                    <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
+                                    <div className={`flex flex-col sm:flex-row gap-4 items-end sm:items-center ${!isAuthenticated ? "hidden" : ""}`}>
                                         <div>
                                             <div className="flex items-center rounded-lg border-2 border-gray-200 bg-gray-50 overflow-hidden">
                                                 <button
