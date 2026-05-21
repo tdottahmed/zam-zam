@@ -144,8 +144,8 @@ class OrderInvoiceController extends Controller
             $taxTotal += $lineTax;
         }
 
-        // Grand total = Subtotal + Tax - Discount
-        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0));
+        // Grand total = Subtotal + Tax - Discount + Freight Charge
+        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0) + ($validated['freight_charge'] ?? 0));
 
         $invoice->update([
             'subtotal' => $subtotal,
