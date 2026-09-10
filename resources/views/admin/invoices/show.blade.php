@@ -145,6 +145,12 @@
                                             <span>Tax</span>
                                             <span class="font-medium text-gray-900 dark:text-white">${{ number_format($invoice->tax_total, 2) }}</span>
                                         </div>
+                                        @if($invoice->freight_charge > 0)
+                                            <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                                                <span>Freight Charge</span>
+                                                <span class="font-medium text-gray-900 dark:text-white">${{ number_format($invoice->freight_charge, 2) }}</span>
+                                            </div>
+                                        @endif
                                         @if($invoice->discount_total > 0)
                                             <div class="flex justify-between text-sm text-red-600">
                                                 <span>Discount</span>
@@ -156,6 +162,17 @@
                                             <span class="text-base font-bold text-gray-900 dark:text-white">Total</span>
                                             <span class="text-xl font-bold text-primary">${{ number_format($invoice->total, 2) }}</span>
                                         </div>
+
+                                        @if($invoice->advance_amount > 0)
+                                            <div class="flex justify-between text-sm text-blue-600">
+                                                <span>Advance Amount</span>
+                                                <span>-${{ number_format($invoice->advance_amount, 2) }}</span>
+                                            </div>
+                                            <div class="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between items-center">
+                                                <span class="text-base font-bold text-gray-900 dark:text-white">{{ $invoice->balance_due < 0 ? 'Credit Balance' : 'Balance Due' }}</span>
+                                                <span class="text-lg font-bold {{ $invoice->balance_due < 0 ? 'text-amber-600' : 'text-primary' }}">${{ number_format(abs($invoice->balance_due), 2) }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

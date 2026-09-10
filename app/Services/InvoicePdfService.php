@@ -105,11 +105,13 @@ class InvoicePdfService
             'subtotal' => $invoice->subtotal,
             'shipping' => $invoice->shipping_amount,
             'freight_charge' => $invoice->freight_charge,
+            'advance_amount' => $invoice->advance_amount,
             'shipping_method' => $order->shipping_method_name,
             'hst' => $invoice->tax_total,
             'total_discount' => $invoice->discount_total,
             'hst_base' => $invoice->subtotal,
             'total' => $invoice->total,
+            'balance_due' => $invoice->balance_due,
         ];
     }
 

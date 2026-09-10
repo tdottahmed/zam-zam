@@ -467,6 +467,27 @@
           </tr>
         </table>
       </div>
+      @if (($data['advance_amount'] ?? 0) > 0)
+        <div style="padding-bottom: 5px; margin-bottom: 5px;">
+          <table style="width: 100%; font-size: 13px; font-weight: bold;">
+            <tr>
+              <td>Advance Amount</td>
+              <td class="text-right">- ${{ number_format($data['advance_amount'], 2) }}</td>
+            </tr>
+          </table>
+        </div>
+        @php
+          $balanceDue = $data['balance_due'] ?? ($data['total'] - ($data['advance_amount'] ?? 0));
+        @endphp
+        <div style="padding-bottom: 5px; margin-bottom: 5px; border-top: 1px solid #ccc; padding-top: 5px;">
+          <table style="width: 100%; font-size: 15px; font-weight: bold;">
+            <tr>
+              <td>{{ $balanceDue < 0 ? 'Credit Balance' : 'Balance Due' }}</td>
+              <td class="text-right">${{ number_format(abs($balanceDue), 2) }}</td>
+            </tr>
+          </table>
+        </div>
+      @endif
     </div>
     <div class="clearfix"></div>
 

@@ -321,6 +321,27 @@
                                 <span class="text-primary" x-text="formatMoney(calculateGrandTotal())">$0.00</span>
                             </div>
 
+                            <div class="flex justify-between items-center text-sm pt-1">
+                                <span class="text-gray-600 dark:text-gray-400">Advance Amount</span>
+                                <div class="w-32">
+                                    <input type="number" 
+                                           x-model.number="advanceAmount"
+                                           name="advance_amount"
+                                           min="0" 
+                                           step="0.01"
+                                           class="w-full text-right rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 text-sm py-1 px-2 text-blue-600"
+                                           placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="text-right text-[10px] text-amber-600" x-show="advanceAmount > calculateGrandTotal()" x-cloak>
+                                Advance is more than the grand total.
+                            </div>
+
+                            <div class="flex justify-between items-center text-base font-bold border-t border-gray-200 dark:border-gray-700 pt-3">
+                                <span class="text-gray-900 dark:text-white" x-text="calculateBalanceDue() < 0 ? 'Credit Balance' : 'Balance Due'">Balance Due</span>
+                                <span :class="calculateBalanceDue() < 0 ? 'text-amber-600' : 'text-primary'" x-text="formatMoney(Math.abs(calculateBalanceDue()))">$0.00</span>
+                            </div>
+
                             <div class="mt-6 flex flex-col gap-3">
                                 <button type="submit" class="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all">
                                     Update Invoice
@@ -341,6 +362,7 @@
         function invoiceItems() {
             return {
                 freightCharge: {{ $invoice->freight_charge ?? 0 }},
+                advanceAmount: {{ $invoice->advance_amount ?? 0 }},
                 discountTotalValue: {{ $invoice->discount_total ?? 0 }},
                 discountTotalType: 'fixed', // Saved as amount, so load as fixed
                 items: {
@@ -404,6 +426,10 @@
                         return preDiscountTotal * (this.discountTotalValue / 100);
                     }
                     return this.discountTotalValue;
+                },
+                calculateBalanceDue() {
+                    // The advance is a payment against the grand total, never part of it.
+                    return Math.round((this.calculateGrandTotal() - (this.advanceAmount || 0)) * 100) / 100;
                 },
                 calculateGrandTotal() {
                     const subtotal = this.calculateSubtotal();

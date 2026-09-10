@@ -163,6 +163,12 @@
                             </x-admin.ui.td>
                             <x-admin.ui.td class="text-right font-medium text-gray-900 dark:text-white">
                                 ${{ number_format($invoice->total, 2) }}
+                                @if($invoice->advance_amount > 0)
+                                    <div class="text-xs font-normal text-blue-600">Advance: ${{ number_format($invoice->advance_amount, 2) }}</div>
+                                    <div class="text-xs font-normal text-gray-500 dark:text-gray-400">
+                                        {{ $invoice->balance_due < 0 ? 'Credit' : 'Due' }}: ${{ number_format(abs($invoice->balance_due), 2) }}
+                                    </div>
+                                @endif
                             </x-admin.ui.td>
                             <x-admin.ui.td class="text-center">
                                 @php

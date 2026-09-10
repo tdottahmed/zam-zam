@@ -181,9 +181,21 @@
                         <span class="detail-value">{{ \Carbon\Carbon::parse($invoice->due_date)->format('M d, Y') }}</span>
                     </div>
                     
+                    @if($invoice->advance_amount > 0)
+                        <div class="invoice-detail">
+                            <span class="detail-label">Invoice Total</span>
+                            <span class="detail-value">${{ number_format($invoice->total, 2) }}</span>
+                        </div>
+
+                        <div class="invoice-detail">
+                            <span class="detail-label">Advance Paid</span>
+                            <span class="detail-value">-${{ number_format($invoice->advance_amount, 2) }}</span>
+                        </div>
+                    @endif
+
                     <div class="invoice-detail amount-row">
-                        <span class="detail-label">Amount Due</span>
-                        <span class="detail-value amount-value">${{ number_format($invoice->total, 2) }}</span>
+                        <span class="detail-label">{{ $invoice->balance_due < 0 ? 'Credit Balance' : 'Amount Due' }}</span>
+                        <span class="detail-value amount-value">${{ number_format(abs($invoice->balance_due), 2) }}</span>
                     </div>
                 </div>
                 

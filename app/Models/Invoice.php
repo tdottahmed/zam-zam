@@ -19,6 +19,7 @@ class Invoice extends Model
         'tax_total',
         'shipping_amount',
         'freight_charge',
+        'advance_amount',
         'total',
         'status',
         'notes',
@@ -30,6 +31,16 @@ class Invoice extends Model
         'invoice_date' => 'date',
         'due_date' => 'date',
     ];
+
+    /**
+     * Outstanding amount after the advance payment.
+     * Total already includes freight and global discount, so the advance is
+     * simply deducted from it. A negative value means the customer overpaid.
+     */
+    public function getBalanceDueAttribute(): float
+    {
+        return round((float) $this->total - (float) $this->advance_amount, 2);
+    }
 
     public function order()
     {

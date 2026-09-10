@@ -70,6 +70,7 @@ class OrderInvoiceController extends Controller
             'notes' => 'nullable|string',
             'discount_total' => 'nullable|numeric|min:0',
             'freight_charge' => 'nullable|numeric|min:0',
+            'advance_amount' => 'nullable|numeric|min:0',
             'items' => 'required|array',
             'items.*.selected' => 'sometimes|in:on,1,true',
             'items.*.quantity' => 'required_with:items.*.selected|numeric|min:0.01',
@@ -92,6 +93,8 @@ class OrderInvoiceController extends Controller
         $subtotal = 0;
         $taxTotal = 0;
         // Grand total = Subtotal + Tax - Discount + Shipping + Freight Charge
+        // The advance amount is a payment against that total, not part of it,
+        // so it is stored separately and only affects the balance due.
         // This will be calculated after item processing
         $grandTotal = 0;
 
@@ -105,6 +108,7 @@ class OrderInvoiceController extends Controller
             'notes' => $validated['notes'] ?? null,
             'discount_total' => $validated['discount_total'] ?? 0,
             'freight_charge' => $validated['freight_charge'] ?? 0,
+            'advance_amount' => round((float) ($validated['advance_amount'] ?? 0), 2),
             'subtotal' => 0, // Will update after calculating items
             'tax_total' => 0,
             'total' => 0,
@@ -145,11 +149,11 @@ class OrderInvoiceController extends Controller
         }
 
         // Grand total = Subtotal + Tax - Discount + Freight Charge
-        $grandTotal = max(0, $subtotal + $taxTotal - ($validated['discount_total'] ?? 0) + ($validated['freight_charge'] ?? 0));
+        $grandTotal = max(0, round($subtotal + $taxTotal - ($validated['discount_total'] ?? 0) + ($validated['freight_charge'] ?? 0), 2));
 
         $invoice->update([
-            'subtotal' => $subtotal,
-            'tax_total' => $taxTotal,
+            'subtotal' => round($subtotal, 2),
+            'tax_total' => round($taxTotal, 2),
             'total' => $grandTotal,
         ]);
 
